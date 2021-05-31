@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 
-def np2d_to_df(array: np.array, prefix: str) -> pd.DataFrame:
+def np2d_to_df(array: np.ndarray, prefix: str) -> pd.DataFrame:
     """
     Converts a 2D numpy array to a Pandas :obj:`DataFrame`, where the column
     names are derived from the `prefix` by adding `_<col_index>`.
@@ -25,7 +25,7 @@ def np2d_to_df(array: np.array, prefix: str) -> pd.DataFrame:
     return pd.DataFrame(array, columns=columns)
 
 
-def x_out_to_df(x: np.array, out: dict) -> pd.DataFrame:
+def x_out_to_df(x: np.ndarray, out: dict) -> pd.DataFrame:
     """
     Converts the `x` and `out` from the :Problem._evaluate: callback to a
     single Pandas :obj:`DataFrame`.
@@ -37,6 +37,7 @@ def x_out_to_df(x: np.array, out: dict) -> pd.DataFrame:
         else:
             df[k] = v
     return df
+
 
 class ProblemWrapper(Problem):
     """
@@ -76,6 +77,9 @@ class ProblemWrapper(Problem):
         self._problem = problem
 
     def add_to_history(self, df: pd.DataFrame):
+        """
+        Adds records (in the form of a Pandas :obj:`DataFrame`) to the history.
+        """
         # df["timestamp"] = np.datetime64("now")
         self._history = self._history.append(df, ignore_index=True)
 

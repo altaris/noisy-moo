@@ -8,33 +8,34 @@ from pymoo.factory import (
 )
 from pymoo.optimize import minimize
 import numpy as np
-
-
+import pandas as pd
 
 import nmoo
 
-problem = get_problem("zdt1")
+# Setup problem pipeline
+problem = nmoo.ProblemWrapper(get_problem("zdt1"))  # For history, see later
 noisy_problem = nmoo.GaussianNoise(
     problem,
     {
-        "F": (0.0, 0),
-        # "G": (0.0, 0),
+        "F": (0.0, 0.25),
     },
 )
-denoised_problem = nmoo.KNNAvg(noisy_problem)
+denoised_problem = nmoo.KNNAvg(
+    noisy_problem,
+    distance_weight_type="squared",
+    max_distance=1.0,
+    n_neighbors=10,
+)
 
-# print(problem.evaluate(np.ones((1, 30))))
-# print(noisy_problem.evaluate(np.ones((1, 30))))
-
+# Minimize
 algorithm = NSGA2(
     pop_size=40,
     n_offsprings=10,
     sampling=get_sampling("real_random"),
     crossover=get_crossover("real_sbx", prob=0.9, eta=15),
-    mutation=get_mutation("real_pm", eta=20),
+    mutation=get_mutation("real_pm", prob=1.0, eta=20),
     eliminate_duplicates=True,
 )
-
 results = minimize(
     problem=denoised_problem,
     algorithm=algorithm,
@@ -44,4 +45,7 @@ results = minimize(
     verbose=True,
 )
 
-print(noisy_problem._history)
+# Dump history of all parts of the pipeline
+problem._history.to_csv("1_original.csv")
+noisy_problem._history.to_csv("2_noisy.csv")
+denoised_problem._history.to_csv("3_knnavg.csv")

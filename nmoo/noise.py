@@ -73,9 +73,10 @@ class GaussianNoise(Noise):
                     k,
                     str(list(out.keys())),
                 )
-        df = pd.concat(
-            [x_out_to_df(x, out)] +
-            [np2d_to_df(v, k + "_noise") for k, v in noises.items()],
-            axis=1,
+        self.add_to_history(
+            pd.concat(
+                [x_out_to_df(x, out)]
+                + [np2d_to_df(v, k + "_noise") for k, v in noises.items()],
+                axis=1,
+            )
         )
-        self.add_to_history(df)
