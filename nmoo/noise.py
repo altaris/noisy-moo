@@ -8,7 +8,7 @@ from typing import Dict, Tuple
 from pymoo.model.problem import Problem
 import numpy as np
 
-from .utils import ProblemWrapper
+from .utils import *
 
 
 Noise = ProblemWrapper
@@ -59,14 +59,23 @@ class GaussianNoise(Noise):
         self._parameters = parameters
 
     def _evaluate(self, x, out, *args, **kwargs):
-        super()._evaluate(x, out, *args, **kwargs)
+        self._problem._evaluate(x, out, *args, **kwargs)
+        noises = dict()
         for k in self._parameters.keys():
             try:
                 mean, stddev = self._parameters[k]
-                out[k] += np.random.normal(mean, stddev, out[k].shape)
+                noises[k] = np.random.normal(mean, stddev, out[k].shape)
+                out[k] += noises[k]
             except KeyError:
                 logging.error(
                     "Noise parameter key %s is not present objective function "
                     "objective function keys: %s.",
-                    k, str(list(out.keys()))
+                    k,
+                    str(list(out.keys())),
                 )
+        df = pd.concat(
+            [x_out_to_df(x, out)] +
+            [np2d_to_df(v, k + "_noise") for k, v in noises.items()],
+            axis=1,
+        )
+        self.add_to_history(df)
