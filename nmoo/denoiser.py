@@ -16,7 +16,7 @@ Denoiser = ProblemWrapper
 
 class KNNAvg(Denoiser):
     """
-    Implementation of the NKK-Avg algorithm of Klikovits and Arcaini.
+    Implementation of the KNN-Avg algorithm of Klikovits and Arcaini.
 
     See also:
         https://github.com/ERTOMMSD/QUATIC2021-KNN-Averaging
