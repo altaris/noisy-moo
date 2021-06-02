@@ -13,14 +13,14 @@ import pandas as pd
 import nmoo
 
 # Setup problem pipeline
-problem = nmoo.ProblemWrapper(get_problem("zdt1"))  # For history, see later
-noisy_problem = nmoo.GaussianNoise(
+problem = nmoo.utils.ProblemWrapper(get_problem("zdt1"))  # For history, see later
+noisy_problem = nmoo.noises.GaussianNoise(
     problem,
     {
         "F": (0.0, 0.25),
     },
 )
-denoised_problem = nmoo.KNNAvg(
+denoised_problem = nmoo.denoisers.KNNAvg(
     noisy_problem,
     distance_weight_type="squared",
     max_distance=1.0,

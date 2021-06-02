@@ -3,19 +3,16 @@ A denoiser tries to cancel noise. (also water is wet)
 """
 __docformat__ = "google"
 
-from typing import List, Optional
+from typing import Optional
 
 from pymoo.model.problem import Problem
 from scipy.spatial.distance import cdist
 import numpy as np
-import pandas as pd
 
-from .utils import *
-
-Denoiser = ProblemWrapper
+from nmoo.utils import *
 
 
-class KNNAvg(Denoiser):
+class KNNAvg(ProblemWrapper):
     """
     Implementation of the KNN-Avg algorithm of Klikovits and Arcaini.
 
@@ -90,8 +87,6 @@ class KNNAvg(Denoiser):
                 continue
             if self._distance_weight_mode == "squared":
                 df["_w"] = (max_distance - df["_sed"]) ** 2
-                # TODO: Discrepency between the reference implementation
-                # and the paper (listing 1.1, l.21)
             elif self._distance_weight_mode == "uniform":
                 df["_w"] = 1.0
             else:

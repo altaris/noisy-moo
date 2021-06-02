@@ -9,16 +9,10 @@ from typing import Dict, Tuple
 from pymoo.model.problem import Problem
 import numpy as np
 
-from .utils import *
+from nmoo.utils import *
 
 
-Noise = ProblemWrapper
-"""
-An abstract noisy problem
-"""
-
-
-class GaussianNoise(Noise):
+class GaussianNoise(ProblemWrapper):
     """
     A Gaussian noisy problem.
     """
