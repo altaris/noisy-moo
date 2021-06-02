@@ -68,45 +68,44 @@ class KNNAvg(Denoiser):
         Applies the KNN-Avg algorithm to the wrapped (noisy) problem's output.
         """
         self._problem._evaluate(x, out, *args, **kwargs)
-        if self._history.shape[0] != 0:
-            for i, sol in enumerate(x):
-                df = self._history.copy()
-                df["_sed"] = cdist(
-                    df.loc[:, "x_0":f"x_{self._problem.n_var - 1}"].to_numpy(),
-                    sol.reshape((1, -1)),
-                    "seuclidean",
+        for i, sol in enumerate(x):
+            df = self._problem._history.copy()
+            df["_sed"] = cdist(
+                df.loc[:, "x_0":f"x_{self._problem.n_var - 1}"].to_numpy(),
+                sol.reshape((1, -1)),
+                "seuclidean",
+            )
+            max_distance = (
+                self._max_distance
+                if self._max_distance is not None
+                else df["_sed"].max() + 1.0
+                # TODO: Check how to handle self._max_distance == None
+            )
+            df = (
+                df[df["_sed"] <= max_distance]
+                .sort_values(by="_sed")
+                .head(self._n_neighbors)
+            )
+            if df.shape[0] <= 1:
+                continue
+            if self._distance_weight_mode == "squared":
+                df["_w"] = (max_distance - df["_sed"]) ** 2
+                # TODO: Discrepency between the reference implementation
+                # and the paper (listing 1.1, l.21)
+            elif self._distance_weight_mode == "uniform":
+                df["_w"] = 1.0
+            else:
+                raise RuntimeError(
+                    "Unknown distance weight mode: "
+                    + self._distance_weight_mode
                 )
-                max_distance = (
-                    self._max_distance
-                    if self._max_distance is not None
-                    else df["_sed"].max() + 1.0
-                    # TODO: Check how to handle self._max_distance == None
-                )
-                df = (
-                    df[df["_sed"] <= max_distance]
-                    .sort_values(by="_sed")
-                    .head(self._n_neighbors)
-                )
-                if df.shape[0] <= 1:
-                    continue
-                if self._distance_weight_mode == "squared":
-                    df["_w"] = (max_distance - df["_sed"]) ** 2
-                    # TODO: Discrepency between the reference implementation
-                    # and the paper (listing 1.1, l.21)
-                elif self._distance_weight_mode == "uniform":
-                    df["_w"] = 1.0
-                else:
-                    raise RuntimeError(
-                        "Unknown distance weight mode: "
-                        + self._distance_weight_mode
-                    )
-                # TODO: How to make this more general?
-                avg = np.average(
-                    df.loc[:, "F_0":"F_1"].to_numpy(),
-                    axis=0,
-                    weights=df["_w"].to_numpy(),
-                )
-                out["F"][i] = avg
+            # TODO: How to make this more general?
+            avg = np.average(
+                df.loc[:, "F_0":"F_1"].to_numpy(),
+                axis=0,
+                weights=df["_w"].to_numpy(),
+            )
+            out["F"][i] = avg
         self._history = self._history.append(
             x_out_to_df(x, out),
             ignore_index=True,
