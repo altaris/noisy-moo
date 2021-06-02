@@ -68,12 +68,16 @@ class GaussianNoise(ProblemWrapper):
                     "B": not an np.ndarray
                 }
 
-            then the noisy output columns are will be named `A_0_noise` to
-            `A_<m-1>_noise`.
+            then the history will look like this::
+
+                {
+                    "A": an np.ndarray,
+                    "A_noise": an np.ndarray of the same dimension
+                }
 
         """
         self._problem._evaluate(x, out, *args, **kwargs)
-        noises = dict()
+        noises: Dict[str, np.ndarray] = dict()
         for k in self._parameters.keys():
             try:
                 mean, stddev = self._parameters[k]
@@ -87,10 +91,6 @@ class GaussianNoise(ProblemWrapper):
                     k,
                     str(list(out.keys())),
                 )
-        self.add_to_history(
-            pd.concat(
-                [x_out_to_df(x, out)]
-                + [np2d_to_df(v, k + "_noise") for k, v in noises.items()],
-                axis=1,
-            )
+        self.add_to_history_x_out(
+            x, out, **{k + "_noise": v for k, v in noises.items()}
         )

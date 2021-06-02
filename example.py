@@ -7,8 +7,6 @@ from pymoo.factory import (
     get_termination,
 )
 from pymoo.optimize import minimize
-import numpy as np
-import pandas as pd
 
 import nmoo
 
@@ -44,8 +42,3 @@ results = minimize(
     save_history=True,
     verbose=True,
 )
-
-# Dump history of all parts of the pipeline
-problem._history.to_csv("1_original.csv")
-noisy_problem._history.to_csv("2_noisy.csv")
-denoised_problem._history.to_csv("3_knnavg.csv")

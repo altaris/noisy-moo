@@ -8,6 +8,7 @@ from typing import Optional
 from pymoo.model.problem import Problem
 from scipy.spatial.distance import cdist
 import numpy as np
+import pandas as pd
 
 from nmoo.utils import *
 
@@ -66,9 +67,9 @@ class KNNAvg(ProblemWrapper):
         """
         self._problem._evaluate(x, out, *args, **kwargs)
         for i, sol in enumerate(x):
-            df = self._problem._history.copy()
+            df = pd.DataFrame(self._problem._history["x"])
             df["_sed"] = cdist(
-                df.loc[:, "x_0":f"x_{self._problem.n_var - 1}"].to_numpy(),
+                self._problem._history["x"],
                 sol.reshape((1, -1)),
                 "seuclidean",
             )
@@ -94,14 +95,12 @@ class KNNAvg(ProblemWrapper):
                     "Unknown distance weight mode: "
                     + self._distance_weight_mode
                 )
-            # TODO: How to make this more general?
+            # TODO: Generalize
+            df_F = pd.DataFrame(self._problem._history["F"])
             avg = np.average(
-                df.loc[:, "F_0":"F_1"].to_numpy(),
+                df_F.iloc[df.index].to_numpy(),
                 axis=0,
                 weights=df["_w"].to_numpy(),
             )
             out["F"][i] = avg
-        self._history = self._history.append(
-            x_out_to_df(x, out),
-            ignore_index=True,
-        )
+        self.add_to_history_x_out(x, out)

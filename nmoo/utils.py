@@ -3,54 +3,10 @@ Various utilities.
 """
 __docformat__ = "google"
 
+from typing import Dict
+
 from pymoo.model.problem import Problem
 import numpy as np
-import pandas as pd
-
-
-def np2d_to_df(array: np.ndarray, prefix: str) -> pd.DataFrame:
-    """
-    Converts a 2D numpy array to a Pandas :obj:`DataFrame`, where the column
-    names are derived from the `prefix` by adding `_<col_index>`.
-
-    Example:
-
-        >>> np2d_to_df(np.ones((3, 4)), "x")
-
-           x_0  x_1  x_2  x_3
-        0  1.0  1.0  1.0  1.0
-        1  1.0  1.0  1.0  1.0
-        2  1.0  1.0  1.0  1.0
-
-    """
-    columns = [prefix + "_" + str(i) for i in range(array.shape[1])]
-    return pd.DataFrame(array, columns=columns)
-
-
-def x_out_to_df(x: np.ndarray, out: dict) -> pd.DataFrame:
-    """
-    Converts the `x` and `out` from the :Problem._evaluate: callback to a
-    single Pandas :obj:`DataFrame`.
-
-    Example:
-
-        >>> x = np.ones((3, 2))
-        >>> out = {"A": np.zeros((3, 3)), "B": None, "C": 42}
-        >>> x_out_to_df(x, out)
-
-           x_0  x_1  A_0  A_1  A_2     B   C
-        0  1.0  1.0  0.0  0.0  0.0  None  42
-        1  1.0  1.0  0.0  0.0  0.0  None  42
-        2  1.0  1.0  0.0  0.0  0.0  None  42
-
-    """
-    df = np2d_to_df(x, "x")
-    for k, v in out.items():
-        if isinstance(v, np.ndarray):
-            df = pd.concat([df, np2d_to_df(v, k)], axis=1)
-        else:
-            df[k] = v
-    return df
 
 
 class ProblemWrapper(Problem):
@@ -59,10 +15,15 @@ class ProblemWrapper(Problem):
     to it.
     """
 
-    _history = pd.DataFrame()
+    _history: Dict[str, np.ndarray]
     """
-    Dataframe containing the history of all `_evaluate` calls and potentially
-    additional data.
+    A history is a dictionary that maps string keys (e.g. `"x"`) to a numpy
+    array of all values of that key (e.g. all values of `"x"`). All the numpy
+    arrays should have the same length (0th shape component) but are not
+    required to have the same type.
+
+    If you subclass this class, don't forget to carefully document the meaning
+    of the keys of what you're story in history.
     """
 
     _problem: Problem
@@ -89,14 +50,32 @@ class ProblemWrapper(Problem):
             exclude_from_serialization=problem.exclude_from_serialization,
             callback=problem.callback,
         )
+        self._history = dict()
         self._problem = problem
 
-    def add_to_history(self, df: pd.DataFrame):
+    def add_to_history(self, **kwargs):
         """
-        Adds records (in the form of a Pandas :obj:`DataFrame`) to the history.
+        Adds records to the history. The provided keys should match that of the
+        history (this is not checked at runtime for perfomance reasons). The
+        provided values should be numpy arrays that all have the same length
+        (0th shape component).
         """
-        # df["timestamp"] = np.datetime64("now")
-        self._history = self._history.append(df, ignore_index=True)
+        for k, v in kwargs.items():
+            if k not in self._history:
+                self._history[k] = v.copy()
+            else:
+                self._history[k] = np.append(self._history[k], v.copy(), axis=0)
+
+    def add_to_history_x_out(self, x: np.ndarray, out: dict, **kwargs):
+        """
+        Convenience function to add the `_evaluate` method's `x` and `out` to
+        history, along with potentially other items.
+        """
+        self.add_to_history(
+            x=x,
+            **{k: v for k, v in out.items() if isinstance(v, np.ndarray)},
+            **kwargs,
+        )
 
     def _evaluate(self, x, out, *args, **kwargs):
         """
@@ -104,4 +83,4 @@ class ProblemWrapper(Problem):
         (`x`) and output (`out`) to the history.
         """
         self._problem._evaluate(x, out, *args, **kwargs)
-        self.add_to_history(x_out_to_df(x, out))
+        self.add_to_history_x_out(x, out)
