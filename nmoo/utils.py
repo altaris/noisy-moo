@@ -64,7 +64,9 @@ class ProblemWrapper(Problem):
             if k not in self._history:
                 self._history[k] = v.copy()
             else:
-                self._history[k] = np.append(self._history[k], v.copy(), axis=0)
+                self._history[k] = np.append(
+                    self._history[k], v.copy(), axis=0
+                )
 
     def add_to_history_x_out(self, x: np.ndarray, out: dict, **kwargs):
         """
@@ -76,6 +78,21 @@ class ProblemWrapper(Problem):
             **{k: v for k, v in out.items() if isinstance(v, np.ndarray)},
             **kwargs,
         )
+
+    def dump_history_csv(self, path: str, compressed: bool = True):
+        """
+        Dumps the history into an NPZ archive.
+
+        Args:
+            path (str): File path of the output archive.
+            compressed (bool): Wether to compress the archive (defaults to
+                `True`).
+
+        See also:
+            https://numpy.org/doc/stable/reference/generated/numpy.load.html
+        """
+        saver = np.savez_compressed if compressed else np.savez
+        saver(path, **self._history)
 
     def _evaluate(self, x, out, *args, **kwargs):
         """

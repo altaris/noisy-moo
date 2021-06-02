@@ -42,3 +42,8 @@ results = minimize(
     save_history=True,
     verbose=True,
 )
+
+# Dump history of all parts of the pipeline
+problem.dump_history_csv("1_original.npz")
+noisy_problem.dump_history_csv("2_noisy.npz")
+denoised_problem.dump_history_csv("3_denoised.npz")
