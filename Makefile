@@ -1,9 +1,18 @@
+DOCS_PATH 		= docs
 SRC_PATH 		= nmoo
 VENV			= ./venv
 
 .ONESHELL:
 
 all: format typecheck
+
+.PHONY: docs
+docs:
+	pdoc --output-directory $(DOCS_PATH) $(SRC_PATH)
+
+.PHONY: docs-browser
+docs-browser:
+	pdoc $(SRC_PATH)
 
 .PHONY: format
 format:

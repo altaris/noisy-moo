@@ -1,6 +1,7 @@
 """
 A denoiser tries to cancel noise. (also water is wet)
 """
+__docformat__ = "google"
 
 from typing import List, Optional
 
@@ -63,6 +64,9 @@ class KNNAvg(Denoiser):
         self._n_neighbors = n_neighbors
 
     def _evaluate(self, x, out, *args, **kwargs):
+        """
+        Applies the KNN-Avg algorithm to the wrapped (noisy) problem's output.
+        """
         self._problem._evaluate(x, out, *args, **kwargs)
         if self._history.shape[0] != 0:
             for i, sol in enumerate(x):

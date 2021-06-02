@@ -1,6 +1,7 @@
 """
 Various utilities.
 """
+__docformat__ = "google"
 
 from pymoo.model.problem import Problem
 import numpy as np
@@ -20,6 +21,7 @@ def np2d_to_df(array: np.ndarray, prefix: str) -> pd.DataFrame:
         0  1.0  1.0  1.0  1.0
         1  1.0  1.0  1.0  1.0
         2  1.0  1.0  1.0  1.0
+
     """
     columns = [prefix + "_" + str(i) for i in range(array.shape[1])]
     return pd.DataFrame(array, columns=columns)
@@ -29,6 +31,18 @@ def x_out_to_df(x: np.ndarray, out: dict) -> pd.DataFrame:
     """
     Converts the `x` and `out` from the :Problem._evaluate: callback to a
     single Pandas :obj:`DataFrame`.
+
+    Example:
+
+        >>> x = np.ones((3, 2))
+        >>> out = {"A": np.zeros((3, 3)), "B": None, "C": 42}
+        >>> x_out_to_df(x, out)
+
+           x_0  x_1  A_0  A_1  A_2     B   C
+        0  1.0  1.0  0.0  0.0  0.0  None  42
+        1  1.0  1.0  0.0  0.0  0.0  None  42
+        2  1.0  1.0  0.0  0.0  0.0  None  42
+
     """
     df = np2d_to_df(x, "x")
     for k, v in out.items():
@@ -41,7 +55,8 @@ def x_out_to_df(x: np.ndarray, out: dict) -> pd.DataFrame:
 
 class ProblemWrapper(Problem):
     """
-    A noise class is a pymoo problem wrapping another (non noisy) problem.
+    A simple Pymoo :obj:`Problem` wrapper that keeps a history of all calls made
+    to it.
     """
 
     _history = pd.DataFrame()
@@ -84,5 +99,9 @@ class ProblemWrapper(Problem):
         self._history = self._history.append(df, ignore_index=True)
 
     def _evaluate(self, x, out, *args, **kwargs):
+        """
+        Calls the wrapped problems's `_evaluate` method and appends its input
+        (`x`) and output (`out`) to the history.
+        """
         self._problem._evaluate(x, out, *args, **kwargs)
         self.add_to_history(x_out_to_df(x, out))

@@ -1,6 +1,7 @@
 """
 Random noises to apply to objective functions.
 """
+__docformat__ = "google"
 
 import logging
 from typing import Dict, Tuple
@@ -59,6 +60,24 @@ class GaussianNoise(Noise):
         self._parameters = parameters
 
     def _evaluate(self, x, out, *args, **kwargs):
+        """
+        Calls the wrapped problems's `_evaluate` method and adds a Gaussian
+        noise. Adds the input (`x`), the noisy output, and the noise values to
+        history.
+
+        Example:
+
+            If the wrapped problem's output dict looks like::
+
+                {
+                    "A": (n, m) np.ndarray,
+                    "B": not an np.ndarray
+                }
+
+            then the noisy output columns are will be named `A_0_noise` to
+            `A_<m-1>_noise`.
+
+        """
         self._problem._evaluate(x, out, *args, **kwargs)
         noises = dict()
         for k in self._parameters.keys():
@@ -68,8 +87,9 @@ class GaussianNoise(Noise):
                 out[k] += noises[k]
             except KeyError:
                 logging.error(
-                    "Noise parameter key %s is not present objective function "
-                    "objective function keys: %s.",
+                    "Noise parameter key %s is not present in objective "
+                    "function output keys. No noise will be applied. "
+                    "Objective function keys: %s. ",
                     k,
                     str(list(out.keys())),
                 )
