@@ -9,7 +9,7 @@ from typing import Dict, Tuple
 from pymoo.model.problem import Problem
 import numpy as np
 
-from nmoo.utils import *
+from nmoo.utils import ProblemWrapper
 
 
 class GaussianNoise(ProblemWrapper):

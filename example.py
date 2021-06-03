@@ -15,14 +15,18 @@ problem = nmoo.utils.ProblemWrapper(get_problem("zdt1"))  # For history, see lat
 noisy_problem = nmoo.noises.GaussianNoise(
     problem,
     {
-        "F": (0.0, 0.25),
+        "F": (0.0, 0.01),
     },
 )
-denoised_problem = nmoo.denoisers.KNNAvg(
+# denoised_problem = nmoo.denoisers.KNNAvg(
+#     noisy_problem,
+#     distance_weight_type="squared",
+#     max_distance=1.0,
+#     n_neighbors=10,
+# )
+denoised_problem = nmoo.denoisers.Average(
     noisy_problem,
-    distance_weight_type="squared",
-    max_distance=1.0,
-    n_neighbors=10,
+    n_evaluations=10,
 )
 
 # Minimize
