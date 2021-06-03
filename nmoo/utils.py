@@ -79,7 +79,7 @@ class ProblemWrapper(Problem):
             **kwargs,
         )
 
-    def dump_history_csv(self, path: str, compressed: bool = True):
+    def dump_history(self, path: str, compressed: bool = True):
         """
         Dumps the history into an NPZ archive.
 
