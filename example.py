@@ -1,3 +1,5 @@
+import os
+
 from pymoo.algorithms.nsga2 import NSGA2
 from pymoo.factory import (
     get_crossover,
@@ -9,6 +11,8 @@ from pymoo.factory import (
 from pymoo.optimize import minimize
 
 import nmoo
+
+OUT_PATH = "./out"
 
 # Setup problem pipeline
 problem = nmoo.utils.ProblemWrapper(get_problem("zdt1"))  # For history, see later
@@ -48,6 +52,8 @@ results = minimize(
 )
 
 # Dump history of all parts of the pipeline
-problem.dump_history("1_original.npz")
-noisy_problem.dump_history("2_noisy.npz")
-denoised_problem.dump_history("3_denoised.npz")
+if not os.path.isdir(OUT_PATH):
+    os.mkdir(OUT_PATH)
+problem.dump_history("out/1_original.npz")
+noisy_problem.dump_history("out/2_noisy.npz")
+denoised_problem.dump_history("out/3_denoised.npz")
