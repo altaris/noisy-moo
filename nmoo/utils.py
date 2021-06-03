@@ -3,6 +3,7 @@ Various utilities.
 """
 __docformat__ = "google"
 
+import logging
 from typing import Dict
 
 from pymoo.model.problem import Problem
@@ -24,6 +25,11 @@ class ProblemWrapper(Problem):
 
     If you subclass this class, don't forget to carefully document the meaning
     of the keys of what you're story in history.
+    """
+
+    _history_batch_count: int = 0
+    """
+    The number of batches added to history.
     """
 
     _problem: Problem
@@ -60,6 +66,20 @@ class ProblemWrapper(Problem):
         provided values should be numpy arrays that all have the same length
         (0th shape component).
         """
+        self._history_batch_count += 1
+        if not kwargs:
+            # No items to add
+            return
+        lengths = {k: v.shape[0] for k, v in kwargs.items()}
+        if len(set(lengths.values())) > 1:
+            logging.warn(
+                "[add_to_history] The lengths of the arrays don't match: "
+                + str(lengths)
+            )
+        kwargs["_batch"] = np.full(
+            (max(lengths.values()),),
+            self._history_batch_count,
+        )
         for k, v in kwargs.items():
             if k not in self._history:
                 self._history[k] = v.copy()
