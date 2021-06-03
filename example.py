@@ -1,3 +1,4 @@
+from pathlib import Path
 import os
 
 from pymoo.algorithms.nsga2 import NSGA2
@@ -12,7 +13,7 @@ from pymoo.optimize import minimize
 
 import nmoo
 
-OUT_PATH = "./out"
+OUT_PATH = Path("./out")
 
 # Setup problem pipeline
 problem = nmoo.utils.ProblemWrapper(get_problem("zdt1"))  # For history, see later
@@ -54,6 +55,6 @@ results = minimize(
 # Dump history of all parts of the pipeline
 if not os.path.isdir(OUT_PATH):
     os.mkdir(OUT_PATH)
-problem.dump_history("out/1_original.npz")
-noisy_problem.dump_history("out/2_noisy.npz")
-denoised_problem.dump_history("out/3_denoised.npz")
+problem.dump_history(OUT_PATH / "1_original.npz")
+noisy_problem.dump_history(OUT_PATH / "2_noisy.npz")
+denoised_problem.dump_history(OUT_PATH / "3_denoised.npz")
