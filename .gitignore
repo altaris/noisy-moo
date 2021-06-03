@@ -1,4 +1,6 @@
+docs/
 out/
+test.py
 
 # MacOS littering everywhere
 .DS_Store
