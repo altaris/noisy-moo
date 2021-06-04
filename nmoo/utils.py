@@ -3,8 +3,9 @@ Various utilities.
 """
 __docformat__ = "google"
 
+from pathlib import Path
+from typing import Dict, Union
 import logging
-from typing import Dict
 
 from pymoo.model.problem import Problem
 import numpy as np
@@ -99,12 +100,44 @@ class ProblemWrapper(Problem):
             **kwargs,
         )
 
-    def dump_history(self, path: str, compressed: bool = True):
+    def dump_all_histories(
+        self,
+        dir_path: Union[Path, str],
+        name: str,
+        compressed: bool = True,
+        _idx: int = 1,
+    ):
+        """
+        Dumps this problem's history, as well as all problems (more precisely,
+        instances of `nmoo.utils.ProblemWrapper`) recursively wrapped within
+        it. This will result in one `.npz` for each problem involved.
+
+        Args:
+            dir_path (Union[Path, str]): Output directory.
+            name (str): The output files will be named according to the
+                following pattern: `<name>.<_idx>.npz`, where `_idx` is the
+                "depth" of the corresponding problem (1 for the outermost, 2
+                for the one wrapped within it, etc.). Note that the `.npz`
+                extension is automatically added.
+            compressed (bool): Wether to compress the archive (defaults to
+                `True`).
+            _idx (int): Don't touch that.
+
+        See also:
+            `nmoo.utils.ProblemWrapper.dump_history`
+        """
+        self.dump_history(Path(dir_path) / f"{name}.{_idx}.npz", compressed)
+        if isinstance(self._problem, ProblemWrapper):
+            self._problem.dump_all_histories(
+                dir_path, name, compressed, _idx + 1
+            )
+
+    def dump_history(self, path: Union[Path, str], compressed: bool = True):
         """
         Dumps the history into an NPZ archive.
 
         Args:
-            path (str): File path of the output archive.
+            path (Union[Path, str]): File path of the output archive.
             compressed (bool): Wether to compress the archive (defaults to
                 `True`).
 

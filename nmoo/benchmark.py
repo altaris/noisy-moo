@@ -4,12 +4,11 @@ A benchmarking utility
 __docformat__ = "google"
 
 from itertools import product
-from typing import Dict
-import logging
+from pathlib import Path
+from typing import Dict, Union
 
 from pymoo.factory import get_performance_indicator
 from pymoo.optimize import minimize
-import numpy as np
 import pandas as pd
 
 
@@ -130,12 +129,49 @@ class Benchmark:
             ],
         )
 
-    def dump_results(self, path: str, fmt: str = "csv", **kwargs):
+    def dump_everything(
+        self,
+        dir_path: Union[Path, str],
+        benchmark_results_filename: str = "benchmark.csv",
+        benchmark_results_fmt: str = "csv",
+        benchmark_results_writer_kwargs: dict = {},
+        problem_histories_compressed: bool = True,
+    ):
+        """
+        Dumps EVERYTHIIIING, i.e. the benchmark results (see
+        `nmoo.benchmark.Benchmark.dump_results`) and all involved problems
+        histories (see `nmoo.utils.ProblemWrapper.dump_all_histories`).
+
+        Args:
+            dir_path (Union[Path, str]): Output directory
+            benchmark_results_filename (str): Filename for the benchmark
+                results. `benchmark.csv` by default.
+            benchmark_results_fmt (str): Format of the benchmark results file,
+                see `nmoo.benchmark.Benchmark.dump_results`. Defaults to CSV.
+            benchmark_results_writer_kwargs (dict): Optional kwargs to pass on
+                to the `pandas.DataFrame.to_<fmt>` benchmark results writer
+                method.
+            problem_histories_compressed (bool): Wether to compress the problem
+                history files, see `nmoo.utils.ProblemWrapper.dump_history`.
+        """
+        self.dump_results(
+            Path(dir_path) / benchmark_results_filename,
+            benchmark_results_fmt,
+            **benchmark_results_writer_kwargs,
+        )
+        for pn, pp in self._problems.items():
+            pp["problem"].dump_all_histories(
+                dir_path,
+                pn,
+                problem_histories_compressed,
+            )
+
+    def dump_results(self, path: Union[Path, str], fmt: str = "csv", **kwargs):
         """
         Dumps the internal `_result` dataframe.
 
         Args:
-            path (str): Path to the output file.
+            path (Union[Path, str]): Path to the output file.
             fmt (str): Text or binary format supported by pandas, see
                 `here <https://pandas.pydata.org/docs/user_guide/io.html>`_.
                 CSV by default.
@@ -191,4 +227,3 @@ class Benchmark:
             df["problem"] = pn
             df["n_run"] = r
             self._results = self._results.append(df, ignore_index=True)
-            # TODO: Save all the artifacts

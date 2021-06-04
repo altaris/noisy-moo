@@ -69,7 +69,7 @@ benchmark = nmoo.benchmark.Benchmark(
 )
 benchmark.run()
 
-# Dump history of all parts of the pipeline
+# Dump all results and histories
 if not os.path.isdir(OUT_PATH):
     os.mkdir(OUT_PATH)
-benchmark.dump_results(OUT_PATH / "benchmark.csv")
+benchmark.dump_everything(OUT_PATH)
