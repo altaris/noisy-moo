@@ -3,6 +3,7 @@
 """
 __docformat__ = "google"
 
+from . import benchmark
 from . import denoisers
 from . import noises
 from . import utils
