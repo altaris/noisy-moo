@@ -11,6 +11,8 @@ from pymoo.factory import get_performance_indicator
 from pymoo.optimize import minimize
 import pandas as pd
 
+from nmoo.utils import TimerCallback
+
 
 class Benchmark:
     """
@@ -122,6 +124,7 @@ class Benchmark:
                 "problem",
                 "n_run",
                 "n_gen",
+                "timedelta",
                 "perf_gd",
                 "perf_gd+",
                 "perf_igd",
@@ -205,16 +208,19 @@ class Benchmark:
                 f"[{i+1}/{n_pairs}] Problem: {pn}, Algorithm: {an}, "
                 f"Run: {r}/{self._n_runs}"
             )
+            start_ts = pd.Timestamp.now()
             results = minimize(
                 pp["problem"],
                 aa["algorithm"],
                 aa.get("termination", None),
+                callback=TimerCallback(),
                 save_history=True,
                 seed=aa.get("seed", None),
                 verbose=False,
             )
             df = pd.DataFrame()
             df["n_gen"] = range(1, len(results.history) + 1)
+            df["timedelta"] = results.algorithm.callback._deltas
             if "pareto_front" in pp:
                 for pi in ["gd", "gd+", "igd", "igd+"]:
                     ind = get_performance_indicator(pi, pp["pareto_front"])

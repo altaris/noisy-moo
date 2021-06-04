@@ -4,11 +4,13 @@ Various utilities.
 __docformat__ = "google"
 
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict, List, Union
 import logging
 
+from pymoo.model.callback import Callback
 from pymoo.model.problem import Problem
 import numpy as np
+import pandas as pd
 
 
 class ProblemWrapper(Problem):
@@ -156,3 +158,27 @@ class ProblemWrapper(Problem):
         """
         self._problem._evaluate(x, out, *args, **kwargs)
         self.add_to_history_x_out(x, out)
+
+
+class TimerCallback(Callback):
+    """
+    A simple callback that register a timedelta (from the time it was
+    instanciated) everytime it is notified.
+    """
+
+    _deltas: List[pd.Timedelta]
+    """
+    Timedeltas.
+    """
+
+    _initial_time: pd.Timestamp
+    """
+    Timestamp of when this instance has been created.
+    """
+
+    def __init__(self):
+        self._deltas = []
+        self._initial_time = pd.Timestamp.now()
+
+    def notify(self, algorithm, **kwargs):
+        self._deltas.append(pd.Timestamp.now() - self._initial_time)
