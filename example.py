@@ -72,4 +72,4 @@ benchmark.run()
 # Dump history of all parts of the pipeline
 if not os.path.isdir(OUT_PATH):
     os.mkdir(OUT_PATH)
-benchmark._results.to_csv(OUT_PATH / "benchmark.csv")
+benchmark.dump_results(OUT_PATH / "benchmark.csv")

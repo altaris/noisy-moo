@@ -130,6 +130,30 @@ class Benchmark:
             ],
         )
 
+    def dump_results(self, path: str, fmt: str = "csv", **kwargs):
+        """
+        Dumps the internal `_result` dataframe.
+
+        Args:
+            path (str): Path to the output file.
+            fmt (str): Text or binary format supported by pandas, see
+                https://pandas.pydata.org/docs/user_guide/io.html. CSV by
+                default.
+            kwargs: Will be passed on the `pandas.DataFrame.to_<fmt>` method.
+        """
+        saver = {
+            "csv": pd.DataFrame.to_csv,
+            "excel": pd.DataFrame.to_excel,
+            "feather": pd.DataFrame.to_feather,
+            "gbq": pd.DataFrame.to_gbq,
+            "hdf": pd.DataFrame.to_hdf,
+            "html": pd.DataFrame.to_html,
+            "json": pd.DataFrame.to_json,
+            "parquet": pd.DataFrame.to_parquet,
+            "pickle": pd.DataFrame.to_pickle,
+        }[fmt]
+        saver(self._results, path, **kwargs)
+
     def run(self):
         """
         Runs the benchmark sequentially. Makes your laptop go brr.
