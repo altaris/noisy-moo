@@ -109,7 +109,9 @@ class ProblemWrapper(Problem):
                 `True`).
 
         See also:
-            https://numpy.org/doc/stable/reference/generated/numpy.load.html
+            `numpy.load
+            <https://numpy.org/doc/stable/reference/generated/numpy.load.html>`_
+
         """
         saver = np.savez_compressed if compressed else np.savez
         saver(path, **self._history)

@@ -16,8 +16,12 @@ class KNNAvg(ProblemWrapper):
     Implementation of the KNN-Avg algorithm of Klikovits and Arcaini.
 
     See also:
-        https://github.com/ERTOMMSD/QUATIC2021-KNN-Averaging
-        https://raw.githubusercontent.com/ERATOMMSD/QUATIC2021-KNN-Averaging/main/KlikovitsArcaini-KNNAvgForNoisyNoisyMOO.pdf
+        `Original KNN-Avg repository
+        <https://github.com/ERTOMMSD/QUATIC2021-KNN-Averaging>`_
+        `KNN-Avg QUATIC2021 paper
+        <https://raw.githubusercontent.com/ERATOMMSD/QUATIC2021-KNN-Averaging/main/KlikovitsArcaini-KNNAvgForNoisyNoisyMOO.pdf>`_
+
+
     """
 
     _distance_weight_mode: str

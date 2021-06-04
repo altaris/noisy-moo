@@ -48,7 +48,8 @@ class GaussianNoise(ProblemWrapper):
                 )
 
         See also:
-            https://pymoo.org/getting_started.html#By-Class
+            `pymoo documentation
+            <https://pymoo.org/getting_started.html#By-Class>`_
         """
         super().__init__(problem)
         self._parameters = parameters

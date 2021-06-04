@@ -137,8 +137,8 @@ class Benchmark:
         Args:
             path (str): Path to the output file.
             fmt (str): Text or binary format supported by pandas, see
-                https://pandas.pydata.org/docs/user_guide/io.html. CSV by
-                default.
+                `here <https://pandas.pydata.org/docs/user_guide/io.html>`_.
+                CSV by default.
             kwargs: Will be passed on the `pandas.DataFrame.to_<fmt>` method.
         """
         saver = {
