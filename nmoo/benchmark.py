@@ -193,6 +193,52 @@ class Benchmark:
         }[fmt]
         saver(self._results, path, **kwargs)
 
+    def final_results(
+        self,
+        timedeltas_to_microseconds: bool = True,
+        reset_index: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Returns a dataframe containing the final row of each
+        algorithm/problem/n_run triple, i.e. the final record of each run of
+        the benchmark.
+
+        If the `reset_index` argument set to `False`, the resulting dataframe
+        will have a multiindex given by the (algorithm, problem, n_run) tuples,
+        e.g.
+
+                                     n_gen  timedelta   perf_gd  ...
+            algorithm problem n_run                              ...
+            nsga2     bnh     1        155     886181  0.477980  ...
+                              2        200      29909  0.480764  ...
+                      zdt1    1        400     752818  0.191490  ...
+                              2        305     979112  0.260930  ...
+
+        (note tha the `timedelta` column has been converted to microseconds,
+        see the `timedeltas_to_microseconds` argument below). If `reset_index`
+        is set to `True` (the default), then the index is reset, giving
+        something like this:
+
+              algorithm problem  n_run  n_gen  timedelta   perf_gd  ...
+            0     nsga2     bnh      1    155     886181  0.477980  ...
+            1     nsga2     bnh      2    200      29909  0.480764  ...
+            2     nsga2    zdt1      1    400     752818  0.191490  ...
+            3     nsga2    zdt1      2    305     979112  0.260930  ...
+
+        This form is easier to plot.
+
+        Args:
+            reset_index (bool): Wether to reset the index. Defaults to
+                `True`.
+            timedeltas_to_microseconds (bool): Wether to convert the
+                timedeltas column to microseconds. Defaults to `True`.
+
+        """
+        df = self._results.groupby(["algorithm", "problem", "n_run"]).last()
+        if timedeltas_to_microseconds:
+            df["timedelta"] = df["timedelta"].dt.microseconds
+        return df.reset_index() if reset_index else df
+
     def run(self):
         """
         Runs the benchmark sequentially. Makes your laptop go brr.
