@@ -19,6 +19,16 @@ class ProblemWrapper(Problem):
     to it.
     """
 
+    _current_history_batch: int = 0
+    """
+    The number of batches added to history.
+    """
+
+    _current_run: int = 0
+    """
+    Current run number. See `nmoo.utils.ProblemWrapper.start_new_run`.
+    """
+
     _history: Dict[str, np.ndarray]
     """
     A history is a dictionary that maps string keys (e.g. `"x"`) to a numpy
@@ -28,11 +38,6 @@ class ProblemWrapper(Problem):
 
     If you subclass this class, don't forget to carefully document the meaning
     of the keys of what you're story in history.
-    """
-
-    _history_batch_count: int = 0
-    """
-    The number of batches added to history.
     """
 
     _problem: Problem
@@ -69,7 +74,7 @@ class ProblemWrapper(Problem):
         provided values should be numpy arrays that all have the same length
         (0th shape component).
         """
-        self._history_batch_count += 1
+        self._current_history_batch += 1
         if not kwargs:
             # No items to add
             return
@@ -81,7 +86,11 @@ class ProblemWrapper(Problem):
             )
         kwargs["_batch"] = np.full(
             (max(lengths.values()),),
-            self._history_batch_count,
+            self._current_history_batch,
+        )
+        kwargs["_run"] = np.full(
+            (max(lengths.values()),),
+            self._current_run,
         )
         for k, v in kwargs.items():
             if k not in self._history:
@@ -150,6 +159,24 @@ class ProblemWrapper(Problem):
         """
         saver = np.savez_compressed if compressed else np.savez
         saver(path, **self._history)
+
+    def start_new_run(self):
+        """
+        In short, it rotates the history of the current problem, and all
+        problems wrapped within.
+
+        Every entry in the history is annotated with a run number. If this
+        problem is reused (e.g. during benchmarks), you can call this method to
+        increase the run number for all subsequent history entries.
+        Additionally, the `_current_history_batch` counter is reset to `0`.
+
+        If the wrapped problem is itself a `ProblemWrapper`, then this method
+        is recursively called.
+        """
+        self._current_run += 1
+        self._current_history_batch = 0
+        if isinstance(self._problem, ProblemWrapper):
+            self._problem.start_new_run()
 
     def _evaluate(self, x, out, *args, **kwargs):
         """

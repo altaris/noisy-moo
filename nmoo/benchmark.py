@@ -254,6 +254,7 @@ class Benchmark:
                 f"[{i+1}/{n_pairs}] Problem: {pn}, Algorithm: {an}, "
                 f"Run: {r}/{self._n_runs}"
             )
+            pp["problem"].start_new_run()
             start_ts = pd.Timestamp.now()
             results = minimize(
                 pp["problem"],
