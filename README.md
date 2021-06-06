@@ -11,7 +11,7 @@ works](https://github.com/ERATOMMSD/QUATIC2021-KNN-Averaging) of
 
 # Getting started
 
-See [example.py](/example.py) for a quick example.
+See [example.ipynb](/example.ipynb) for a quick example.
 
 ## Dependencies
 
