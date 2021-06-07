@@ -255,7 +255,6 @@ class Benchmark:
                 f"Run: {r}/{self._n_runs}"
             )
             pp["problem"].start_new_run()
-            start_ts = pd.Timestamp.now()
             results = minimize(
                 pp["problem"],
                 aa["algorithm"],
