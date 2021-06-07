@@ -7,6 +7,7 @@ from itertools import product
 from pathlib import Path
 from typing import Dict, Optional, Union
 
+from joblib import delayed, Parallel
 from pymoo.factory import get_performance_indicator
 from pymoo.optimize import minimize
 import pandas as pd
@@ -132,6 +133,66 @@ class Benchmark:
             ],
         )
 
+    def _run_pair(
+        self,
+        algorithm_name: str,
+        algorithm_desciption: dict,
+        problem_name: str,
+        problem_description: dict,
+        n_run: int,
+        n_run_global: int,
+    ) -> pd.DataFrame:
+        """
+        Runs a given algorithm against a given problem. See
+        `nmoo.benchmark.Benchmark.run`.
+
+        Args:
+            algorithm_name (str): Algorithm name.
+            algorithm_desciption (dict): Algorithm description
+                dictionary, see `nmoo.benchmark.Benchmark.__init__`.
+            problem_name (str): Problem name.
+            problem_description (dict): Problem description
+                dictionary, see `nmoo.benchmark.Benchmark.__init__`.
+            n_run (int): Run number of that given algorithm/problem pair.
+            n_run_global (int): Global run number (across all pairs
+                algorithm/problem pairs).
+
+        Returns:
+            Run result as a pandas `DataFrame`.
+        """
+        n_pairs = len(self._problems) * len(self._algorithms) * self._n_runs
+        print(
+            f"[{n_run_global+1}/{n_pairs}] Problem: {problem_name}, "
+            f"Algorithm: {algorithm_name}, Run: {n_run}/{self._n_runs}"
+        )
+        problem_description["problem"].start_new_run()
+        results = minimize(
+            problem_description["problem"],
+            algorithm_desciption["algorithm"],
+            algorithm_desciption.get("termination", None),
+            callback=TimerCallback(),
+            save_history=True,
+            seed=algorithm_desciption.get("seed", None),
+            verbose=False,
+        )
+        df = pd.DataFrame()
+        df["n_gen"] = range(1, len(results.history) + 1)
+        df["timedelta"] = results.algorithm.callback._deltas
+        if "pareto_front" in problem_description:
+            for pi in ["gd", "gd+", "igd", "igd+"]:
+                ind = get_performance_indicator(
+                    pi, problem_description["pareto_front"]
+                )
+                df["perf_" + pi] = [
+                    # TODO: Generalize
+                    ind.calc(state.pop.get("F"))
+                    for state in results.history
+                ]
+        df["algorithm"] = algorithm_name
+        df["problem"] = problem_name
+        df["n_run"] = n_run
+        return df
+
     def dump_everything(
         self,
         dir_path: Union[Path, str],
@@ -241,43 +302,28 @@ class Benchmark:
             df["timedelta"] = df["timedelta"].dt.microseconds
         return df.reset_index() if reset_index else df
 
-    def run(self):
+    def run(self, n_jobs: int = -1, **joblib_kwargs):
         """
         Runs the benchmark sequentially. Makes your laptop go brr.
+
+        Args:
+            n_jobs (int): Number of threads to use. See the `joblib.Parallel`_
+                documentation. Defaults to `-1`, i.e. all CPUs are used.
+            joblib_kwargs (dict): Additional kwargs to pass on to the
+                `joblib.Parallel`_ instance.
+
+        .. _joblib.Parallel:
+            https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html
         """
         everything = product(
             self._algorithms.items(),
             self._problems.items(),
             range(1, self._n_runs + 1),
         )
-        n_pairs = len(self._problems) * len(self._algorithms) * self._n_runs
-        for i, ((an, aa), (pn, pp), r) in enumerate(everything):
-            print(
-                f"[{i+1}/{n_pairs}] Problem: {pn}, Algorithm: {an}, "
-                f"Run: {r}/{self._n_runs}"
-            )
-            pp["problem"].start_new_run()
-            results = minimize(
-                pp["problem"],
-                aa["algorithm"],
-                aa.get("termination", None),
-                callback=TimerCallback(),
-                save_history=True,
-                seed=aa.get("seed", None),
-                verbose=False,
-            )
-            df = pd.DataFrame()
-            df["n_gen"] = range(1, len(results.history) + 1)
-            df["timedelta"] = results.algorithm.callback._deltas
-            if "pareto_front" in pp:
-                for pi in ["gd", "gd+", "igd", "igd+"]:
-                    ind = get_performance_indicator(pi, pp["pareto_front"])
-                    df["perf_" + pi] = [
-                        # TODO: Generalize
-                        ind.calc(state.pop.get("F"))
-                        for state in results.history
-                    ]
-            df["algorithm"] = an
-            df["problem"] = pn
-            df["n_run"] = r
+        executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
+        results = executor(
+            delayed(Benchmark._run_pair)(self, an, aa, pn, pp, r, i)
+            for i, ((an, aa), (pn, pp), r) in enumerate(everything)
+        )
+        for df in results:
             self._results = self._results.append(df, ignore_index=True)
