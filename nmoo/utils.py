@@ -30,5 +30,10 @@ class TimerCallback(Callback):
         self._deltas = []
         self._initial_time = pd.Timestamp.now()
 
+    # pylint: disable=unused-argument
     def notify(self, algorithm, **kwargs):
+        """
+        See the `pymoo documentation
+        <https://pymoo.org/interface/callback.html>`_
+        """
         self._deltas.append(pd.Timestamp.now() - self._initial_time)

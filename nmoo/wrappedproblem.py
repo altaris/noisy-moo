@@ -78,9 +78,9 @@ class WrappedProblem(Problem):
             return
         lengths = {k: v.shape[0] for k, v in kwargs.items()}
         if len(set(lengths.values())) > 1:
-            logging.warn(
-                "[add_to_history] The lengths of the arrays don't match: "
-                + str(lengths)
+            logging.warning(
+                "[add_to_history] The lengths of the arrays don't match: %s",
+                str(lengths),
             )
         kwargs["_batch"] = np.full(
             (max(lengths.values()),),

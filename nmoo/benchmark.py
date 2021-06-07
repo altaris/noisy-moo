@@ -5,7 +5,7 @@ __docformat__ = "google"
 
 from itertools import product
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 from pymoo.factory import get_performance_indicator
 from pymoo.optimize import minimize
@@ -90,7 +90,7 @@ class Benchmark:
                 raise ValueError(
                     f"Description for algorithm '{k}' must be a dict."
                 )
-            elif "algorithm" not in v:
+            if "algorithm" not in v:
                 raise ValueError(
                     f"Description for algorithm '{k}' is missing mandatory "
                     "key 'algorithm'."
@@ -111,7 +111,7 @@ class Benchmark:
                 raise ValueError(
                     f"Description for problem '{k}' must be a dict."
                 )
-            elif "problem" not in v:
+            if "problem" not in v:
                 raise ValueError(
                     f"Description for problem '{k}' is missing mandatory key "
                     "'problem'."
@@ -137,7 +137,7 @@ class Benchmark:
         dir_path: Union[Path, str],
         benchmark_results_filename: str = "benchmark.csv",
         benchmark_results_fmt: str = "csv",
-        benchmark_results_writer_kwargs: dict = {},
+        benchmark_results_writer_kwargs: Optional[dict] = None,
         problem_histories_compressed: bool = True,
     ):
         """
@@ -151,12 +151,14 @@ class Benchmark:
                 results. `benchmark.csv` by default.
             benchmark_results_fmt (str): Format of the benchmark results file,
                 see `nmoo.benchmark.Benchmark.dump_results`. Defaults to CSV.
-            benchmark_results_writer_kwargs (dict): Optional kwargs to pass on
-                to the `pandas.DataFrame.to_<fmt>` benchmark results writer
-                method.
+            benchmark_results_writer_kwargs (Optional[dict]): Optional kwargs
+                to pass on to the `pandas.DataFrame.to_<fmt>` benchmark results
+                writer method.
             problem_histories_compressed (bool): Wether to compress the problem
                 history files, see `nmoo.utils.WrappedProblem.dump_history`.
         """
+        if benchmark_results_writer_kwargs is None:
+            benchmark_results_writer_kwargs = dict()
         self.dump_results(
             Path(dir_path) / benchmark_results_filename,
             benchmark_results_fmt,
