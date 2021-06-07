@@ -8,10 +8,10 @@ from typing import List
 from pymoo.model.problem import Problem
 import numpy as np
 
-from nmoo.utils import ProblemWrapper
+from nmoo.wrappedproblem import WrappedProblem
 
 
-class Average(ProblemWrapper):
+class Average(WrappedProblem):
     """
     A resampler tries to denoise a noisy problem by evaluating a solution
     multiple times and averaging the outputs.

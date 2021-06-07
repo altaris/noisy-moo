@@ -60,7 +60,7 @@ class Benchmark:
         it may be used in filenames), and `<problem_description>` is a
         dictionary with the following keys:
         * `pareto_front` (optional, `np.ndarray`): a Pareto front subset.
-        * `problem`: a `ProblemWrapper` instance;
+        * `problem`: a `WrappedProblem` instance;
 
         The set of algorithms to be used is specified similarly::
 
@@ -143,7 +143,7 @@ class Benchmark:
         """
         Dumps EVERYTHIIIING, i.e. the benchmark results (see
         `nmoo.benchmark.Benchmark.dump_results`) and all involved problems
-        histories (see `nmoo.utils.ProblemWrapper.dump_all_histories`).
+        histories (see `nmoo.utils.WrappedProblem.dump_all_histories`).
 
         Args:
             dir_path (Union[Path, str]): Output directory
@@ -155,7 +155,7 @@ class Benchmark:
                 to the `pandas.DataFrame.to_<fmt>` benchmark results writer
                 method.
             problem_histories_compressed (bool): Wether to compress the problem
-                history files, see `nmoo.utils.ProblemWrapper.dump_history`.
+                history files, see `nmoo.utils.WrappedProblem.dump_history`.
         """
         self.dump_results(
             Path(dir_path) / benchmark_results_filename,

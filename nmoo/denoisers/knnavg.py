@@ -8,10 +8,10 @@ from scipy.spatial.distance import cdist
 import numpy as np
 import pandas as pd
 
-from nmoo.utils import ProblemWrapper
+from nmoo.wrappedproblem import WrappedProblem
 
 
-class KNNAvg(ProblemWrapper):
+class KNNAvg(WrappedProblem):
     """
     Implementation of the KNN-Avg algorithm of Klikovits and Arcaini.
 
