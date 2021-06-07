@@ -47,4 +47,5 @@ Don't forget to run
 make
 ```
 to format the code following [black](https://pypi.org/project/black/),
-typecheck it using [mypy](http://mypy-lang.org/).
+typecheck it using [mypy](http://mypy-lang.org/), and check it against coding
+standards using [pylint](https://pylint.org/).

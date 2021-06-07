@@ -4,7 +4,7 @@ VENV			= ./venv
 
 .ONESHELL:
 
-all: format typecheck
+all: format typecheck lint
 
 .PHONY: docs
 docs:
@@ -17,6 +17,10 @@ docs-browser:
 .PHONY: format
 format:
 	black --line-length 79 --target-version py38 $(SRC_PATH)
+
+.PHONY: lint
+lint:
+	pylint $(SRC_PATH)
 
 .PHONY: typecheck
 typecheck:
