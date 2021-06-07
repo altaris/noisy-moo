@@ -3,5 +3,5 @@ Subpackage for denoising algorithms.
 """
 __docformat__ = "google"
 
-from .average import Average
+from .resample_average import ResampleAverage
 from .knnavg import KNNAvg

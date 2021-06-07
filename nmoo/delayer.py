@@ -8,7 +8,7 @@ from time import sleep
 from pymoo.model.problem import Problem
 import numpy as np
 
-from nmoo.wrappedproblem import WrappedProblem
+from .wrapped_problem import WrappedProblem
 
 
 class Delayer(WrappedProblem):

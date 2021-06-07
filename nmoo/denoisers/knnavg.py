@@ -8,7 +8,7 @@ from scipy.spatial.distance import cdist
 import numpy as np
 import pandas as pd
 
-from nmoo.wrappedproblem import WrappedProblem
+from nmoo.wrapped_problem import WrappedProblem
 
 
 class KNNAvg(WrappedProblem):
