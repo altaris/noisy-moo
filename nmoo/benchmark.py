@@ -3,6 +3,8 @@ A benchmarking utility
 """
 __docformat__ = "google"
 
+import os
+
 from itertools import product
 from pathlib import Path
 from typing import Dict, Optional, Union
@@ -32,6 +34,11 @@ class Benchmark:
     Number of times to run a given problem/algorithm pair.
     """
 
+    _output_dir_path: Path
+    """
+    Path of the output directory.
+    """
+
     _problems: Dict[str, dict]
     """
     List of problems to be benchmarked.
@@ -44,6 +51,7 @@ class Benchmark:
 
     def __init__(
         self,
+        output_dir_path: Union[Path, str],
         problems: Dict[str, dict],
         algorithms: Dict[str, dict],
         n_runs: int = 1,
@@ -105,6 +113,12 @@ class Benchmark:
             )
         self._n_runs = n_runs
 
+        if not os.path.isdir(output_dir_path):
+            raise ValueError(
+                f"Output directory '{output_dir_path}' does not exist"
+            )
+        self._output_dir_path = Path(output_dir_path)
+
         if not problems:
             raise ValueError("A benchmark requires at least 1 problem.")
         for k, v in problems.items():
@@ -144,7 +158,13 @@ class Benchmark:
     ) -> pd.DataFrame:
         """
         Runs a given algorithm against a given problem. See
-        `nmoo.benchmark.Benchmark.run`.
+        `nmoo.benchmark.Benchmark.run`. Immediately dumps the history of the
+        problem and all wrapped problems with the following naming scheme:
+
+            output_dir_path/<problem_name>.<algorithm_name>.<n_run>.<level>.npz
+
+        where `level` is the depth of the wrapped problem, starting at `1`. See
+        `nmoo.wrapped_problem.WrappedProblem.dump_all_histories`.
 
         Args:
             algorithm_name (str): Algorithm name.
@@ -175,6 +195,9 @@ class Benchmark:
             seed=algorithm_desciption.get("seed", None),
             verbose=False,
         )
+        problem_description["problem"].dump_all_histories(
+            self._output_dir_path, f"{problem_name}.{algorithm_name}.{n_run}"
+        )
         df = pd.DataFrame()
         df["n_gen"] = range(1, len(results.history) + 1)
         df["timedelta"] = results.algorithm.callback._deltas
@@ -193,44 +216,44 @@ class Benchmark:
         df["n_run"] = n_run
         return df
 
-    def dump_everything(
-        self,
-        dir_path: Union[Path, str],
-        benchmark_results_filename: str = "benchmark.csv",
-        benchmark_results_fmt: str = "csv",
-        benchmark_results_writer_kwargs: Optional[dict] = None,
-        problem_histories_compressed: bool = True,
-    ):
-        """
-        Dumps EVERYTHIIIING, i.e. the benchmark results (see
-        `nmoo.benchmark.Benchmark.dump_results`) and all involved problems
-        histories (see `nmoo.utils.WrappedProblem.dump_all_histories`).
+    # def dump_everything(
+    #     self,
+    #     dir_path: Union[Path, str],
+    #     benchmark_results_filename: str = "benchmark.csv",
+    #     benchmark_results_fmt: str = "csv",
+    #     benchmark_results_writer_kwargs: Optional[dict] = None,
+    #     problem_histories_compressed: bool = True,
+    # ):
+    #     """
+    #     Dumps EVERYTHIIIING, i.e. the benchmark results (see
+    #     `nmoo.benchmark.Benchmark.dump_results`) and all involved problems
+    #     histories (see `nmoo.utils.WrappedProblem.dump_all_histories`).
 
-        Args:
-            dir_path (Union[Path, str]): Output directory
-            benchmark_results_filename (str): Filename for the benchmark
-                results. `benchmark.csv` by default.
-            benchmark_results_fmt (str): Format of the benchmark results file,
-                see `nmoo.benchmark.Benchmark.dump_results`. Defaults to CSV.
-            benchmark_results_writer_kwargs (Optional[dict]): Optional kwargs
-                to pass on to the `pandas.DataFrame.to_<fmt>` benchmark results
-                writer method.
-            problem_histories_compressed (bool): Wether to compress the problem
-                history files, see `nmoo.utils.WrappedProblem.dump_history`.
-        """
-        if benchmark_results_writer_kwargs is None:
-            benchmark_results_writer_kwargs = dict()
-        self.dump_results(
-            Path(dir_path) / benchmark_results_filename,
-            benchmark_results_fmt,
-            **benchmark_results_writer_kwargs,
-        )
-        for pn, pp in self._problems.items():
-            pp["problem"].dump_all_histories(
-                dir_path,
-                pn,
-                problem_histories_compressed,
-            )
+    #     Args:
+    #         dir_path (Union[Path, str]): Output directory
+    #         benchmark_results_filename (str): Filename for the benchmark
+    #             results. `benchmark.csv` by default.
+    #         benchmark_results_fmt (str): Format of the benchmark results file,
+    #             see `nmoo.benchmark.Benchmark.dump_results`. Defaults to CSV.
+    #         benchmark_results_writer_kwargs (Optional[dict]): Optional kwargs
+    #             to pass on to the `pandas.DataFrame.to_<fmt>` benchmark results
+    #             writer method.
+    #         problem_histories_compressed (bool): Wether to compress the problem
+    #             history files, see `nmoo.utils.WrappedProblem.dump_history`.
+    #     """
+    #     if benchmark_results_writer_kwargs is None:
+    #         benchmark_results_writer_kwargs = dict()
+    #     self.dump_results(
+    #         Path(dir_path) / benchmark_results_filename,
+    #         benchmark_results_fmt,
+    #         **benchmark_results_writer_kwargs,
+    #     )
+    #     for pn, pp in self._problems.items():
+    #         pp["problem"].dump_all_histories(
+    #             dir_path,
+    #             pn,
+    #             problem_histories_compressed,
+    #         )
 
     def dump_results(self, path: Union[Path, str], fmt: str = "csv", **kwargs):
         """
@@ -304,7 +327,10 @@ class Benchmark:
 
     def run(self, n_jobs: int = -1, **joblib_kwargs):
         """
-        Runs the benchmark sequentially. Makes your laptop go brr.
+        Runs the benchmark sequentially. Makes your laptop go brr. The
+        histories of all problems are progressively dumped in the specified
+        output directory as the benchmark run. At the end, the benchmark
+        results are dumped in `output_dir_path/benchmark.csv`.
 
         Args:
             n_jobs (int): Number of threads to use. See the `joblib.Parallel`_
@@ -327,3 +353,4 @@ class Benchmark:
         )
         for df in results:
             self._results = self._results.append(df, ignore_index=True)
+        self.dump_results(self._output_dir_path / "benchmark.csv")
