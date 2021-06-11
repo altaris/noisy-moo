@@ -3,8 +3,7 @@
 """
 __docformat__ = "google"
 
-__name__ = "nmoo"
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 from .wrapped_problem import WrappedProblem
 from . import benchmark
