@@ -17,6 +17,9 @@ class GaussianNoise(WrappedProblem):
     A Gaussian noisy problem.
     """
 
+    _generator: np.random.Generator
+    """Random number generator."""
+
     _parameters: Dict[str, Tuple[float, float]]
 
     def __init__(
@@ -53,6 +56,7 @@ class GaussianNoise(WrappedProblem):
         """
         super().__init__(problem)
         self._parameters = parameters
+        self._generator = np.random.default_rng()
 
     def _evaluate(self, x, out, *args, **kwargs):
         """
@@ -82,7 +86,7 @@ class GaussianNoise(WrappedProblem):
         for k in self._parameters.keys():
             try:
                 mean, stddev = self._parameters[k]
-                noises[k] = np.random.normal(mean, stddev, out[k].shape)
+                noises[k] = self._generator.normal(mean, stddev, out[k].shape)
                 out[k] += noises[k]
             except KeyError:
                 logging.error(
