@@ -20,12 +20,16 @@ class GaussianNoise(WrappedProblem):
     _generator: np.random.Generator
     """Random number generator."""
 
-    _parameters: Dict[str, Tuple[float, float]]
+    _parameters: Dict[str, Tuple[np.ndarray, np.ndarray]]
+    """
+    Noise parameters. Each entry is a tuple containing the noise's mean vector
+    and covariance matrix.
+    """
 
     def __init__(
         self,
         problem: Problem,
-        parameters: Dict[str, Tuple[float, float]],
+        parameters: Dict[str, Tuple[np.ndarray, np.ndarray]],
     ):
         """
         Constructor.
@@ -33,20 +37,31 @@ class GaussianNoise(WrappedProblem):
         Args:
             problem (:obj:`Problem`): A non-noisy pymoo problem.
             parameters (dict): Gaussian noise parameters, in the form of a dict
-                mapping the name of an objective to a float pair (mean, stddev).
-                The set of keys should exactly match that of the final out
-                dictionary in the wrapped problem's `_evaluate` method.
+                mapping the name of an objective to a numpy array pair
+                (mean, covariance matrix). The set of keys should be a subset
+                of the final `out` dictionary keys in the wrapped problem's
+                `_evaluate` method.
 
         Example:
-            The following creates a new problem by adding a `N(0, 2)` noise on
-            the `F` component of the objective function of `problem`, and an
-            `N(0, 0.25)` noise on the `G` component::
+            Assume that the output of the wrapped problem has an `F` and a `G`
+            numerical component, both of wich are 2-dimensional. The following
+            creates a new problem by adding a `N(0, .2)` noise on all
+            components of `F` (without any covariance), and a 0-mean
+            1-dimensional gaussian noise along the plane antidiagonal (line
+            with -pi/4 orientation):
 
+                mean_F = np.array([0., 0.])
+                cov_F = .2 * np.eye(2)
+                mean_G = np.array([0., 0.])
+                cov_G = np.array([
+                    [1., -1.],
+                    [-1., 1.],
+                ])
                 noisy_problem = nmoo.GaussianNoise(
                     problem,
                     {
-                        "F": (0., 2.),
-                        "G": (0., .25),
+                        "F": (mean_F, cov_F),
+                        "G": (mean_G, cov_G),
                     },
                 )
 
@@ -85,8 +100,12 @@ class GaussianNoise(WrappedProblem):
         noises: Dict[str, np.ndarray] = dict()
         for k in self._parameters.keys():
             try:
-                mean, stddev = self._parameters[k]
-                noises[k] = self._generator.normal(mean, stddev, out[k].shape)
+                mean, cov = self._parameters[k]
+                noises[k] = self._generator.multivariate_normal(
+                    mean,
+                    cov,
+                    out[k].shape[0],
+                )
                 out[k] += noises[k]
             except KeyError:
                 logging.error(

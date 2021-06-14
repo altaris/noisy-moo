@@ -1,9 +1,10 @@
 """
 .. include:: ../README.md
+.. include:: ../CHANGELOG.md
 """
 __docformat__ = "google"
 
-__version__ = "1.1.2"
+__version__ = "2.0.0"
 
 from .wrapped_problem import WrappedProblem
 from . import benchmark
