@@ -4,7 +4,7 @@
 """
 __docformat__ = "google"
 
-__version__ = "2.0.1"
+__version__ = "2.1.0"
 
 from .wrapped_problem import WrappedProblem
 from . import benchmark
