@@ -7,7 +7,7 @@ import os
 
 from itertools import product
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict, Union
 
 from joblib import delayed, Parallel
 from pymoo.factory import get_performance_indicator
