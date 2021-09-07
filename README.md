@@ -1,8 +1,13 @@
 noisy-moo
 =========
 
+![Python 3](https://badgen.net/badge/Python/3/blue)
+[![MIT License](https://badgen.net/badge/license/MIT/blue)](https://choosealicense.com/licenses/mit/)
+[![Code style](https://badgen.net/badge/style/black/black)](https://pypi.org/project/black)
+[![Maintainability](https://api.codeclimate.com/v1/badges/aedd8e97a23534a85bc5/maintainability)](https://codeclimate.com/github/altaris/noisy-moo/maintainability)
+
 <img src="https://github.com/altaris/noisy-moo/raw/main/imgs/the_cow.png"
-alt="The Cow" width="500"/>
+alt="The Cow" width="250"/>
 
 A wrapper-based framework for pymoo problem modification. Motivated by [the
 works](https://github.com/ERATOMMSD/QUATIC2021-KNN-Averaging) of
