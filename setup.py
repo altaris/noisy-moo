@@ -1,6 +1,7 @@
 import setuptools
 
-from nmoo import __name__, __version__
+name = "nmoo"
+version = "2.1.2"
 
 with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
@@ -33,7 +34,7 @@ setuptools.setup(
     install_requires=requirements,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    name=__name__,
+    name=name,
     packages=packages,
     platforms="any",
     project_urls={
@@ -41,5 +42,5 @@ setuptools.setup(
     },
     python_requires=">=3.7",
     url="https://github.com/altaris/noisy-moo",
-    version=__version__,
+    version=version,
 )

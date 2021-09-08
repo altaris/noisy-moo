@@ -4,8 +4,6 @@
 """
 __docformat__ = "google"
 
-__version__ = "2.1.1"
-
 from .wrapped_problem import WrappedProblem
 from . import benchmark
 from . import denoisers
