@@ -19,7 +19,13 @@ class ResampleAverage(WrappedProblem):
 
     _n_evaluations: int
 
-    def __init__(self, problem: Problem, n_evaluations: int = 5):
+    def __init__(
+        self,
+        problem: Problem,
+        n_evaluations: int = 5,
+        *,
+        name: str = "resample_avg",
+    ):
         """
         Constructor.
 
@@ -27,8 +33,11 @@ class ResampleAverage(WrappedProblem):
             problem (:obj:`Problem`): Noisy pymoo problem.
             n_evaluations (int): Number of times to evaluate the problem on
                 each solution. Defaults to 5.
+            name (str): An optional name for this problem. This will be used
+                when creating history dump files. Defaults to
+                `resample_avg`.
         """
-        super().__init__(problem)
+        super().__init__(problem, name=name)
 
         if n_evaluations <= 0:
             raise ValueError("The number of evaluations should be at least 1.")

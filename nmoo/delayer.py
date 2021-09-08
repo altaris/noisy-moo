@@ -23,8 +23,20 @@ class Delayer(WrappedProblem):
     precise sleep time.
     """
 
-    def __init__(self, problem: Problem, delay: float = 0.05):
-        super().__init__(problem)
+    def __init__(
+        self,
+        problem: Problem,
+        delay: float = 0.05,
+        *,
+        name: str = "delayer",
+    ):
+        """
+        Args:
+            name (str): An optional name for this problem. This will be used
+                when creating history dump files. Defaults to
+                `wrapped_problem`.
+        """
+        super().__init__(problem, name=name)
 
         if delay < 0.0:
             raise ValueError("Delay must be a positive.")

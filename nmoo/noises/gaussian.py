@@ -30,11 +30,16 @@ class GaussianNoise(WrappedProblem):
         self,
         problem: Problem,
         parameters: Dict[str, Tuple[np.ndarray, np.ndarray]],
+        *,
+        name: str = "gaussian_noise",
     ):
         """
         Constructor.
 
         Args:
+            name (str): An optional name for this problem. This will be used
+                when creating history dump files. Defaults to
+                `gaussian_noise`.
             problem (:obj:`Problem`): A non-noisy pymoo problem.
             parameters (dict): Gaussian noise parameters, in the form of a dict
                 mapping the name of an objective to a numpy array pair
@@ -69,7 +74,7 @@ class GaussianNoise(WrappedProblem):
             `pymoo documentation
             <https://pymoo.org/getting_started.html#By-Class>`_
         """
-        super().__init__(problem)
+        super().__init__(problem, name=name)
         self._parameters = parameters
         self._generator = np.random.default_rng()
 

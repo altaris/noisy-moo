@@ -33,6 +33,8 @@ class KNNAvg(WrappedProblem):
         max_distance: float,
         n_neighbors: int = 5,  # KNN
         distance_weight_type: str = "uniform",
+        *,
+        name: str = "knn_avg",
     ):
         """
         Constructor.
@@ -44,8 +46,10 @@ class KNNAvg(WrappedProblem):
             distance_weight_type (str): Either "squared" or "uniform".
             max_distance (float): Distance cutoff.
             n_neighbors (int): Number of neighbors to consider (KNN).
+            name (str): An optional name for this problem. This will be used
+                when creating history dump files. Defaults to `knn_avg`.
         """
-        super().__init__(problem)
+        super().__init__(problem, name=name)
 
         if distance_weight_type not in ["squared", "uniform"]:
             raise ValueError(

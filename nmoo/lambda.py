@@ -24,11 +24,15 @@ class Lambda(WrappedProblem):
         self,
         problem: Problem,
         functions: Dict[str, Callable[[np.ndarray], np.ndarray]],
+        *,
+        name: str = "lambda",
     ):
         """
         Constructor.
 
         Args:
+            name (str): An optional name for this problem. This will be used
+                when creating history dump files. Defaults to `lambda`.
             problem (:obj:`Problem`): A non-noisy pymoo problem.
             parameters (dict): Functions to apply, in the form of a dict
                 mapping the name of an objective to a callable object. The set
@@ -46,7 +50,7 @@ class Lambda(WrappedProblem):
                     },
                 )
         """
-        super().__init__(problem)
+        super().__init__(problem, name=name)
         self._functions = functions
 
     def _evaluate(self, x, out, *args, **kwargs):

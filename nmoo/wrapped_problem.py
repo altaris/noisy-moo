@@ -38,15 +38,21 @@ class WrappedProblem(Problem):
     of the keys of what you're story in history.
     """
 
+    _name: str
+    """The name of this problem."""
+
     _problem: Problem
     """Wrapped pymoo problem."""
 
-    def __init__(self, problem: Problem):
+    def __init__(self, problem: Problem, *, name: str = "wrapped_problem"):
         """
         Constructor.
 
         Args:
             problem (:obj:`Problem`): A non-noisy pymoo problem.
+            name (str): An optional name for this problem. This will be used
+                when creating history dump files. Defaults to
+                `wrapped_problem`.
         """
         super().__init__(
             n_var=problem.n_var,
@@ -63,6 +69,7 @@ class WrappedProblem(Problem):
             callback=problem.callback,
         )
         self._history = dict()
+        self._name = name
         self._problem = problem
 
     def add_to_history(self, **kwargs):
@@ -124,10 +131,11 @@ class WrappedProblem(Problem):
         Args:
             dir_path (Union[Path, str]): Output directory.
             name (str): The output files will be named according to the
-                following pattern: `<name>.<_idx>.npz`, where `_idx` is the
-                "depth" of the corresponding problem (1 for the outermost, 2
-                for the one wrapped within it, etc.). Note that the `.npz`
-                extension is automatically added.
+                following pattern: `<name>.<_idx>-<layer_name>.npz`, where
+                `_idx` is the "depth" of the corresponding problem (1 for the
+                outermost, 2 for the one wrapped within it, etc.), and
+                `layer_name` is the name of the current `WrappedProblem`
+                instance (see `WrappedProblem.__init__`).
             compressed (bool): Wether to compress the archive (defaults to
                 `True`).
             _idx (int): Don't touch that.
@@ -135,7 +143,9 @@ class WrappedProblem(Problem):
         See also:
             `nmoo.utils.WrappedProblem.dump_history`
         """
-        self.dump_history(Path(dir_path) / f"{name}.{_idx}.npz", compressed)
+        self.dump_history(
+            Path(dir_path) / f"{name}.{_idx}-{self._name}.npz", compressed
+        )
         if isinstance(self._problem, WrappedProblem):
             self._problem.dump_all_histories(
                 dir_path, name, compressed, _idx + 1
