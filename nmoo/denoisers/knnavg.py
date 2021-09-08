@@ -3,7 +3,6 @@ A denoiser tries to cancel noise. (also water is wet)
 """
 __docformat__ = "google"
 
-from pymoo.model.problem import Problem
 from scipy.spatial.distance import cdist
 import numpy as np
 import pandas as pd
@@ -30,7 +29,7 @@ class KNNAvg(WrappedProblem):
 
     def __init__(
         self,
-        problem: Problem,
+        problem: WrappedProblem,
         max_distance: float,
         n_neighbors: int = 5,  # KNN
         distance_weight_type: str = "uniform",
@@ -39,7 +38,9 @@ class KNNAvg(WrappedProblem):
         Constructor.
 
         Args:
-            problem (:obj:`Problem`): Noisy pymoo problem.
+            problem (:obj:`WrappedProblem`): Noisy problem. For memory
+                optimization reasons, this should be a `WrappedProblem` as
+                opposed to a pymoo `Problem`.
             distance_weight_type (str): Either "squared" or "uniform".
             max_distance (float): Distance cutoff.
             n_neighbors (int): Number of neighbors to consider (KNN).
