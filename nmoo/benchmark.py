@@ -82,8 +82,11 @@ class Benchmark:
         since it may be used in filenames), and `<algorithm_description>` is
         a dictionary with the following keys:
         * `algorithm`: a pymoo `Algorithm` instance;
-        * `seed` (optional, int): a seed.
-        * `termination` (optional): a pymoo termination criterion;
+        * `minimize_kwargs` (optional, dict): optional kwargs to be passed to
+            pymoo's `minimize method`; note that the following keys will be
+            ignored: `callback`, `save_history`, `seed`, `verbose`;
+        * `seed` (optional, int): a seed;
+        * `termination` (optional): a pymoo termination criterion.
 
         Args:
             algorithms (Dict[str, dict]): Dict of all algorithms to be
@@ -190,6 +193,7 @@ class Benchmark:
             problem_description["problem"],
             algorithm_desciption["algorithm"],
             algorithm_desciption.get("termination", None),
+            **algorithm_desciption.get("minimize_kwargs", {}),
             callback=TimerCallback(),
             save_history=True,
             seed=algorithm_desciption.get("seed", None),
