@@ -3,6 +3,7 @@ A benchmarking utility
 """
 __docformat__ = "google"
 
+from copy import deepcopy
 import os
 
 from itertools import product
@@ -190,7 +191,8 @@ class Benchmark:
         )
         problem_description["problem"].start_new_run()
         results = minimize(
-            problem_description["problem"],
+            deepcopy(problem_description["problem"]),
+            # Algorithm is deepcopied during setup
             algorithm_desciption["algorithm"],
             algorithm_desciption.get("termination", None),
             **algorithm_desciption.get("minimize_kwargs", {}),
