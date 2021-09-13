@@ -90,17 +90,20 @@ class Benchmark:
         where `<algorithm_name>` is a user-defined string (but stay reasonable
         since it may be used in filenames), and `<algorithm_description>` is
         a dictionary with the following keys:
-        * `algorithm`: a pymoo `Algorithm` object;
-        * `display` (optional): a custom
-            `pymoo.util.display.Display` object for customization purposes;
-        * `evaluator` (optional): an algorithm evaluator object;
+        * `algorithm`: a pymoo `Algorithm` object; note that it is deepcopied
+            for every run of `minimize`;
+        * `display` (optional): a custom `pymoo.util.display.Display` object
+            for customization purposes;
+        * `evaluator` (optional): an algorithm evaluator object; note that it
+            is deepcopied for every run of `minimize`;
         * `return_least_infeasible` (optional, bool): if the algorithm cannot
             find a feasable solution, wether the least infeasable solution
             should still be returned; defaults to `False`;
         * `save_history` (optional, bool): wether a snapshot of the algorithm
             object should be kept at each iteration; defaults to `True`;
         * `seed` (optional, int): a seed;
-        * `termination` (optional): a pymoo termination criterion;
+        * `termination` (optional): a pymoo termination criterion; note that it
+            is deepcopied for every run of `minimize`;
         * `verbose` (optional, bool): wether outputs should be printed during
             during the execution of the algorithm; defaults to `False`.
 
@@ -220,7 +223,7 @@ class Benchmark:
             # extra Algorithm.setup kwargs
             callback=TimerCallback(),
             display=algorithm_desciption.get("display"),
-            evaluator=algorithm_desciption.get("evaluator"),
+            evaluator=deepcopy(algorithm_desciption.get("evaluator")),
             return_least_infeasible=algorithm_desciption.get(
                 "return_least_infeasible", False
             ),
