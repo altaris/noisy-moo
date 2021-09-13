@@ -238,12 +238,17 @@ class Benchmark:
                 f"{problem_name}.{algorithm_name}.{n_run}",
             )
 
+        df = pd.DataFrame()
+
         if not save_history:
             results.history = [results.algorithm]
 
-        df = pd.DataFrame()
         df["n_gen"] = [a.n_gen for a in results.history]
-        df["timedelta"] = results.algorithm.callback._deltas
+        df["timedelta"] = (
+            results.algorithm.callback._deltas
+            if save_history
+            else [results.algorithm.callback._deltas[-1]]
+        )
 
         if "pareto_front" in problem_description:
             pareto_front = problem_description["pareto_front"]
