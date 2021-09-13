@@ -9,6 +9,7 @@ import os
 from itertools import product
 from pathlib import Path
 from typing import Dict, Union
+import logging
 
 from joblib import delayed, Parallel
 from pymoo.factory import get_performance_indicator
@@ -208,15 +209,22 @@ class Benchmark:
         df["n_gen"] = range(1, len(results.history) + 1)
         df["timedelta"] = results.algorithm.callback._deltas
         if "pareto_front" in problem_description:
-            for pi in ["gd", "gd+", "igd", "igd+"]:
-                ind = get_performance_indicator(
-                    pi, problem_description["pareto_front"]
+            pareto_front = problem_description["pareto_front"]
+            if pareto_front is None:
+                logging.error(
+                    "Specified pareto front for problem %s is None",
+                    str(problem_description["problem"]),
                 )
-                df["perf_" + pi] = [
-                    # TODO: Generalize
-                    ind.calc(state.pop.get("F"))
-                    for state in results.history
-                ]
+            else:
+                for pi in ["gd", "gd+", "igd", "igd+"]:
+                    ind = get_performance_indicator(
+                        pi, problem_description["pareto_front"]
+                    )
+                    df["perf_" + pi] = [
+                        # TODO: Generalize
+                        ind.calc(state.pop.get("F"))
+                        for state in results.history
+                    ]
         df["algorithm"] = algorithm_name
         df["problem"] = problem_name
         df["n_run"] = n_run

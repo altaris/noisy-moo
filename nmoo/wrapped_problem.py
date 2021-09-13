@@ -72,6 +72,9 @@ class WrappedProblem(Problem):
         self._name = name
         self._problem = problem
 
+    def __str__(self):
+        return self._name
+
     def add_to_history(self, **kwargs):
         """
         Adds records to the history. The provided keys should match that of the
