@@ -90,12 +90,19 @@ class Benchmark:
         where `<algorithm_name>` is a user-defined string (but stay reasonable
         since it may be used in filenames), and `<algorithm_description>` is
         a dictionary with the following keys:
-        * `algorithm`: a pymoo `Algorithm` instance;
-        * `minimize_kwargs` (optional, dict): optional kwargs to be passed to
-            pymoo's `minimize method`; note that the following keys will be
-            ignored: `callback`, `save_history`, `seed`, `verbose`;
+        * `algorithm`: a pymoo `Algorithm` object;
+        * `display` (optional): a custom
+            `pymoo.util.display.Display` object for customization purposes;
+        * `evaluator` (optional): an algorithm evaluator object;
+        * `return_least_infeasible` (optional, bool): if the algorithm cannot
+            find a feasable solution, wether the least infeasable solution
+            should still be returned; defaults to `False`;
+        * `save_history` (optional, bool): wether a snapshot of the algorithm
+            object should be kept at each iteration; defaults to `True`;
         * `seed` (optional, int): a seed;
-        * `termination` (optional): a pymoo termination criterion.
+        * `termination` (optional): a pymoo termination criterion;
+        * `verbose` (optional, bool): wether outputs should be printed during
+            during the execution of the algorithm; defaults to `False`.
 
         Args:
             algorithms (Dict[str, dict]): Dict of all algorithms to be
@@ -202,26 +209,39 @@ class Benchmark:
             f"[{n_run_global+1}/{n_pairs}] Problem: {problem_name}, "
             f"Algorithm: {algorithm_name}, Run: {n_run}/{self._n_runs}"
         )
+        save_history = algorithm_desciption.get("save_history", True)
         problem_description["problem"].start_new_run()
         results = minimize(
             deepcopy(problem_description["problem"]),
-            # Algorithm is deepcopied during setup
             algorithm_desciption["algorithm"],
-            algorithm_desciption.get("termination", None),
-            **algorithm_desciption.get("minimize_kwargs", {}),
+            termination=algorithm_desciption.get("termination"),
+            copy_algorithm=True,
+            copy_termination=True,
+            # extra Algorithm.setup kwargs
             callback=TimerCallback(),
-            save_history=True,
-            seed=algorithm_desciption.get("seed", None),
-            verbose=False,
+            display=algorithm_desciption.get("display"),
+            evaluator=algorithm_desciption.get("evaluator"),
+            return_least_infeasible=algorithm_desciption.get(
+                "return_least_infeasible", False
+            ),
+            save_history=save_history,
+            seed=algorithm_desciption.get("seed"),
+            verbose=algorithm_desciption.get("verbose", False),
         )
+
         if self._dump_histories:
             problem_description["problem"].dump_all_histories(
                 self._output_dir_path,
                 f"{problem_name}.{algorithm_name}.{n_run}",
             )
+
+        if not save_history:
+            results.history = [results.algorithm]
+
         df = pd.DataFrame()
-        df["n_gen"] = range(1, len(results.history) + 1)
+        df["n_gen"] = [a.n_gen for a in results.history]
         df["timedelta"] = results.algorithm.callback._deltas
+
         if "pareto_front" in problem_description:
             pareto_front = problem_description["pareto_front"]
             if pareto_front is None:
@@ -239,9 +259,11 @@ class Benchmark:
                         ind.calc(state.pop.get("F"))
                         for state in results.history
                     ]
+
         df["algorithm"] = algorithm_name
         df["problem"] = problem_name
         df["n_run"] = n_run
+
         return df
 
     # def dump_everything(
