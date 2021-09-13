@@ -74,9 +74,15 @@ class Benchmark:
                 <problem_name>: <problem_description>,
             }
 
-        where `<problem_name>` is a user-defined string (but stay reasonable since
-        it may be used in filenames), and `<problem_description>` is a
+        where `<problem_name>` is a user-defined string (but stay reasonable
+        since it may be used in filenames), and `<problem_description>` is a
         dictionary with the following keys:
+        * `evaluator` (optional): an algorithm evaluator object that will be
+            applied to every algorithm that run on this problem; if an
+            algorithm already has an evaluator attached to it (see
+            `<algorithm_description>` below), the evaluator attached to this
+            problem takes precedence; note that the evaluator is deepcopied for
+            every run of `minimize`;
         * `pareto_front` (optional, `np.ndarray`): a Pareto front subset.
         * `problem`: a `WrappedProblem` instance;
 
@@ -88,8 +94,8 @@ class Benchmark:
             }
 
         where `<algorithm_name>` is a user-defined string (but stay reasonable
-        since it may be used in filenames), and `<algorithm_description>` is
-        a dictionary with the following keys:
+        since it may be used in filenames), and `<algorithm_description>` is a
+        dictionary with the following keys:
         * `algorithm`: a pymoo `Algorithm` object; note that it is deepcopied
             for every run of `minimize`;
         * `display` (optional): a custom `pymoo.util.display.Display` object
@@ -107,15 +113,12 @@ class Benchmark:
         * `verbose` (optional, bool): wether outputs should be printed during
             during the execution of the algorithm; defaults to `False`.
 
-        Args:
-            algorithms (Dict[str, dict]): Dict of all algorithms to be
-                benchmarked.
-            dump_histories (bool): Wether the history of each `WrappedProblem`
-                involved in this benchmark should be written to disk. Defaults
-                to `True`.
-            n_runs (int): Number of times to run a given problem/algorithm
-                pair.
-            problems (Dict[str, dict]): Dict of all problems to be benchmarked.
+        Args: algorithms (Dict[str, dict]): Dict of all algorithms to be
+            benchmarked. dump_histories (bool): Wether the history of each
+            `WrappedProblem` involved in this benchmark should be written to
+            disk. Defaults to `True`. n_runs (int): Number of times to run a
+            given problem/algorithm pair. problems (Dict[str, dict]): Dict of
+            all problems to be benchmarked.
         """
         if not algorithms:
             raise ValueError("A benchmark requires at least 1 algorithm.")
@@ -213,6 +216,10 @@ class Benchmark:
             f"Algorithm: {algorithm_name}, Run: {n_run}/{self._n_runs}"
         )
         save_history = algorithm_desciption.get("save_history", True)
+        evaluator = problem_description.get(
+            "evaluator",
+            algorithm_desciption.get("evaluator"),
+        )
         problem_description["problem"].start_new_run()
         results = minimize(
             deepcopy(problem_description["problem"]),
@@ -223,7 +230,7 @@ class Benchmark:
             # extra Algorithm.setup kwargs
             callback=TimerCallback(),
             display=algorithm_desciption.get("display"),
-            evaluator=deepcopy(algorithm_desciption.get("evaluator")),
+            evaluator=deepcopy(evaluator),
             return_least_infeasible=algorithm_desciption.get(
                 "return_least_infeasible", False
             ),
