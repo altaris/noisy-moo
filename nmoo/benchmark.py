@@ -31,6 +31,12 @@ class Benchmark:
     List of algorithms to be benchmarked.
     """
 
+    _dump_histories: bool
+    """
+    Wether the history of each `WrappedProblem` involved in this benchmark
+    should be written to disk.
+    """
+
     _n_runs: int
     """
     Number of times to run a given problem/algorithm pair.
@@ -57,6 +63,7 @@ class Benchmark:
         problems: Dict[str, dict],
         algorithms: Dict[str, dict],
         n_runs: int = 1,
+        dump_histories: bool = True,
     ):
         """
         Constructor. The set of problems to be benchmarked is represented by a
@@ -93,6 +100,9 @@ class Benchmark:
         Args:
             algorithms (Dict[str, dict]): Dict of all algorithms to be
                 benchmarked.
+            dump_histories (bool): Wether the history of each `WrappedProblem`
+                involved in this benchmark should be written to disk. Defaults
+                to `True`.
             n_runs (int): Number of times to run a given problem/algorithm
                 pair.
             problems (Dict[str, dict]): Dict of all problems to be benchmarked.
@@ -110,6 +120,8 @@ class Benchmark:
                     "key 'algorithm'."
                 )
         self._algorithms = algorithms
+
+        self._dump_histories = dump_histories
 
         if n_runs <= 0:
             raise ValueError(
@@ -202,9 +214,11 @@ class Benchmark:
             seed=algorithm_desciption.get("seed", None),
             verbose=False,
         )
-        problem_description["problem"].dump_all_histories(
-            self._output_dir_path, f"{problem_name}.{algorithm_name}.{n_run}"
-        )
+        if self._dump_histories:
+            problem_description["problem"].dump_all_histories(
+                self._output_dir_path,
+                f"{problem_name}.{algorithm_name}.{n_run}",
+            )
         df = pd.DataFrame()
         df["n_gen"] = range(1, len(results.history) + 1)
         df["timedelta"] = results.algorithm.callback._deltas
