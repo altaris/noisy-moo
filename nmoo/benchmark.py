@@ -240,7 +240,7 @@ class Benchmark:
         )
 
         if self._dump_histories:
-            problem_description["problem"].dump_all_histories(
+            results.problem.dump_all_histories(
                 self._output_dir_path,
                 f"{problem_name}.{algorithm_name}.{n_run}",
             )
