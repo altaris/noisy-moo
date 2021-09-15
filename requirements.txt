@@ -1,4 +1,4 @@
 joblib
 numpy
 pandas
-pymoo
+pymoo==0.5.0

@@ -7,7 +7,7 @@ from pathlib import Path
 import logging
 from typing import Dict, Union
 
-from pymoo.model.problem import Problem
+from pymoo.core.problem import Problem
 import numpy as np
 
 
@@ -60,11 +60,8 @@ class WrappedProblem(Problem):
             n_constr=problem.n_constr,
             xl=problem.xl,
             xu=problem.xu,
-            type_var=problem.type_var,
-            evaluation_of=problem.evaluation_of,
-            replace_nan_values_of=problem.replace_nan_values_of,
-            parallelization=problem.parallelization,
-            elementwise_evaluation=problem.elementwise_evaluation,
+            check_inconsistencies=problem.check_inconsistencies,
+            replace_nan_values_by=problem.replace_nan_values_by,
             exclude_from_serialization=problem.exclude_from_serialization,
             callback=problem.callback,
         )

@@ -5,7 +5,7 @@ __docformat__ = "google"
 
 from time import sleep
 
-from pymoo.model.problem import Problem
+from pymoo.core.problem import Problem
 import numpy as np
 
 from .wrapped_problem import WrappedProblem

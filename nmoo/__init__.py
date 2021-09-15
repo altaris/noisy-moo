@@ -13,6 +13,6 @@ from . import noises
 from . import utils
 
 try:
-    __version__ = get_distribution('nmoo').version
+    __version__ = get_distribution("nmoo").version
 except DistributionNotFound:
     __version__ = "local"

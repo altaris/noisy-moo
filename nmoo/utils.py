@@ -5,7 +5,7 @@ __docformat__ = "google"
 
 from typing import List
 
-from pymoo.model.callback import Callback
+from pymoo.core.callback import Callback
 
 import pandas as pd
 

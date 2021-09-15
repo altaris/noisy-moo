@@ -271,7 +271,7 @@ class Benchmark:
                     )
                     df["perf_" + pi] = [
                         # TODO: Generalize
-                        ind.calc(state.pop.get("F"))
+                        ind.do(state.pop.get("F"))
                         for state in results.history
                     ]
 
