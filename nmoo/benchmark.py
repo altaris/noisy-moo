@@ -4,12 +4,11 @@ A benchmarking utility
 __docformat__ = "google"
 
 from copy import deepcopy
-import os
-
 from itertools import product
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict, List, Optional, Union
 import logging
+import os
 
 from joblib import delayed, Parallel
 from pymoo.factory import get_performance_indicator
@@ -25,6 +24,8 @@ class Benchmark:
     descriptions, and run each algorithm against each problem, storing all
     histories for later analysis.
     """
+
+    SUPPORTED_PERFOMANCE_INDICATORS = ["gd", "gd+", "igd", "igd+"]
 
     _algorithms: Dict[str, dict]
     """
@@ -47,6 +48,11 @@ class Benchmark:
     Path of the output directory.
     """
 
+    _performance_indicators: List[str]
+    """
+    List of performance indicator to calculate during the benchmark.
+    """
+
     _problems: Dict[str, dict]
     """
     List of problems to be benchmarked.
@@ -64,6 +70,7 @@ class Benchmark:
         algorithms: Dict[str, dict],
         n_runs: int = 1,
         dump_histories: bool = True,
+        performance_indicators: Optional[List[str]] = None,
     ):
         """
         Constructor. The set of problems to be benchmarked is represented by a
@@ -113,12 +120,27 @@ class Benchmark:
         * `verbose` (optional, bool): wether outputs should be printed during
             during the execution of the algorithm; defaults to `False`.
 
-        Args: algorithms (Dict[str, dict]): Dict of all algorithms to be
-            benchmarked. dump_histories (bool): Wether the history of each
-            `WrappedProblem` involved in this benchmark should be written to
-            disk. Defaults to `True`. n_runs (int): Number of times to run a
-            given problem/algorithm pair. problems (Dict[str, dict]): Dict of
-            all problems to be benchmarked.
+        Args:
+            algorithms (Dict[str, dict]): Dict of all algorithms to be
+                benchmarked.
+            dump_histories (bool): Wether the history of each
+                `WrappedProblem` involved in this benchmark should be written
+                to disk. Defaults to `True`.
+            n_runs (int): Number of times to run a given problem/algorithm
+                pair.
+            problems (Dict[str, dict]): Dict of all problems to be benchmarked.
+            performance_indicators (Optional[List[str]]): List of perfomance
+                indicators to be calculated and included in the result
+                dataframe (see `Benchmark.final_results`). Supported indicators
+                are
+                * `gd`: [generational distance](https://pymoo.org/misc/indicators.html#Generational-Distance-(GD));
+                * `gd+`: [generational distance plus](https://pymoo.org/misc/indicators.html#Generational-Distance-Plus-(GD+));
+                * `igd`: [inverted generational distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-(IGD));
+                * `igd+`: [inverted generational distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-Plus-(IGD+)).
+
+                In the result dataframe, the corresponding columns will be
+                named `perf_<name of indicator>`, e.g. `perf_igd`. If left
+                unspecified, defaults to `["gd", "gd+", "igd", "igd+"]`.
         """
         if not algorithms:
             raise ValueError("A benchmark requires at least 1 algorithm.")
@@ -149,6 +171,16 @@ class Benchmark:
             )
         self._output_dir_path = Path(output_dir_path)
 
+        if performance_indicators is None:
+            self._performance_indicators = ["gd", "gd+", "igd", "igd+"]
+        else:
+            self._performance_indicators = []
+            for pi in set(performance_indicators):
+                if pi not in Benchmark.SUPPORTED_PERFOMANCE_INDICATORS:
+                    raise ValueError(f"Unknown performance indicator '{pi}'")
+                self._performance_indicators.append(pi)
+            self._performance_indicators = sorted(self._performance_indicators)
+
         if not problems:
             raise ValueError("A benchmark requires at least 1 problem.")
         for k, v in problems.items():
@@ -163,19 +195,9 @@ class Benchmark:
                 )
         self._problems = problems
 
-        self._results = pd.DataFrame(
-            columns=[
-                "algorithm",
-                "problem",
-                "n_run",
-                "n_gen",
-                "timedelta",
-                "perf_gd",
-                "perf_gd+",
-                "perf_igd",
-                "perf_igd+",
-            ],
-        )
+        columns = ["algorithm", "problem", "n_run", "n_gen", "timedelta"]
+        columns += ["perf_" + pi for pi in self._performance_indicators]
+        self._results = pd.DataFrame(columns=columns)
 
     def _run_pair(
         self,
@@ -265,7 +287,7 @@ class Benchmark:
                     str(problem_description["problem"]),
                 )
             else:
-                for pi in ["gd", "gd+", "igd", "igd+"]:
+                for pi in self._performance_indicators:
                     ind = get_performance_indicator(
                         pi, problem_description["pareto_front"]
                     )
