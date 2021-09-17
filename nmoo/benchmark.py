@@ -488,4 +488,4 @@ class Benchmark:
         )
         for df in results:
             self._results = self._results.append(df, ignore_index=True)
-        self.dump_results(self._output_dir_path / "benchmark.csv")
+        self.dump_results(self._output_dir_path / "benchmark.csv", index=False)
