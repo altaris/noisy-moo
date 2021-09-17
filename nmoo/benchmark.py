@@ -25,7 +25,7 @@ class Benchmark:
     histories for later analysis.
     """
 
-    SUPPORTED_PERFOMANCE_INDICATORS = ["gd", "gd+", "igd", "igd+"]
+    SUPPORTED_PERFOMANCE_INDICATORS = ["gd", "gd+", "hv", "igd", "igd+", "ps"]
 
     _algorithms: Dict[str, dict]
     """
@@ -90,6 +90,9 @@ class Benchmark:
             `<algorithm_description>` below), the evaluator attached to this
             problem takes precedence; note that the evaluator is deepcopied for
             every run of `minimize`;
+        * `hv_ref_point` (optional, `np.ndarray`): a reference point for
+            computing hypervolume performance, see `performance_indicators`
+            argument;
         * `pareto_front` (optional, `np.ndarray`): a Pareto front subset;
         * `problem`: a `WrappedProblem` instance.
 
@@ -141,6 +144,10 @@ class Benchmark:
                     requires `pareto_front` to be set in the problem
                     description dictionaries, otherwise the value of this
                     indicator will be `NaN`;
+                * `hv`: [hypervolume](https://pymoo.org/misc/indicators.html#Hypervolume),
+                    requires `hv_ref_point` to be set in the problem
+                    discription dictionaries, otherwise the value of this
+                    indicator will be `NaN`;
                 * `igd`: [inverted generational distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-(IGD)),
                     requires `pareto_front` to be set in the problem
                     description dictionaries, otherwise the value of this
@@ -148,7 +155,9 @@ class Benchmark:
                 * `igd+`: [inverted generational distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-Plus-(IGD+)),
                     requires `pareto_front` to be set in the problem
                     description dictionaries, otherwise the value of this
-                    indicator will be `NaN`.
+                    indicator will be `NaN`;
+                * `ps`: population size, or equivalently, the size of the
+                    current Pareto front.
 
                 In the result dataframe, the corresponding columns will be
                 named `perf_<name of indicator>`, e.g. `perf_igd`. If left
@@ -291,18 +300,25 @@ class Benchmark:
             else [results.algorithm.callback._deltas[-1]]
         )
 
+        # pylint: disable=cell-var-from-loop
         for pi in self._performance_indicators:
-            if pi in ["gd", "gd+", "igd", "igd+"]:
-                if "pareto_front" in problem_description:
-                    ind = get_performance_indicator(
-                        pi, problem_description["pareto_front"]
-                    )
-                    vals = [
-                        ind.do(state.pop.get("F")) for state in results.history
-                    ]
-                else:
-                    vals = [np.nan] * len(results.history)
-            df["perf_" + pi] = vals
+            f = lambda _: np.nan
+            if (
+                pi in ["gd", "gd+", "igd", "igd+"]
+                and "pareto_front" in problem_description
+            ):
+                ind = get_performance_indicator(
+                    pi, problem_description["pareto_front"]
+                )
+                f = lambda state: ind.do(state.pop.get("F"))
+            elif pi == "hv" and "hv_ref_point" in problem_description:
+                ind = get_performance_indicator(
+                    "hv", ref_point=problem_description["hv_ref_point"]
+                )
+                f = lambda state: ind.do(state.pop.get("F"))
+            elif pi == "ps":
+                f = lambda state: len(state.pop.get("F"))
+            df["perf_" + pi] = [f(state) for state in results.history]
 
         df["algorithm"] = algorithm_name
         df["problem"] = problem_name
