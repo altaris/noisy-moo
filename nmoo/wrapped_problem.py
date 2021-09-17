@@ -186,6 +186,15 @@ class WrappedProblem(Problem):
         if isinstance(self._problem, WrappedProblem):
             self._problem.start_new_run()
 
+    def ground_problem(self) -> Problem:
+        """
+        Recursively goes down the problem wrappers until an actual
+        `pymoo.Problem` is found, and returns it.
+        """
+        if isinstance(self._problem, WrappedProblem):
+            return self._problem.ground_problem()
+        return self._problem
+
     def _evaluate(self, x, out, *args, **kwargs):
         """
         Calls the wrapped problems's `_evaluate` method and appends its input

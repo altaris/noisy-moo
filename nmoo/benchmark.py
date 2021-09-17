@@ -15,7 +15,9 @@ from pymoo.optimize import minimize
 import numpy as np
 import pandas as pd
 
+from nmoo.indicators.delta_f import DeltaF
 from nmoo.utils import TimerCallback
+from nmoo.wrapped_problem import WrappedProblem
 
 
 class Benchmark:
@@ -25,7 +27,15 @@ class Benchmark:
     histories for later analysis.
     """
 
-    SUPPORTED_PERFOMANCE_INDICATORS = ["gd", "gd+", "hv", "igd", "igd+", "ps"]
+    SUPPORTED_PERFOMANCE_INDICATORS = [
+        "df",
+        "gd",
+        "gd+",
+        "hv",
+        "igd",
+        "igd+",
+        "ps",
+    ]
 
     _algorithms: Dict[str, dict]
     """
@@ -84,6 +94,8 @@ class Benchmark:
         where `<problem_name>` is a user-defined string (but stay reasonable
         since it may be used in filenames), and `<problem_description>` is a
         dictionary with the following keys:
+        * `df_n_evals` (int, optional): see the explanation of the `df`
+            performance indicator below; defaults to `1`;
         * `evaluator` (optional): an algorithm evaluator object that will be
             applied to every algorithm that run on this problem; if an
             algorithm already has an evaluator attached to it (see
@@ -136,6 +148,8 @@ class Benchmark:
                 indicators to be calculated and included in the result
                 dataframe (see `Benchmark.final_results`). Supported indicators
                 are
+                * `df`: ΔF metric, see the documentation of
+                    `nmoo.indicators.delta_f.DeltaF`;
                 * `gd`: [generational distance](https://pymoo.org/misc/indicators.html#Generational-Distance-(GD)),
                     requires `pareto_front` to be set in the problem
                     description dictionaries, otherwise the value of this
@@ -303,7 +317,18 @@ class Benchmark:
         # pylint: disable=cell-var-from-loop
         for pi in self._performance_indicators:
             f = lambda _: np.nan
-            if (
+            if pi == "df":
+                problem = problem_description["problem"]
+                if isinstance(problem, WrappedProblem):
+                    n_evals = problem_description.get("df_n_evals", 1)
+                    delta_f = DeltaF(problem, n_evals)
+                    f = lambda state: delta_f.do(
+                        state.pop.get("F"), state.pop.get("X")
+                    )
+                else:
+                    # the problem is already the ground problem
+                    f = lambda _: 0.0
+            elif (
                 pi in ["gd", "gd+", "igd", "igd+"]
                 and "pareto_front" in problem_description
             ):
@@ -312,10 +337,10 @@ class Benchmark:
                 )
                 f = lambda state: ind.do(state.pop.get("F"))
             elif pi == "hv" and "hv_ref_point" in problem_description:
-                ind = get_performance_indicator(
+                hv = get_performance_indicator(
                     "hv", ref_point=problem_description["hv_ref_point"]
                 )
-                f = lambda state: ind.do(state.pop.get("F"))
+                f = lambda state: hv.do(state.pop.get("F"))
             elif pi == "ps":
                 f = lambda state: len(state.pop.get("F"))
             df["perf_" + pi] = [f(state) for state in results.history]
