@@ -1,6 +1,14 @@
 Changelog
 =========
 
+# v3.0.0
+
+## Beaking changes
+
+* In the algorithm specification dictionaries of `Benchmark.__init__`, key
+  `minimize_kwargs` is no longer considered. Instead, various other keys have
+  been added. Refer to the documentation.
+
 # v2.0.0
 
 ## Breaking changes
