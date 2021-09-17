@@ -7,12 +7,12 @@ from copy import deepcopy
 from itertools import product
 from pathlib import Path
 from typing import Dict, List, Optional, Union
-import logging
 import os
 
 from joblib import delayed, Parallel
 from pymoo.factory import get_performance_indicator
 from pymoo.optimize import minimize
+import numpy as np
 import pandas as pd
 
 from nmoo.utils import TimerCallback
@@ -90,8 +90,8 @@ class Benchmark:
             `<algorithm_description>` below), the evaluator attached to this
             problem takes precedence; note that the evaluator is deepcopied for
             every run of `minimize`;
-        * `pareto_front` (optional, `np.ndarray`): a Pareto front subset.
-        * `problem`: a `WrappedProblem` instance;
+        * `pareto_front` (optional, `np.ndarray`): a Pareto front subset;
+        * `problem`: a `WrappedProblem` instance.
 
         The set of algorithms to be used is specified similarly::
 
@@ -133,10 +133,22 @@ class Benchmark:
                 indicators to be calculated and included in the result
                 dataframe (see `Benchmark.final_results`). Supported indicators
                 are
-                * `gd`: [generational distance](https://pymoo.org/misc/indicators.html#Generational-Distance-(GD));
-                * `gd+`: [generational distance plus](https://pymoo.org/misc/indicators.html#Generational-Distance-Plus-(GD+));
-                * `igd`: [inverted generational distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-(IGD));
-                * `igd+`: [inverted generational distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-Plus-(IGD+)).
+                * `gd`: [generational distance](https://pymoo.org/misc/indicators.html#Generational-Distance-(GD)),
+                    requires `pareto_front` to be set in the problem
+                    description dictionaries, otherwise the value of this
+                    indicator will be `NaN`;
+                * `gd+`: [generational distance plus](https://pymoo.org/misc/indicators.html#Generational-Distance-Plus-(GD+)),
+                    requires `pareto_front` to be set in the problem
+                    description dictionaries, otherwise the value of this
+                    indicator will be `NaN`;
+                * `igd`: [inverted generational distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-(IGD)),
+                    requires `pareto_front` to be set in the problem
+                    description dictionaries, otherwise the value of this
+                    indicator will be `NaN`;
+                * `igd+`: [inverted generational distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-Plus-(IGD+)),
+                    requires `pareto_front` to be set in the problem
+                    description dictionaries, otherwise the value of this
+                    indicator will be `NaN`.
 
                 In the result dataframe, the corresponding columns will be
                 named `perf_<name of indicator>`, e.g. `perf_igd`. If left
@@ -279,23 +291,18 @@ class Benchmark:
             else [results.algorithm.callback._deltas[-1]]
         )
 
-        if "pareto_front" in problem_description:
-            pareto_front = problem_description["pareto_front"]
-            if pareto_front is None:
-                logging.error(
-                    "Specified pareto front for problem %s is None",
-                    str(problem_description["problem"]),
-                )
-            else:
-                for pi in self._performance_indicators:
+        for pi in self._performance_indicators:
+            if pi in ["gd", "gd+", "igd", "igd+"]:
+                if "pareto_front" in problem_description:
                     ind = get_performance_indicator(
                         pi, problem_description["pareto_front"]
                     )
-                    df["perf_" + pi] = [
-                        # TODO: Generalize
-                        ind.do(state.pop.get("F"))
-                        for state in results.history
+                    vals = [
+                        ind.do(state.pop.get("F")) for state in results.history
                     ]
+                else:
+                    vals = [np.nan] * len(results.history)
+            df["perf_" + pi] = vals
 
         df["algorithm"] = algorithm_name
         df["problem"] = problem_name
