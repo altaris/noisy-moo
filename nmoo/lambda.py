@@ -55,9 +55,8 @@ class Lambda(WrappedProblem):
 
     def _evaluate(self, x, out, *args, **kwargs):
         self._problem._evaluate(x, out, *args, **kwargs)
-        for k in self._functions.keys():
+        for k, function in self._functions.items():
             try:
-                function = self._parameters[k]
                 out[k] = function(out[k])
             except KeyError:
                 logging.error(

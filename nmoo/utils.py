@@ -27,6 +27,7 @@ class TimerCallback(Callback):
     """
 
     def __init__(self):
+        super().__init__()
         self._deltas = []
         self._initial_time = pd.Timestamp.now()
 

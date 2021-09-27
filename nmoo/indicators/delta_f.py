@@ -35,16 +35,22 @@ class DeltaF(Indicator):
     """
 
     def __init__(self, problem: WrappedProblem, n_evals: int = 1, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(zero_to_one=False, **kwargs)
         self._ground_problem = problem.ground_problem()
         if n_evals < 1:
             raise ValueError("n_evals must be >= 1")
         self._n_evals = n_evals
 
-    def do(self, F: np.ndarray, X: np.ndarray, *args, **kwargs) -> float:
+    def _do(self, F: np.ndarray, *args, **kwargs) -> float:
         """
         Calculates ΔF. See class documentation.
         """
+        if not args:
+            raise ValueError(
+                "Need a second argument (namely the X array) when calling "
+                "DeltaF.do"
+            )
+        X = args[0]
         fs = []
         for _ in range(self._n_evals):
             out: Dict[str, Any] = dict()
