@@ -1,6 +1,7 @@
 """
 ΔF plots
 """
+__docformat__ = "google"
 
 from itertools import product
 from math import sqrt
