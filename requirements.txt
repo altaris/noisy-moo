@@ -2,3 +2,4 @@ joblib
 numpy
 pandas
 pymoo==0.5.0
+seaborn

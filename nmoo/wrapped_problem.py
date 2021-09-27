@@ -5,7 +5,7 @@ __docformat__ = "google"
 
 from pathlib import Path
 import logging
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 from pymoo.core.problem import Problem
 import numpy as np
@@ -114,6 +114,18 @@ class WrappedProblem(Problem):
             x=x,
             **{k: v for k, v in out.items() if isinstance(v, np.ndarray)},
             **kwargs,
+        )
+
+    def all_layers(self) -> List["WrappedProblem"]:
+        """
+        Returns a list of all the `nmoo.wrapped_problem.WrappedProblem` wrapped
+        within (including the current one). This list is ordered from the
+        outermost one (the current problem) to the innermost one.
+        """
+        return [self] + (
+            self._problem.all_layers()
+            if isinstance(self._problem, WrappedProblem)
+            else []
         )
 
     def dump_all_histories(
