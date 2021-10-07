@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from itertools import product
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
+import logging
 import os
 
 from joblib import delayed, Parallel
@@ -286,7 +287,7 @@ class Benchmark:
             The same `Pair` object, but with a populated `result` field if the
             minimzation procedure was successful.
         """
-        print(str(pair))
+        logging.info("Running pair [%s]", pair)
         save_history = pair.algorithm_description.get("save_history", True)
         evaluator = pair.problem_description.get(
             "evaluator",
@@ -313,7 +314,7 @@ class Benchmark:
                 verbose=pair.algorithm_description.get("verbose", False),
             )
         except:  # pylint: disable=bare-except
-            print(f"Warning, pair [{str(pair)}] failed. Rescheduling...")
+            logging.error("Pair [%s] failed. Rescheduling...", pair)
             return pair
 
         if self._dump_histories:
@@ -529,10 +530,11 @@ class Benchmark:
                     pairs.append(pair)
             current_round += 1
         if pairs:
-            print(
-                "Warning: benchmark finished, but some pairs could not be run "
-                f"successfully within the retry budget ({self._max_retry}):"
+            logging.warning(
+                "Benchmark finished, but some pairs could not be run "
+                "successfully within the retry budget (%d):",
+                self._max_retry,
             )
             for pair in pairs:
-                print(f"    {str(pair)}")
+                logging.warning("    %s", pair)
         self.dump_results(self._output_dir_path / "benchmark.csv", index=False)
