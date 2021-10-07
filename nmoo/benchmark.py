@@ -4,9 +4,10 @@ A benchmarking utility
 __docformat__ = "google"
 
 from copy import deepcopy
+from dataclasses import dataclass
 from itertools import product
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 import os
 
 from joblib import delayed, Parallel
@@ -20,6 +21,24 @@ from nmoo.utils import TimerCallback
 from nmoo.wrapped_problem import WrappedProblem
 
 
+@dataclass
+class Pair:
+    """
+    Represents a problem-algorithm pair and its result.
+    """
+
+    algorithm_description: Dict[str, Any]
+    algorithm_name: str
+    n_run: int
+    problem_description: Dict[str, Any]
+    problem_name: str
+    result: Optional[pd.DataFrame] = None
+
+    def __str__(self) -> str:
+        return f"{self.problem_name} - {self.algorithm_name} ({self.n_run})"
+
+
+# pylint: disable=too-many-instance-attributes
 class Benchmark:
     """
     A benchmark is constructed with a list of problems and pymoo algorithms
@@ -46,6 +65,12 @@ class Benchmark:
     """
     Wether the history of each `WrappedProblem` involved in this benchmark
     should be written to disk.
+    """
+
+    _max_retry: int
+    """
+    Maximum number of attempts to run a given problem-algorithm pair before
+    giving up.
     """
 
     _n_runs: int
@@ -81,6 +106,7 @@ class Benchmark:
         n_runs: int = 1,
         dump_histories: bool = True,
         performance_indicators: Optional[List[str]] = None,
+        max_retry: int = -1,
     ):
         """
         Constructor. The set of problems to be benchmarked is represented by a
@@ -141,6 +167,9 @@ class Benchmark:
             dump_histories (bool): Wether the history of each
                 `WrappedProblem` involved in this benchmark should be written
                 to disk. Defaults to `True`.
+            max_retries (int): Maximum number of attempts to run a given
+                problem-algorithm pair before giving up. Set it to `-1` to
+                retry indefinitely.
             n_runs (int): Number of times to run a given problem/algorithm
                 pair.
             problems (Dict[str, dict]): Dict of all problems to be benchmarked.
@@ -192,6 +221,7 @@ class Benchmark:
         self._algorithms = algorithms
 
         self._dump_histories = dump_histories
+        self._max_retry = max_retry
 
         if n_runs <= 0:
             raise ValueError(
@@ -236,13 +266,8 @@ class Benchmark:
 
     def _run_pair(
         self,
-        algorithm_name: str,
-        algorithm_desciption: dict,
-        problem_name: str,
-        problem_description: dict,
-        n_run: int,
-        n_run_global: int,
-    ) -> pd.DataFrame:
+        pair: Pair,
+    ) -> Pair:
         """
         Runs a given algorithm against a given problem. See
         `nmoo.benchmark.Benchmark.run`. Immediately dumps the history of the
@@ -254,59 +279,52 @@ class Benchmark:
         `nmoo.wrapped_problem.WrappedProblem.dump_all_histories`.
 
         Args:
-            algorithm_name (str): Algorithm name.
-            algorithm_desciption (dict): Algorithm description
-                dictionary, see `nmoo.benchmark.Benchmark.__init__`.
-            problem_name (str): Problem name.
-            problem_description (dict): Problem description
-                dictionary, see `nmoo.benchmark.Benchmark.__init__`.
-            n_run (int): Run number of that given algorithm/problem pair.
-            n_run_global (int): Global run number (across all pairs
-                algorithm/problem pairs).
+            pair: A `Pair` object representint the problem-algorithm pair to
+                run.
 
         Returns:
-            Run result as a pandas `DataFrame`.
+            The same `Pair` object, but with a populated `result` field if the
+            minimzation procedure was successful.
         """
-        n_pairs = len(self._problems) * len(self._algorithms) * self._n_runs
-        print(
-            f"[{n_run_global+1}/{n_pairs}] Problem: {problem_name}, "
-            f"Algorithm: {algorithm_name}, Run: {n_run}/{self._n_runs}"
-        )
-        save_history = algorithm_desciption.get("save_history", True)
-        evaluator = problem_description.get(
+        print(str(pair))
+        save_history = pair.algorithm_description.get("save_history", True)
+        evaluator = pair.problem_description.get(
             "evaluator",
-            algorithm_desciption.get("evaluator"),
+            pair.algorithm_description.get("evaluator"),
         )
-        problem_description["problem"].start_new_run()
-        results = minimize(
-            deepcopy(problem_description["problem"]),
-            algorithm_desciption["algorithm"],
-            termination=algorithm_desciption.get("termination"),
-            copy_algorithm=True,
-            copy_termination=True,
-            # extra Algorithm.setup kwargs
-            callback=TimerCallback(),
-            display=algorithm_desciption.get("display"),
-            evaluator=deepcopy(evaluator),
-            return_least_infeasible=algorithm_desciption.get(
-                "return_least_infeasible", False
-            ),
-            save_history=save_history,
-            seed=algorithm_desciption.get("seed"),
-            verbose=algorithm_desciption.get("verbose", False),
-        )
+        pair.problem_description["problem"].start_new_run()
+
+        try:
+            results = minimize(
+                deepcopy(pair.problem_description["problem"]),
+                pair.algorithm_description["algorithm"],
+                termination=pair.algorithm_description.get("termination"),
+                copy_algorithm=True,
+                copy_termination=True,
+                # extra Algorithm.setup kwargs
+                callback=TimerCallback(),
+                display=pair.algorithm_description.get("display"),
+                evaluator=deepcopy(evaluator),
+                return_least_infeasible=pair.algorithm_description.get(
+                    "return_least_infeasible", False
+                ),
+                save_history=save_history,
+                seed=pair.algorithm_description.get("seed"),
+                verbose=pair.algorithm_description.get("verbose", False),
+            )
+        except:  # pylint: disable=bare-except
+            print(f"Warning, pair [{str(pair)}] failed. Rescheduling...")
+            return pair
 
         if self._dump_histories:
             results.problem.dump_all_histories(
                 self._output_dir_path,
-                f"{problem_name}.{algorithm_name}.{n_run}",
+                f"{pair.problem_name}.{pair.algorithm_name}.{pair.n_run}",
             )
 
         df = pd.DataFrame()
-
         if not save_history:
             results.history = [results.algorithm]
-
         df["n_gen"] = [a.n_gen for a in results.history]
         df["timedelta"] = (
             results.algorithm.callback._deltas
@@ -318,9 +336,9 @@ class Benchmark:
         for pi in self._performance_indicators:
             f = lambda _: np.nan
             if pi == "df":
-                problem = problem_description["problem"]
+                problem = pair.problem_description["problem"]
                 if isinstance(problem, WrappedProblem):
-                    n_evals = problem_description.get("df_n_evals", 1)
+                    n_evals = pair.problem_description.get("df_n_evals", 1)
                     delta_f = DeltaF(problem, n_evals)
                     f = lambda state: delta_f.do(
                         state.pop.get("F"), state.pop.get("X")
@@ -330,26 +348,27 @@ class Benchmark:
                     f = lambda _: 0.0
             elif (
                 pi in ["gd", "gd+", "igd", "igd+"]
-                and "pareto_front" in problem_description
+                and "pareto_front" in pair.problem_description
             ):
                 ind = get_performance_indicator(
-                    pi, problem_description["pareto_front"]
+                    pi, pair.problem_description["pareto_front"]
                 )
                 f = lambda state: ind.do(state.pop.get("F"))
-            elif pi == "hv" and "hv_ref_point" in problem_description:
+            elif pi == "hv" and "hv_ref_point" in pair.problem_description:
                 hv = get_performance_indicator(
-                    "hv", ref_point=problem_description["hv_ref_point"]
+                    "hv", ref_point=pair.problem_description["hv_ref_point"]
                 )
                 f = lambda state: hv.do(state.pop.get("F"))
             elif pi == "ps":
                 f = lambda state: len(state.pop.get("F"))
             df["perf_" + pi] = [f(state) for state in results.history]
 
-        df["algorithm"] = algorithm_name
-        df["problem"] = problem_name
-        df["n_run"] = n_run
+        df["algorithm"] = pair.algorithm_name
+        df["problem"] = pair.problem_name
+        df["n_run"] = pair.n_run
 
-        return df
+        pair.result = df
+        return pair
 
     # def dump_everything(
     #     self,
@@ -481,11 +500,39 @@ class Benchmark:
             self._problems.items(),
             range(1, self._n_runs + 1),
         )
+        pairs = [
+            Pair(
+                algorithm_description=aa,
+                algorithm_name=an,
+                n_run=r,
+                problem_description=pp,
+                problem_name=pn,
+            )
+            for (an, aa), (pn, pp), r in everything
+        ]
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
-        results = executor(
-            delayed(Benchmark._run_pair)(self, an, aa, pn, pp, r, i)
-            for i, ((an, aa), (pn, pp), r) in enumerate(everything)
-        )
-        for df in results:
-            self._results = self._results.append(df, ignore_index=True)
+        current_round = 0
+        while (
+            self._max_retry < 0 or current_round <= self._max_retry
+        ) and len(pairs) > 0:
+            results = executor(
+                delayed(Benchmark._run_pair)(self, pair) for pair in pairs
+            )
+            pairs = []
+            for pair in results:
+                if pair.result is not None:
+                    self._results = self._results.append(
+                        pair.result,
+                        ignore_index=True,
+                    )
+                else:
+                    pairs.append(pair)
+            current_round += 1
+        if pairs:
+            print(
+                "Warning: benchmark finished, but some pairs could not be run "
+                f"successfully within the retry budget ({self._max_retry}):"
+            )
+            for pair in pairs:
+                print(f"    {str(pair)}")
         self.dump_results(self._output_dir_path / "benchmark.csv", index=False)
