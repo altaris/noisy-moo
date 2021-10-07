@@ -42,7 +42,7 @@ class EvaluationPenaltyEvaluator(Evaluator):
             raise ValueError(f"Unknown penalty type '{penalty_type}'")
         self._penalty_type = penalty_type
 
-    def eval(self, *args, **kwargs):
+    def eval(self, *args, **kwargs):  # pylint: disable=signature-differs
         """
         Calls `Evaluator.eval` and modifies `n_eval` according to the penalty
         parameters.
