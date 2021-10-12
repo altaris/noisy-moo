@@ -536,4 +536,17 @@ class Benchmark:
             )
             for pair in pairs:
                 logging.warning("    %s", pair)
+        self._results = self._results.astype(
+            {
+                "algorithm": "category",
+                "n_gen": "uint32",
+                "n_run": "uint32",
+                "problem": "category",
+                "timedelta": "timedelta64[ns]",
+                **{
+                    "perf_" + pi: "float64"
+                    for pi in self._performance_indicators
+                },
+            }
+        )
         self.dump_results(self._output_dir_path / "benchmark.csv", index=False)
