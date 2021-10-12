@@ -360,7 +360,7 @@ class Benchmark:
                 )
                 f = lambda state: hv.do(state.pop.get("F"))
             elif pi == "ps":
-                f = lambda state: len(state.pop.get("F"))
+                f = lambda state: len(state.opt.get("F"))
             df["perf_" + pi] = [f(state) for state in results.history]
 
         df["algorithm"] = pair.algorithm_name
