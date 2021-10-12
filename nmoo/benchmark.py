@@ -347,13 +347,12 @@ class Benchmark:
                 else:
                     # the problem is already the ground problem
                     f = lambda _: 0.0
-            elif (
-                pi in ["gd", "gd+", "igd", "igd+"]
-                and "pareto_front" in pair.problem_description
-            ):
-                ind = get_performance_indicator(
-                    pi, pair.problem_description["pareto_front"]
+            elif pi in ["gd", "gd+", "igd", "igd+"]:
+                # Pareto front defaults to last state optimal population's F
+                pf = pair.problem_description.get(
+                    "pareto_front", results.history[-1].opt.get("F")
                 )
+                ind = get_performance_indicator(pi, pf)
                 f = lambda state: ind.do(state.pop.get("F"))
             elif pi == "hv" and "hv_ref_point" in pair.problem_description:
                 hv = get_performance_indicator(
