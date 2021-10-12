@@ -1,5 +1,5 @@
 """
-Various utilities.
+Timer callback
 """
 __docformat__ = "google"
 
@@ -17,14 +17,10 @@ class TimerCallback(Callback):
     """
 
     _deltas: List[pd.Timedelta]
-    """
-    Timedeltas.
-    """
+    """Timedeltas"""
 
     _initial_time: pd.Timestamp
-    """
-    Timestamp of when this instance has been created.
-    """
+    """Timestamp of when this instance has been created"""
 
     def __init__(self):
         super().__init__()

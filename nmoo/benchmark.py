@@ -17,8 +17,8 @@ from pymoo.optimize import minimize
 import numpy as np
 import pandas as pd
 
+from nmoo.callbacks import TimerCallback
 from nmoo.indicators.delta_f import DeltaF
-from nmoo.utils import TimerCallback
 from nmoo.wrapped_problem import WrappedProblem
 
 
