@@ -248,10 +248,6 @@ class Benchmark:
             )
         self._n_runs = n_runs
 
-        if not os.path.isdir(output_dir_path):
-            raise ValueError(
-                f"Output directory '{output_dir_path}' does not exist"
-            )
         self._output_dir_path = Path(output_dir_path)
 
         if performance_indicators is None:
@@ -619,6 +615,8 @@ class Benchmark:
         .. _joblib.Parallel:
             https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html
         """
+        if not os.path.isdir(self._output_dir_path):
+            os.mkdir(self._output_dir_path)
         pairs = self._all_pairs()
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         current_round = 0
