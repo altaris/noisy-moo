@@ -59,11 +59,12 @@ def plot_performance_indicators(
     results = results[
         (results.algorithm.isin(algorithms)) & (results.problem.isin(problems))
     ]
-    df = pd.DataFrame()
+    all_tmp = []
     for p in performance_indicators:
         tmp = results[["algorithm", "problem", "n_run", "n_gen"]].copy()
         tmp["perf"], tmp["indicator"] = results["perf_" + p], p
-        df = df.append(tmp, ignore_index=True)
+        all_tmp.append(tmp)
+    df = pd.concat(all_tmp, ignore_index=True)
     grid = sns.FacetGrid(df, col="indicator", row=row)
     grid.map_dataframe(
         sns.lineplot, x="n_gen", y="perf", style="algorithm", hue="problem"

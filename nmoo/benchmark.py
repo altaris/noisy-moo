@@ -390,7 +390,7 @@ class Benchmark:
         in this benchmark's `_result` field.
         """
         logging.debug("Consolidating all pair statistics")
-        self._results = pd.DataFrame()
+        all_df = []
         for pair in self._all_pairs():
             path = self._output_dir_path / pair.result_filename()
             if not path.exists():
@@ -400,8 +400,8 @@ class Benchmark:
                     path,
                 )
                 continue
-            df = pd.read_csv(path)
-            self._results = self._results.append(df, ignore_index=True)
+            all_df.append(pd.read_csv(path))
+        self._results = pd.concat(all_df, ignore_index=True)
         self._results["timedelta"] = pd.to_timedelta(
             self._results["timedelta"]
         )
