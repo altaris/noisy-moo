@@ -3,23 +3,25 @@ A benchmarking utility
 """
 __docformat__ = "google"
 
-from copy import deepcopy
-from dataclasses import dataclass
-from itertools import product
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
 import logging
 import os
+from copy import deepcopy
+from dataclasses import dataclass
+from functools import lru_cache
+from itertools import product
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Union
 
-from joblib import delayed, Parallel
-from pymoo.factory import get_performance_indicator
-from pymoo.optimize import minimize
 import numpy as np
 import pandas as pd
+from joblib import Parallel, delayed
+from pymoo.core.population import Population
+from pymoo.factory import get_performance_indicator
+from pymoo.optimize import minimize
+from pymoo.util.optimum import filter_optimum
 
 from nmoo.callbacks import TimerCallback
 from nmoo.indicators.delta_f import DeltaF
-from nmoo.wrapped_problem import WrappedProblem
 
 
 @dataclass
@@ -33,10 +35,27 @@ class Pair:
     n_run: int
     problem_description: Dict[str, Any]
     problem_name: str
-    result: Optional[pd.DataFrame] = None
 
     def __str__(self) -> str:
         return f"{self.problem_name} - {self.algorithm_name} ({self.n_run})"
+
+    def filename_prefix(self) -> str:
+        """Returns `<problem_name>.<algorithm_name>.<n_run>`."""
+        return f"{self.problem_name}.{self.algorithm_name}.{self.n_run}"
+
+    def pareto_population_filename(self) -> str:
+        """Returns `<problem_name>.<algorithm_name>.<n_run>.pp.npz`."""
+        return self.filename_prefix() + ".pp.npz"
+
+    def result_filename(self) -> str:
+        """Returns `<problem_name>.<algorithm_name>.<n_run>.csv`."""
+        return self.filename_prefix() + ".csv"
+
+    def top_layer_history_filename(self) -> str:
+        """Returns the filename of the top layer history."""
+        prefix = self.filename_prefix()
+        name = self.problem_description["problem"]._name
+        return f"{prefix}.1-{name}.npz"
 
 
 # pylint: disable=too-many-instance-attributes
@@ -154,8 +173,6 @@ class Benchmark:
         * `return_least_infeasible` (optional, bool): if the algorithm cannot
             find a feasable solution, wether the least infeasable solution
             should still be returned; defaults to `False`;
-        * `save_history` (optional, bool): wether a snapshot of the algorithm
-            object should be kept at each iteration; defaults to `True`;
         * `seed` (optional, int): a seed;
         * `termination` (optional): a pymoo termination criterion; note that it
             is deepcopied for every run of `minimize`;
@@ -205,7 +222,7 @@ class Benchmark:
 
                 In the result dataframe, the corresponding columns will be
                 named `perf_<name of indicator>`, e.g. `perf_igd`. If left
-                unspecified, defaults to `["gd", "gd+", "igd", "igd+"]`.
+                unspecified, defaults to `["igd"]`.
         """
         if not algorithms:
             raise ValueError("A benchmark requires at least 1 algorithm.")
@@ -238,7 +255,7 @@ class Benchmark:
         self._output_dir_path = Path(output_dir_path)
 
         if performance_indicators is None:
-            self._performance_indicators = ["gd", "gd+", "igd", "igd+"]
+            self._performance_indicators = ["igd"]
         else:
             self._performance_indicators = []
             for pi in set(performance_indicators):
@@ -265,10 +282,170 @@ class Benchmark:
         columns += ["perf_" + pi for pi in self._performance_indicators]
         self._results = pd.DataFrame(columns=columns)
 
+    def _all_pairs(self) -> List[Pair]:
+        """Generate the list of all pairs to be run."""
+        everything = product(
+            self._algorithms.items(),
+            self._problems.items(),
+            range(1, self._n_runs + 1),
+        )
+        return [
+            Pair(
+                algorithm_description=aa,
+                algorithm_name=an,
+                n_run=r,
+                problem_description=pp,
+                problem_name=pn,
+            )
+            for (an, aa), (pn, pp), r in everything
+        ]
+
+    def _compute_performance_indicators(self) -> None:
+        """
+        Computes all performance indicators. It is assumed that all pairs have
+        been ran, histories dumped, and that `_results` has been consolidated
+        (see `_consolidate_pair_results`).
+        """
+        all_df = []
+
+        for p in self._all_pairs():
+            df = pd.DataFrame()
+
+            # Load top layer history and the pareto history
+            history_path = self._output_dir_path / (
+                p.top_layer_history_filename()
+            )
+            pareto_history_path = self._output_dir_path / (
+                p.pareto_population_filename()
+            )
+            if not (history_path.exists() and pareto_history_path.exists()):
+                continue
+            history = np.load(history_path)
+            pareto_history = np.load(pareto_history_path)
+
+            # Break down histories. Each element of this list is a tuple
+            # containing the population's `X` and `F`, and the pareto
+            # population's `X` and `F` at a given generation (or `_batch`).
+            states = []
+            for i in range(1, history["_batch"].max() + 1):
+                hidx = history["_batch"] == i
+                pidx = pareto_history["_batch"] == i
+                states.append(
+                    (
+                        history["X"][hidx],
+                        history["F"][hidx],
+                        pareto_history["X"][pidx],
+                        pareto_history["F"][pidx],
+                    )
+                )
+
+            # Compute PIs
+            # pylint: disable=cell-var-from-loop
+            for pi in self._performance_indicators:
+                logging.debug("Computing PI '%s' for pair [%s]", pi, p)
+                f: Callable[
+                    [np.ndarray, np.ndarray, np.ndarray, np.ndarray], float
+                ] = lambda *_: np.nan
+                if pi == "df":
+                    problem = p.problem_description["problem"]
+                    n_evals = p.problem_description.get("df_n_evals", 1)
+                    delta_f = DeltaF(problem, n_evals)
+                    f = lambda X, F, pX, pF: delta_f.do(F, X)
+                elif pi in ["gd", "gd+", "igd", "igd+"]:
+                    pf = p.problem_description.get(
+                        "pareto_front",
+                        self._global_pareto_population(
+                            algorithm_name=p.algorithm_name,
+                            problem_name=p.problem_name,
+                        ).get("F"),
+                    )
+                    ind = get_performance_indicator(pi, pf)
+                    f = lambda X, F, pX, pF: ind.do(F)
+                elif pi == "hv" and "hv_ref_point" in p.problem_description:
+                    hv = get_performance_indicator(
+                        "hv", ref_point=p.problem_description["hv_ref_point"]
+                    )
+                    f = lambda X, F, pX, pF: hv.do(F)
+                elif pi == "ps":
+                    f = lambda X, F, pX, pF: pX.shape[0]
+
+                df["perf_" + pi] = [f(*s) for s in states]
+
+            df["algorithm"] = p.algorithm_name
+            df["problem"] = p.problem_name
+            df["n_run"] = p.n_run
+            all_df.append(df)
+
+        self._results = self._results.merge(
+            pd.concat(all_df, ignore_index=True),
+            how="outer",
+            on=["algorithm", "problem", "n_run"],
+        )
+
+    def _consolidate_pair_results(self) -> None:
+        """
+        In `_run_pair`, if a pair is run successfully, it generates a CSV file
+        `output_dir_path/<problem_name>.<algorithm_name>.<n_run>.csv`. This
+        method consolidates all of them into a single dataframe and stores it
+        in this benchmark's `_result` field.
+        """
+        logging.debug("Consolidating all pair statistics")
+        self._results = pd.DataFrame()
+        for pair in self._all_pairs():
+            path = self._output_dir_path / pair.result_filename()
+            if not path.exists():
+                logging.debug(
+                    "File %s does not exist. The corresponding pair most "
+                    "likely didn't succeed",
+                    path,
+                )
+                continue
+            df = pd.read_csv(path)
+            self._results = self._results.append(df, ignore_index=True)
+        self._results["timedelta"] = pd.to_timedelta(
+            self._results["timedelta"]
+        )
+        self._results = self._results.astype(
+            {
+                "algorithm": "category",
+                "n_gen": "uint32",
+                "n_run": "uint32",
+                "problem": "category",
+            }
+        )
+
+    @lru_cache(10)
+    def _global_pareto_population(
+        self,
+        problem_name: str,
+        algorithm_name: str,
+    ) -> Population:
+        """
+        Given a problem-algorithm pair, loads and merges all pareto populations
+        across all runs of that pair.
+        """
+        logging.debug(
+            "Computing global Pareto population for pair %s - %s",
+            problem_name,
+            algorithm_name,
+        )
+        populations = []
+        for n_run in range(1, self._n_runs + 1):
+            data = np.load(
+                self._output_dir_path
+                / f"{problem_name}.{algorithm_name}.{n_run}.pp.npz"
+            )
+            population = Population.create(data["X"])
+            population.set(
+                F=data["F"], feasible=np.full((data["X"].shape[0], 1), True)
+            )
+            populations.append(population)
+        return _merge_pareto_populations(populations)
+
     def _run_pair(
         self,
         pair: Pair,
-    ) -> Pair:
+    ) -> bool:
         """
         Runs a given algorithm against a given problem. See
         `nmoo.benchmark.Benchmark.run`. Immediately dumps the history of the
@@ -277,24 +454,37 @@ class Benchmark:
             output_dir_path/<problem_name>.<algorithm_name>.<n_run>.<level>.npz
 
         where `level` is the depth of the wrapped problem, starting at `1`. See
-        `nmoo.wrapped_problem.WrappedProblem.dump_all_histories`.
+        `nmoo.wrapped_problem.WrappedProblem.dump_all_histories`. It also dumps
+        the compounded Pareto population for every at every generation (or just
+        the last generation of `set_history` is set to `False` in the algorithm
+        description) in
 
-        Args:
-            pair: A `Pair` object representint the problem-algorithm pair to
-                run.
+            output_dir_path/<problem_name>.<algorithm_name>.<n_run>.pp.npz
 
-        Returns:
-            The same `Pair` object, but with a populated `result` field if the
-            minimzation procedure was successful.
+        Additionally, it generates a CSV file containing various statistics
+        named:
+
+            output_dir_path/<problem_name>.<algorithm_name>.<n_run>.csv
+
+        The existence of this file is also used to determine if the pair has
+        already been run when resuming a benchmark.
+
+        Args: pair: A `Pair` object representint the problem-algorithm pair to
+            run.
+
+        Returns: Wether the run was successful or not.
         """
+        result_file_path = self._output_dir_path / (pair.result_filename())
+        if result_file_path.is_file():
+            logging.debug("Pair [%s] has already been run, skipping.", pair)
+            return True
         logging.info("Running pair [%s]", pair)
-        save_history = pair.algorithm_description.get("save_history", True)
+
+        pair.problem_description["problem"].start_new_run()
         evaluator = pair.problem_description.get(
             "evaluator",
             pair.algorithm_description.get("evaluator"),
         )
-        pair.problem_description["problem"].start_new_run()
-
         try:
             results = minimize(
                 deepcopy(pair.problem_description["problem"]),
@@ -309,105 +499,39 @@ class Benchmark:
                 return_least_infeasible=pair.algorithm_description.get(
                     "return_least_infeasible", False
                 ),
-                save_history=save_history,
+                save_history=True,
                 seed=pair.algorithm_description.get("seed"),
                 verbose=pair.algorithm_description.get("verbose", False),
             )
         except:  # pylint: disable=bare-except
             logging.error("Pair [%s] failed. Rescheduling...", pair)
-            return pair
+            return False
 
+        # Dump all layers histories
         if self._dump_histories:
             results.problem.dump_all_histories(
                 self._output_dir_path,
-                f"{pair.problem_name}.{pair.algorithm_name}.{pair.n_run}",
+                pair.filename_prefix(),
             )
 
-        df = pd.DataFrame()
-        if not save_history:
-            results.history = [results.algorithm]
-        df["n_gen"] = [a.n_gen for a in results.history]
-        df["timedelta"] = (
-            results.algorithm.callback._deltas
-            if save_history
-            else [results.algorithm.callback._deltas[-1]]
+        # Dump pareto sets
+        pss = _consolidate_population_list([h.opt for h in results.history])
+        np.savez_compressed(
+            self._output_dir_path / pair.pareto_population_filename(), **pss
         )
 
-        # pylint: disable=cell-var-from-loop
-        for pi in self._performance_indicators:
-            f = lambda _: np.nan
-            if pi == "df":
-                problem = pair.problem_description["problem"]
-                if isinstance(problem, WrappedProblem):
-                    n_evals = pair.problem_description.get("df_n_evals", 1)
-                    delta_f = DeltaF(problem, n_evals)
-                    f = lambda state: delta_f.do(
-                        state.pop.get("F"), state.pop.get("X")
-                    )
-                else:
-                    # the problem is already the ground problem
-                    f = lambda _: 0.0
-            elif pi in ["gd", "gd+", "igd", "igd+"]:
-                # Pareto front defaults to last state optimal population's F
-                pf = pair.problem_description.get(
-                    "pareto_front", results.history[-1].opt.get("F")
-                )
-                ind = get_performance_indicator(pi, pf)
-                f = lambda state: ind.do(state.pop.get("F"))
-            elif pi == "hv" and "hv_ref_point" in pair.problem_description:
-                hv = get_performance_indicator(
-                    "hv", ref_point=pair.problem_description["hv_ref_point"]
-                )
-                f = lambda state: hv.do(state.pop.get("F"))
-            elif pi == "ps":
-                f = lambda state: len(state.opt.get("F"))
-            df["perf_" + pi] = [f(state) for state in results.history]
-
+        # Create and dump CSV file
+        df = pd.DataFrame()
+        df["n_gen"] = [a.n_gen for a in results.history]
+        df["timedelta"] = results.algorithm.callback._deltas
+        # Important to create these columns once the dataframe has its full
+        # length
         df["algorithm"] = pair.algorithm_name
         df["problem"] = pair.problem_name
         df["n_run"] = pair.n_run
+        df.to_csv(result_file_path, index=False)
 
-        pair.result = df
-        return pair
-
-    # def dump_everything(
-    #     self,
-    #     dir_path: Union[Path, str],
-    #     benchmark_results_filename: str = "benchmark.csv",
-    #     benchmark_results_fmt: str = "csv",
-    #     benchmark_results_writer_kwargs: Optional[dict] = None,
-    #     problem_histories_compressed: bool = True,
-    # ):
-    #     """
-    #     Dumps EVERYTHIIIING, i.e. the benchmark results (see
-    #     `nmoo.benchmark.Benchmark.dump_results`) and all involved problems
-    #     histories (see `nmoo.utils.WrappedProblem.dump_all_histories`).
-
-    #     Args:
-    #         dir_path (Union[Path, str]): Output directory
-    #         benchmark_results_filename (str): Filename for the benchmark
-    #             results. `benchmark.csv` by default.
-    #         benchmark_results_fmt (str): Format of the benchmark results file,
-    #             see `nmoo.benchmark.Benchmark.dump_results`. Defaults to CSV.
-    #         benchmark_results_writer_kwargs (Optional[dict]): Optional kwargs
-    #             to pass on to the `pandas.DataFrame.to_<fmt>` benchmark results
-    #             writer method.
-    #         problem_histories_compressed (bool): Wether to compress the problem
-    #             history files, see `nmoo.utils.WrappedProblem.dump_history`.
-    #     """
-    #     if benchmark_results_writer_kwargs is None:
-    #         benchmark_results_writer_kwargs = dict()
-    #     self.dump_results(
-    #         Path(dir_path) / benchmark_results_filename,
-    #         benchmark_results_fmt,
-    #         **benchmark_results_writer_kwargs,
-    #     )
-    #     for pn, pp in self._problems.items():
-    #         pp["problem"].dump_all_histories(
-    #             dir_path,
-    #             pn,
-    #             problem_histories_compressed,
-    #         )
+        return True
 
     def dump_results(self, path: Union[Path, str], fmt: str = "csv", **kwargs):
         """
@@ -495,38 +619,16 @@ class Benchmark:
         .. _joblib.Parallel:
             https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html
         """
-        everything = product(
-            self._algorithms.items(),
-            self._problems.items(),
-            range(1, self._n_runs + 1),
-        )
-        pairs = [
-            Pair(
-                algorithm_description=aa,
-                algorithm_name=an,
-                n_run=r,
-                problem_description=pp,
-                problem_name=pn,
-            )
-            for (an, aa), (pn, pp), r in everything
-        ]
+        pairs = self._all_pairs()
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         current_round = 0
         while (
             self._max_retry < 0 or current_round <= self._max_retry
         ) and len(pairs) > 0:
-            results = executor(
+            status = executor(
                 delayed(Benchmark._run_pair)(self, pair) for pair in pairs
             )
-            pairs = []
-            for pair in results:
-                if pair.result is not None:
-                    self._results = self._results.append(
-                        pair.result,
-                        ignore_index=True,
-                    )
-                else:
-                    pairs.append(pair)
+            pairs = [p for p, s in zip(pairs, status) if not s]
             current_round += 1
         if pairs:
             logging.warning(
@@ -535,18 +637,55 @@ class Benchmark:
                 self._max_retry,
             )
             for pair in pairs:
-                logging.warning("    %s", pair)
-        self._results = self._results.astype(
-            {
-                "algorithm": "category",
-                "n_gen": "uint32",
-                "n_run": "uint32",
-                "problem": "category",
-                "timedelta": "timedelta64[ns]",
-                **{
-                    "perf_" + pi: "float64"
-                    for pi in self._performance_indicators
-                },
-            }
-        )
+                logging.warning("    [%s]", pair)
+        self._consolidate_pair_results()
+        self._compute_performance_indicators()
         self.dump_results(self._output_dir_path / "benchmark.csv", index=False)
+
+
+def _consolidate_population_list(populations: List[Population]) -> dict:
+    """
+    Transforms a list of populations into a dict containing the following
+
+    * `X`: an `np.array` containing all `X` fields of all individuals across
+      all populations;
+    * `F`: an `np.array` containing all `F` fields of all individuals across
+      all populations;
+    * `G`: an `np.array` containing all `G` fields of all individuals across
+      all populations;
+    * `dF`: an `np.array` containing all `dF` fields of all individuals across
+      all populations;
+    * `dG`: an `np.array` containing all `dG` fields of all individuals across
+      all populations;
+    * `ddF`: an `np.array` containing all `ddF` fields of all individuals
+      across all populations;
+    * `ddG`: an `np.array` containing all `ddG` fields of all individuals
+      across all populations;
+    * `CV`: an `np.array` containing all `CV` fields of all individuals across
+      all populations;
+    * `feasible`: an `np.array` containing all `feasible` fields of all
+      individuals across all populations;
+    * `_batch`: the index of the population the individual belongs to.
+
+    So all `np.arrays` have the same length, which is the total number of
+    individual across all populations. Each "row" corresponds to the data
+    associated to this individual (`X`, `F`, `G`, `dF`, `dG`, `ddF`, `ddG`,
+    `CV`, `feasible`), as well as the population index it belongs to
+    (`_batch`).
+    """
+    fields = ["X", "F", "G", "dF", "dG", "ddF", "ddG", "CV", "feasible"]
+    data: Dict[str, List[np.ndarray]] = {f: [] for f in fields + ["_batch"]}
+    for i, pop in enumerate(populations):
+        for f in fields:
+            data[f].append(pop.get(f))
+        data["_batch"].append(np.full(len(pop), i + 1))
+    return {k: np.concatenate(v) for k, v in data.items()}
+
+
+def _merge_pareto_populations(populations: List[Population]) -> Population:
+    """Simply merge population and apply `filter_optimum`."""
+    population = Population.create()
+    for p in populations:
+        population = population.merge(population, p)
+    result = filter_optimum(population)
+    return result if result is not None else Population.create()

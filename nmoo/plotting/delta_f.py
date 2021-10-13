@@ -28,7 +28,7 @@ def _load_problem_data(
     d1["_batch"] = d2["_batch"] = history["_batch"]
     d1["type"], d2["type"] = "approx.", "true"
     out: Dict[str, np.ndarray] = dict()
-    ground_problem._evaluate(history["x"], out)
+    ground_problem._evaluate(history["X"], out)
     d1["F0"], d1["F1"] = history["F"][:, 0], history["F"][:, 1]
     d2["F0"], d2["F1"] = out["F"][:, 0], out["F"][:, 1]
     return d1.append(d2, ignore_index=True)

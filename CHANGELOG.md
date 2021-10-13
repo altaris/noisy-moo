@@ -1,6 +1,16 @@
 Changelog
 =========
 
+# v4.0.0
+
+## Breaking changes
+
+* In the wrapped problem histories, the `x` field has been renamed to `X`. This
+  implies that the `x` field in history dumps are now called `X` instead.
+* In argorithms descriptions, the `save_history` option is now ignored.
+* When constructing a benchmark, the default performance indicator list now
+  consist of only `igd` (instead of `gd`, `gd+`, `igd` and `igd+` previously).
+
 # v3.0.0
 
 ## Beaking changes

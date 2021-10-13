@@ -29,8 +29,8 @@ class WrappedProblem(Problem):
 
     _history: Dict[str, np.ndarray]
     """
-    A history is a dictionary that maps string keys (e.g. `"x"`) to a numpy
-    array of all values of that key (e.g. all values of `"x"`). All the numpy
+    A history is a dictionary that maps string keys (e.g. `"X"`) to a numpy
+    array of all values of that key (e.g. all values of `"X"`). All the numpy
     arrays should have the same length (0th shape component) but are not
     required to have the same type.
 
@@ -108,10 +108,11 @@ class WrappedProblem(Problem):
     def add_to_history_x_out(self, x: np.ndarray, out: dict, **kwargs):
         """
         Convenience function to add the `_evaluate` method's `x` and `out` to
-        history, along with potentially other items.
+        history, along with potentially other items. Note that the `x` argument
+        is stored under the `X` key to remain consistent with `pymoo`'s API.
         """
         self.add_to_history(
-            x=x,
+            X=x,
             **{k: v for k, v in out.items() if isinstance(v, np.ndarray)},
             **kwargs,
         )

@@ -77,11 +77,11 @@ class KNNAvg(WrappedProblem):
             # Store the solution history into a dataframe (note that we are
             # using the wrapped problem's history to make sure this dataframe
             # is never empty).
-            x_hist = pd.DataFrame(self._problem._history["x"])
+            x_hist = pd.DataFrame(self._problem._history["X"])
             # Compute the standardized Euclidean distances between the current
             # solution (sol) and all historical solutions.
             x_hist["_sed"] = cdist(
-                self._problem._history["x"],
+                self._problem._history["X"],
                 sol.reshape((1, -1)),
                 "seuclidean",
             )
