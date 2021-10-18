@@ -65,7 +65,7 @@ class WrappedProblem(Problem):
             exclude_from_serialization=problem.exclude_from_serialization,
             callback=problem.callback,
         )
-        self._history = dict()
+        self._history = {}
         self._name = name
         self._problem = problem
 

@@ -46,7 +46,7 @@ class ResampleAverage(WrappedProblem):
     def _evaluate(self, x, out, *args, **kwargs):
         outs: List[dict] = []
         for _ in range(self._n_evaluations):
-            outs.append(dict())
+            outs.append({})
             self._problem._evaluate(x, outs[-1], *args, **kwargs)
         for k in outs[0]:  # By assumption, self._n_evaluations > 0
             # TODO: What if the type is not consistent across evaluations?

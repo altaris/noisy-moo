@@ -102,7 +102,7 @@ class GaussianNoise(WrappedProblem):
 
         """
         self._problem._evaluate(x, out, *args, **kwargs)
-        noises: Dict[str, np.ndarray] = dict()
+        noises: Dict[str, np.ndarray] = {}
         for k in self._parameters.keys():
             try:
                 mean, cov = self._parameters[k]

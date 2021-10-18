@@ -53,7 +53,7 @@ class DeltaF(Indicator):
         X = args[0]
         fs = []
         for _ in range(self._n_evals):
-            out: Dict[str, Any] = dict()
+            out: Dict[str, Any] = {}
             self._ground_problem._evaluate(X, out, *args, **kwargs)
             fs.append(out["F"])
         af = np.mean(np.array(fs), axis=0)
