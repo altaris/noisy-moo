@@ -427,10 +427,18 @@ class Benchmark:
         )
         populations = []
         for n_run in range(1, self._n_runs + 1):
-            data = np.load(
+            path = (
                 self._output_dir_path
                 / f"{problem_name}.{algorithm_name}.{n_run}.pp.npz"
             )
+            if not path.exists():
+                logging.debug(
+                    "File %s does not exist. The corresponding pair most "
+                    "likely didn't succeed",
+                    path,
+                )
+                continue
+            data = np.load(path)
             population = Population.create(data["X"])
             population.set(
                 F=data["F"], feasible=np.full((data["X"].shape[0], 1), True)
