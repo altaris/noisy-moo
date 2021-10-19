@@ -20,6 +20,7 @@ def plot_performance_indicators(
     algorithms: Optional[Iterable[str]] = None,
     performance_indicators: Optional[Iterable[str]] = None,
     problems: Optional[Iterable[str]] = None,
+    legend: bool = True,
 ) -> sns.FacetGrid:
     """
     Plots all performance indicators in a grid of line plots. The columns of
@@ -47,7 +48,7 @@ def plot_performance_indicators(
             indicators to plot, defaults to all.
         problems (Optional[Iterable[str]]): List of problems to plot, defaults
             to all.
-
+        legend (bool): Wether to display the legend. Defaults to `True`.
     """
     if algorithms is None:
         algorithms = benchmark._algorithms.keys()
@@ -69,5 +70,6 @@ def plot_performance_indicators(
     grid.map_dataframe(
         sns.lineplot, x="n_gen", y="perf", style="algorithm", hue="problem"
     )
-    grid.add_legend()
+    if legend:
+        grid.add_legend()
     return grid
