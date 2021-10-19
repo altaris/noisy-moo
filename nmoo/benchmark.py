@@ -446,10 +446,17 @@ class Benchmark:
             populations.append(population)
         return _merge_pareto_populations(populations)
 
+    def _pair_done(self, pair: Pair) -> bool:
+        """
+        Wether a pair has been successfully executed. This is determined by
+        checking if `_output_dir_path/pair.result_filename()` exists or not.
+        """
+        return (self._output_dir_path / pair.result_filename()).is_file()
+
     def _run_pair(
         self,
         pair: Pair,
-    ) -> bool:
+    ) -> None:
         """
         Runs a given algorithm against a given problem. See
         `nmoo.benchmark.Benchmark.run`. Immediately dumps the history of the
@@ -478,10 +485,6 @@ class Benchmark:
 
         Returns: Wether the run was successful or not.
         """
-        result_file_path = self._output_dir_path / (pair.result_filename())
-        if result_file_path.is_file():
-            logging.debug("Pair [%s] has already been run, skipping.", pair)
-            return True
         logging.info("Running pair [%s]", pair)
 
         pair.problem_description["problem"].start_new_run()
@@ -509,7 +512,7 @@ class Benchmark:
             )
         except:  # pylint: disable=bare-except
             logging.error("Pair [%s] failed. Rescheduling...", pair)
-            return False
+            return
 
         # Dump all layers histories
         if self._dump_histories:
@@ -533,9 +536,7 @@ class Benchmark:
         df["algorithm"] = pair.algorithm_name
         df["problem"] = pair.problem_name
         df["n_run"] = pair.n_run
-        df.to_csv(result_file_path, index=False)
-
-        return True
+        df.to_csv(self._output_dir_path / pair.result_filename(), index=False)
 
     def dump_results(self, path: Union[Path, str], fmt: str = "csv", **kwargs):
         """
@@ -630,19 +631,20 @@ class Benchmark:
         current_round = 0
         while (
             self._max_retry < 0 or current_round <= self._max_retry
-        ) and len(pairs) > 0:
-            status = executor(
-                delayed(Benchmark._run_pair)(self, pair) for pair in pairs
+        ) and any(not self._pair_done(pair) for pair in pairs):
+            executor(
+                delayed(Benchmark._run_pair)(self, pair)
+                for pair in pairs
+                if not self._pair_done(pair)
             )
-            pairs = [p for p, s in zip(pairs, status) if not s]
             current_round += 1
-        if pairs:
+        if any(not self._pair_done(pair) for pair in pairs):
             logging.warning(
                 "Benchmark finished, but some pairs could not be run "
                 "successfully within the retry budget (%d):",
                 self._max_retry,
             )
-            for pair in pairs:
+            for pair in filter(lambda p: not self._pair_done(p), pairs):
                 logging.warning("    [%s]", pair)
         self._consolidate_pair_results()
         self._compute_performance_indicators()
