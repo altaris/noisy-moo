@@ -394,7 +394,7 @@ class Benchmark:
                                 self._output_dir_path
                                 / p.global_pareto_population_filename()
                             )
-                            pf = (_load_population(path).get("F"),)
+                            pf = _load_population(path).get("F")
                         ind = get_performance_indicator(pi, pf)
                         f = lambda X, F, pX, pF: ind.do(F)
                     except FileNotFoundError:
