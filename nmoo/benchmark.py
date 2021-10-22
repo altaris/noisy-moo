@@ -7,7 +7,6 @@ import logging
 import os
 from copy import deepcopy
 from dataclasses import dataclass
-from functools import lru_cache
 from itertools import product
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Union
@@ -42,6 +41,10 @@ class Pair:
     def filename_prefix(self) -> str:
         """Returns `<problem_name>.<algorithm_name>.<n_run>`."""
         return f"{self.problem_name}.{self.algorithm_name}.{self.n_run}"
+
+    def global_pareto_population_filename(self) -> str:
+        """Returns `<problem_name>.<algorithm_name>.pp.npz`."""
+        return f"{self.problem_name}.{self.algorithm_name}.pp.npz"
 
     def pareto_population_filename(self) -> str:
         """Returns `<problem_name>.<algorithm_name>.<n_run>.pp.npz`."""
@@ -296,6 +299,41 @@ class Benchmark:
             for (an, aa), (pn, pp), r in everything
         ]
 
+    def _compute_global_pareto_populations(self) -> None:
+        """
+        The global Pareto population of a problem-algorithm pair is the merged
+        population of all pareto populations across all runs of that pair. THis
+        function calculates global Pareto population of all pairs and dumpts it
+        to `output_dir_path/<problem>.<algorithm>.pp.npz`.
+        """
+        pa_pairs = product(self._problems.keys(), self._algorithms.keys())
+        for pn, an in pa_pairs:
+            logging.debug(
+                "Computing global Pareto population for pair %s - %s", pn, an
+            )
+            populations = []
+            for n_run in range(1, self._n_runs + 1):
+                path = self._output_dir_path / f"{pn}.{an}.{n_run}.pp.npz"
+                if not path.exists():
+                    logging.debug(
+                        "File %s does not exist. The corresponding pair most "
+                        "likely didn't succeed",
+                        path,
+                    )
+                    continue
+                data = np.load(path)
+                population = Population.create(data["X"])
+                population.set(
+                    F=data["F"],
+                    feasible=np.full((data["X"].shape[0], 1), True),
+                )
+                populations.append(population)
+            global_pareto_population = _merge_pareto_populations(populations)
+            _dump_population(
+                global_pareto_population,
+                self._output_dir_path / f"{pn}.{an}.pp.npz",
+            )
+
     def _compute_performance_indicators(self) -> None:
         """
         Computes all performance indicators. It is assumed that all pairs have
@@ -348,15 +386,21 @@ class Benchmark:
                     delta_f = DeltaF(problem, n_evals)
                     f = lambda X, F, pX, pF: delta_f.do(F, X)
                 elif pi in ["gd", "gd+", "igd", "igd+"]:
-                    pf = p.problem_description.get(
-                        "pareto_front",
-                        self._global_pareto_population(
-                            algorithm_name=p.algorithm_name,
-                            problem_name=p.problem_name,
-                        ).get("F"),
-                    )
-                    ind = get_performance_indicator(pi, pf)
-                    f = lambda X, F, pX, pF: ind.do(F)
+                    try:
+                        if "pareto_front" in p.problem_description:
+                            pf = p.problem_description["pareto_front"]
+                        else:
+                            path = (
+                                self._output_dir_path
+                                / p.global_pareto_population_filename()
+                            )
+                            pf = (_load_population(path).get("F"),)
+                        ind = get_performance_indicator(pi, pf)
+                        f = lambda X, F, pX, pF: ind.do(F)
+                    except FileNotFoundError:
+                        logging.error(
+                            "Global Pareto population file %s not found", path
+                        )
                 elif pi == "hv" and "hv_ref_point" in p.problem_description:
                     hv = get_performance_indicator(
                         "hv", ref_point=p.problem_description["hv_ref_point"]
@@ -409,42 +453,6 @@ class Benchmark:
                 "problem": "category",
             }
         )
-
-    @lru_cache(10)
-    def _global_pareto_population(
-        self,
-        problem_name: str,
-        algorithm_name: str,
-    ) -> Population:
-        """
-        Given a problem-algorithm pair, loads and merges all pareto populations
-        across all runs of that pair.
-        """
-        logging.debug(
-            "Computing global Pareto population for pair %s - %s",
-            problem_name,
-            algorithm_name,
-        )
-        populations = []
-        for n_run in range(1, self._n_runs + 1):
-            path = (
-                self._output_dir_path
-                / f"{problem_name}.{algorithm_name}.{n_run}.pp.npz"
-            )
-            if not path.exists():
-                logging.debug(
-                    "File %s does not exist. The corresponding pair most "
-                    "likely didn't succeed",
-                    path,
-                )
-                continue
-            data = np.load(path)
-            population = Population.create(data["X"])
-            population.set(
-                F=data["F"], feasible=np.full((data["X"].shape[0], 1), True)
-            )
-            populations.append(population)
-        return _merge_pareto_populations(populations)
 
     def _pair_done(self, pair: Pair) -> bool:
         """
@@ -647,6 +655,7 @@ class Benchmark:
             for pair in filter(lambda p: not self._pair_done(p), pairs):
                 logging.warning("    [%s]", pair)
         self._consolidate_pair_results()
+        self._compute_global_pareto_populations()
         self._compute_performance_indicators()
         self.dump_results(self._output_dir_path / "benchmark.csv", index=False)
 
@@ -688,6 +697,30 @@ def _consolidate_population_list(populations: List[Population]) -> dict:
             data[f].append(pop.get(f))
         data["_batch"].append(np.full(len(pop), i + 1))
     return {k: np.concatenate(v) for k, v in data.items()}
+
+
+def _dump_population(population: Population, path: Path) -> None:
+    """
+    Converts a pymoo `Population` into a numpy array (see
+    `_consolidate_population_list`), and dump it to disk.
+    """
+    data = _consolidate_population_list([population])
+    np.savez_compressed(path, **data)
+
+
+def _load_population(path: Path) -> Population:
+    """
+    Loads a pymoo `Population` from a `.npz` that contains arrays at keys `X`
+    and `F` of equal length. Most likely, the file has been generated by
+    `_dump_population`.
+    """
+    data = np.load(path)
+    population = Population.create(data["X"])
+    population.set(
+        F=data["F"],
+        feasible=np.full((data["X"].shape[0], 1), True),
+    )
+    return population
 
 
 def _merge_pareto_populations(populations: List[Population]) -> Population:
