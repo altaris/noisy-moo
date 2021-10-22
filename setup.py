@@ -1,7 +1,7 @@
 import setuptools
 
 name = "nmoo"
-version = "4.0.8"
+version = "4.0.9"
 
 with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()

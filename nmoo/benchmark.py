@@ -419,13 +419,14 @@ class Benchmark:
 
             df["algorithm"] = p.algorithm_name
             df["problem"] = p.problem_name
+            df["n_gen"] = range(1, len(states) + 1)
             df["n_run"] = p.n_run
             all_df.append(df)
 
         self._results = self._results.merge(
             pd.concat(all_df, ignore_index=True),
             how="outer",
-            on=["algorithm", "problem", "n_run"],
+            on=["algorithm", "problem", "n_gen", "n_run"],
         )
 
     def _consolidate_pair_results(self) -> None:
