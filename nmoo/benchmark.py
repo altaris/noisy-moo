@@ -725,8 +725,7 @@ def _load_population(path: Path) -> Population:
 
 def _merge_pareto_populations(populations: List[Population]) -> Population:
     """Simply merge population and apply `filter_optimum`."""
-    population = Population.create()
+    result = Population.create()
     for p in populations:
-        population = population.merge(population, p)
-    result = filter_optimum(population)
+        result = filter_optimum(Population.merge(result, p))
     return result if result is not None else Population.create()
