@@ -645,7 +645,12 @@ class Benchmark:
             df["timedelta"] = df["timedelta"].dt.microseconds
         return df.reset_index() if reset_index else df
 
-    def run(self, n_jobs: int = -1, **joblib_kwargs):
+    def run(
+        self,
+        n_jobs: int = -1,
+        n_post_processing_jobs: int = 2,
+        **joblib_kwargs,
+    ):
         """
         Runs the benchmark sequentially. Makes your laptop go brr. The
         histories of all problems are progressively dumped in the specified
@@ -653,8 +658,12 @@ class Benchmark:
         results are dumped in `output_dir_path/benchmark.csv`.
 
         Args:
-            n_jobs (int): Number of threads to use. See the `joblib.Parallel`_
+            n_jobs (int): Number of processes to use. See the `joblib.Parallel`_
                 documentation. Defaults to `-1`, i.e. all CPUs are used.
+            n_post_processing_jobs (int): Number of processes to use for post
+                processing tasks (computing global Pareto populations and
+                performance indicators). These are memory-intensive tasks.
+                Defaults to `2`.
             joblib_kwargs (dict): Additional kwargs to pass on to the
                 `joblib.Parallel`_ instance.
 
@@ -684,8 +693,12 @@ class Benchmark:
             for pair in filter(lambda p: not self._pair_done(p), pairs):
                 logging.warning("    [%s]", pair)
         self._consolidate_pair_results()
-        self._compute_global_pareto_populations(n_jobs, **joblib_kwargs)
-        self._compute_performance_indicators(n_jobs, **joblib_kwargs)
+        self._compute_global_pareto_populations(
+            n_post_processing_jobs, **joblib_kwargs
+        )
+        self._compute_performance_indicators(
+            n_post_processing_jobs, **joblib_kwargs
+        )
         self.dump_results(self._output_dir_path / "benchmark.csv", index=False)
 
 
