@@ -9,7 +9,6 @@ from copy import deepcopy
 from dataclasses import dataclass
 from itertools import product
 from pathlib import Path
-from functools import lru_cache
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
@@ -300,7 +299,47 @@ class Benchmark:
             for (an, aa), (pn, pp), r in everything
         ]
 
-    def _compute_global_pareto_populations(self) -> None:
+    def _compute_global_pareto_population(
+        self, problem_name: str, algorithm_name: str
+    ) -> None:
+        """
+        Computes the global Pareto population of a given problem-algorithm
+        pair. See `_compute_global_pareto_populations`.
+        """
+        logging.debug(
+            "Computing global Pareto population for pair %s - %s",
+            problem_name,
+            algorithm_name,
+        )
+        populations = []
+        for n_run in range(1, self._n_runs + 1):
+            path = (
+                self._output_dir_path
+                / f"{problem_name}.{algorithm_name}.{n_run}.pp.npz"
+            )
+            if not path.exists():
+                logging.debug(
+                    "File %s does not exist. The corresponding pair most "
+                    "likely didn't succeed",
+                    path,
+                )
+                continue
+            data = np.load(path)
+            population = Population.create(data["X"])
+            population.set(
+                F=data["F"],
+                feasible=np.full((data["X"].shape[0], 1), True),
+            )
+            populations.append(population)
+        global_pareto_population = _merge_pareto_populations(populations)
+        _dump_population(
+            global_pareto_population,
+            self._output_dir_path / f"{problem_name}.{algorithm_name}.pp.npz",
+        )
+
+    def _compute_global_pareto_populations(
+        self, n_jobs: int = -1, **joblib_kwargs
+    ) -> None:
         """
         The global Pareto population of a problem-algorithm pair is the merged
         population of all pareto populations across all runs of that pair. THis
@@ -308,123 +347,106 @@ class Benchmark:
         to `output_dir_path/<problem>.<algorithm>.pp.npz`.
         """
         pa_pairs = product(self._problems.keys(), self._algorithms.keys())
-        for pn, an in pa_pairs:
-            logging.debug(
-                "Computing global Pareto population for pair %s - %s", pn, an
+        executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
+        executor(
+            delayed(Benchmark._compute_global_pareto_population)(self, an, pn)
+            for an, pn in pa_pairs
+        )
+
+    def _compute_performance_indicator(self, pair: Pair) -> pd.DataFrame:
+        """
+        Computes all performance indicators for a given pair, and returns the
+        relevant data frame. See `_compute_performance_indicators`.
+        """
+        # Load top layer history and the pareto history
+        try:
+            history = np.load(
+                self._output_dir_path / pair.top_layer_history_filename()
             )
-            populations = []
-            for n_run in range(1, self._n_runs + 1):
-                path = self._output_dir_path / f"{pn}.{an}.{n_run}.pp.npz"
-                if not path.exists():
-                    logging.debug(
-                        "File %s does not exist. The corresponding pair most "
-                        "likely didn't succeed",
-                        path,
-                    )
-                    continue
-                data = np.load(path)
-                population = Population.create(data["X"])
-                population.set(
-                    F=data["F"],
-                    feasible=np.full((data["X"].shape[0], 1), True),
+            pareto_history = np.load(
+                self._output_dir_path / pair.pareto_population_filename()
+            )
+        except FileNotFoundError:
+            # Return empty dataframe
+            return pd.DataFrame()
+
+        # Break down histories. Each element of this list is a tuple
+        # containing the population's `X` and `F`, and the pareto
+        # population's `X` and `F` at a given generation (or `_batch`).
+        states = []
+        for i in range(1, history["_batch"].max() + 1):
+            hidx = history["_batch"] == i
+            pidx = pareto_history["_batch"] == i
+            states.append(
+                (
+                    history["X"][hidx],
+                    history["F"][hidx],
+                    pareto_history["X"][pidx],
+                    pareto_history["F"][pidx],
                 )
-                populations.append(population)
-            global_pareto_population = _merge_pareto_populations(populations)
-            _dump_population(
-                global_pareto_population,
-                self._output_dir_path / f"{pn}.{an}.pp.npz",
             )
 
-    def _compute_performance_indicators(self) -> None:
+        df = pd.DataFrame()
+        # Compute PIs
+        # pylint: disable=cell-var-from-loop
+        for pi in self._performance_indicators:
+            logging.debug("Computing PI '%s' for pair [%s]", pi, pair)
+            f: Callable[
+                [np.ndarray, np.ndarray, np.ndarray, np.ndarray], float
+            ] = lambda *_: np.nan
+            if pi == "df":
+                problem = pair.problem_description["problem"]
+                n_evals = pair.problem_description.get("df_n_evals", 1)
+                delta_f = DeltaF(problem, n_evals)
+                f = lambda X, F, pX, pF: delta_f.do(F, X)
+            elif pi in ["gd", "gd+", "igd", "igd+"]:
+                try:
+                    if "pareto_front" in pair.problem_description:
+                        pf = pair.problem_description.get("pareto_front")
+                    else:
+                        path = (
+                            self._output_dir_path
+                            / pair.global_pareto_population_filename()
+                        )
+                        pf = _load_population(path).get("F")
+                    ind = get_performance_indicator(pi, pf)
+                    f = lambda X, F, pX, pF: ind.do(F)
+                except FileNotFoundError:
+                    logging.warning(
+                        "Global Pareto population file %s not found", path
+                    )
+            elif pi == "hv" and "hv_ref_point" in pair.problem_description:
+                hv = get_performance_indicator(
+                    "hv", ref_point=pair.problem_description["hv_ref_point"]
+                )
+                f = lambda X, F, pX, pF: hv.do(F)
+            elif pi == "ps":
+                f = lambda X, F, pX, pF: pX.shape[0]
+
+            df["perf_" + pi] = [f(*s) for s in states]
+
+        df["algorithm"] = pair.algorithm_name
+        df["problem"] = pair.problem_name
+        df["n_gen"] = range(1, len(states) + 1)
+        df["n_run"] = pair.n_run
+
+        return df
+
+    def _compute_performance_indicators(
+        self, n_jobs: int = -1, **joblib_kwargs
+    ) -> None:
         """
         Computes all performance indicators. It is assumed that all pairs have
         been ran, histories dumped, and that `_results` has been consolidated
         (see `_consolidate_pair_results`).
         """
-        all_df = []
-
-        # Loads a consolidated population's F array. This is wrapped inside a
-        # size 1 LRU cache. This comes in handy when loading global Pareto
-        # populations.
-        load_F_cached = lru_cache(1)(lambda p: _load_population(p).get("F"))
-
-        for p in self._all_pairs():
-            df = pd.DataFrame()
-
-            # Load top layer history and the pareto history
-            history_path = self._output_dir_path / (
-                p.top_layer_history_filename()
-            )
-            pareto_history_path = self._output_dir_path / (
-                p.pareto_population_filename()
-            )
-            if not (history_path.exists() and pareto_history_path.exists()):
-                continue
-            history = np.load(history_path)
-            pareto_history = np.load(pareto_history_path)
-
-            # Break down histories. Each element of this list is a tuple
-            # containing the population's `X` and `F`, and the pareto
-            # population's `X` and `F` at a given generation (or `_batch`).
-            states = []
-            for i in range(1, history["_batch"].max() + 1):
-                hidx = history["_batch"] == i
-                pidx = pareto_history["_batch"] == i
-                states.append(
-                    (
-                        history["X"][hidx],
-                        history["F"][hidx],
-                        pareto_history["X"][pidx],
-                        pareto_history["F"][pidx],
-                    )
-                )
-
-            # Compute PIs
-            # pylint: disable=cell-var-from-loop
-            for pi in self._performance_indicators:
-                logging.debug("Computing PI '%s' for pair [%s]", pi, p)
-                f: Callable[
-                    [np.ndarray, np.ndarray, np.ndarray, np.ndarray], float
-                ] = lambda *_: np.nan
-                if pi == "df":
-                    problem = p.problem_description["problem"]
-                    n_evals = p.problem_description.get("df_n_evals", 1)
-                    delta_f = DeltaF(problem, n_evals)
-                    f = lambda X, F, pX, pF: delta_f.do(F, X)
-                elif pi in ["gd", "gd+", "igd", "igd+"]:
-                    try:
-                        if "pareto_front" in p.problem_description:
-                            pf = p.problem_description.get("pareto_front")
-                        else:
-                            path = (
-                                self._output_dir_path
-                                / p.global_pareto_population_filename()
-                            )
-                            pf = load_F_cached(path)
-                        ind = get_performance_indicator(pi, pf)
-                        f = lambda X, F, pX, pF: ind.do(F)
-                    except FileNotFoundError:
-                        logging.warning(
-                            "Global Pareto population file %s not found", path
-                        )
-                elif pi == "hv" and "hv_ref_point" in p.problem_description:
-                    hv = get_performance_indicator(
-                        "hv", ref_point=p.problem_description["hv_ref_point"]
-                    )
-                    f = lambda X, F, pX, pF: hv.do(F)
-                elif pi == "ps":
-                    f = lambda X, F, pX, pF: pX.shape[0]
-
-                df["perf_" + pi] = [f(*s) for s in states]
-
-            df["algorithm"] = p.algorithm_name
-            df["problem"] = p.problem_name
-            df["n_gen"] = range(1, len(states) + 1)
-            df["n_run"] = p.n_run
-            all_df.append(df)
-
+        executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
+        pi_dfs = executor(
+            delayed(Benchmark._compute_performance_indicator)(self, pair)
+            for pair in self._all_pairs()
+        )
         self._results = self._results.merge(
-            pd.concat(all_df, ignore_index=True),
+            pd.concat(pi_dfs, ignore_index=True),
             how="outer",
             on=["algorithm", "problem", "n_gen", "n_run"],
         )
@@ -662,8 +684,8 @@ class Benchmark:
             for pair in filter(lambda p: not self._pair_done(p), pairs):
                 logging.warning("    [%s]", pair)
         self._consolidate_pair_results()
-        self._compute_global_pareto_populations()
-        self._compute_performance_indicators()
+        self._compute_global_pareto_populations(n_jobs, **joblib_kwargs)
+        self._compute_performance_indicators(n_jobs, **joblib_kwargs)
         self.dump_results(self._output_dir_path / "benchmark.csv", index=False)
 
 
