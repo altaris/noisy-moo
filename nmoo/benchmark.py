@@ -562,8 +562,8 @@ class Benchmark:
                 seed=pair.algorithm_description.get("seed"),
                 verbose=pair.algorithm_description.get("verbose", False),
             )
-        except:  # pylint: disable=bare-except
-            logging.error("Pair [%s] failed. Rescheduling...", pair)
+        except Exception as e:  # pylint: disable=broad-except
+            logging.error("Pair [%s] failed: %s", pair, e)
             return
 
         # Dump all layers histories
