@@ -43,8 +43,8 @@ class Pair:
         return f"{self.problem_name}.{self.algorithm_name}.{self.n_run}"
 
     def global_pareto_population_filename(self) -> str:
-        """Returns `<problem_name>.<algorithm_name>.pp.npz`."""
-        return f"{self.problem_name}.{self.algorithm_name}.pp.npz"
+        """Returns `<problem_name>.<algorithm_name>.gpp.npz`."""
+        return f"{self.problem_name}.{self.algorithm_name}.gpp.npz"
 
     def pareto_population_filename(self) -> str:
         """Returns `<problem_name>.<algorithm_name>.<n_run>.pp.npz`."""
@@ -311,7 +311,7 @@ class Benchmark:
         pair. See `_compute_global_pareto_populations`.
         """
         gpp_path = (
-            self._output_dir_path / f"{problem_name}.{algorithm_name}.pp.npz"
+            self._output_dir_path / f"{problem_name}.{algorithm_name}.gpp.npz"
         )
         if gpp_path.is_file():
             # Global Pareto population has already been calculated
@@ -350,8 +350,8 @@ class Benchmark:
         """
         The global Pareto population of a problem-algorithm pair is the merged
         population of all pareto populations across all runs of that pair. THis
-        function calculates global Pareto population of all pairs and dumpts it
-        to `output_dir_path/<problem>.<algorithm>.pp.npz`.
+        function calculates global Pareto population of all pairs and dumps it
+        to `output_dir_path/<problem>.<algorithm>.gpp.npz`.
         """
         logging.debug("Computing global Pareto populations")
         pa_pairs = product(self._problems.keys(), self._algorithms.keys())
