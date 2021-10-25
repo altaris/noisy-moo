@@ -361,7 +361,7 @@ class Benchmark:
             for an, pn in pa_pairs
         )
 
-    def _compute_performance_indicator(self, pair: Pair) -> None:
+    def _compute_performance_indicator(self, pair: Pair) -> pd.DataFrame:
         """
         Computes all performance indicators for a given pair, and returns the
         relevant data frame. See `_compute_performance_indicators`.
