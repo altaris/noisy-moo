@@ -281,10 +281,6 @@ class Benchmark:
                 )
         self._problems = problems
 
-        columns = ["algorithm", "problem", "n_run", "n_gen", "timedelta"]
-        columns += ["perf_" + pi for pi in self._performance_indicators]
-        self._results = pd.DataFrame(columns=columns)
-
     def _all_pairs(self) -> List[Pair]:
         """Generate the list of all pairs to be run."""
         everything = product(
@@ -308,7 +304,7 @@ class Benchmark:
     ) -> None:
         """
         Computes the global Pareto population of a given problem-algorithm
-        pair. See `_compute_global_pareto_populations`.
+        pair. See `compute_global_pareto_populations`.
         """
         gpp_path = (
             self._output_dir_path / f"{problem_name}.{algorithm_name}.gpp.npz"
@@ -344,32 +340,15 @@ class Benchmark:
         gpp = _merge_pareto_populations(populations)
         _dump_population(gpp, gpp_path)
 
-    def _compute_global_pareto_populations(
-        self, n_jobs: int = -1, **joblib_kwargs
-    ) -> None:
-        """
-        The global Pareto population of a problem-algorithm pair is the merged
-        population of all pareto populations across all runs of that pair. THis
-        function calculates global Pareto population of all pairs and dumps it
-        to `output_dir_path/<problem>.<algorithm>.gpp.npz`.
-        """
-        logging.debug("Computing global Pareto populations")
-        pa_pairs = product(self._problems.keys(), self._algorithms.keys())
-        executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
-        executor(
-            delayed(Benchmark._compute_global_pareto_population)(self, an, pn)
-            for an, pn in pa_pairs
-        )
-
-    def _compute_performance_indicator(self, pair: Pair) -> pd.DataFrame:
+    def _compute_performance_indicator(self, pair: Pair) -> None:
         """
         Computes all performance indicators for a given pair, and returns the
-        relevant data frame. See `_compute_performance_indicators`.
+        relevant data frame. See `compute_performance_indicators`.
         """
         pi_path = self._output_dir_path / pair.pi_filename()
         if pi_path.is_file():
             # PIs have already been calculated
-            return pd.read_csv(pi_path)
+            return
 
         # Load top layer history and the pareto history
         try:
@@ -380,8 +359,7 @@ class Benchmark:
                 self._output_dir_path / pair.pareto_population_filename()
             )
         except FileNotFoundError:
-            # Return empty dataframe
-            return pd.DataFrame()
+            return
 
         # Break down histories. Each element of this list is a tuple
         # containing the population's `X` and `F`, and the pareto
@@ -444,59 +422,6 @@ class Benchmark:
         df["n_run"] = pair.n_run
 
         df.to_csv(pi_path)
-        return df
-
-    def _compute_performance_indicators(
-        self, n_jobs: int = -1, **joblib_kwargs
-    ) -> None:
-        """
-        Computes all performance indicators. It is assumed that all pairs have
-        been ran, histories dumped, and that `_results` has been consolidated
-        (see `_consolidate_pair_results`).
-        """
-        logging.debug("Computing performance indicators")
-        executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
-        pi_dfs = executor(
-            delayed(Benchmark._compute_performance_indicator)(self, pair)
-            for pair in self._all_pairs()
-        )
-        self._results = self._results.merge(
-            pd.concat(pi_dfs, ignore_index=True),
-            how="outer",
-            on=["algorithm", "problem", "n_gen", "n_run"],
-        )
-
-    def _consolidate_pair_results(self) -> None:
-        """
-        In `_run_pair`, if a pair is run successfully, it generates a CSV file
-        `output_dir_path/<problem_name>.<algorithm_name>.<n_run>.csv`. This
-        method consolidates all of them into a single dataframe and stores it
-        in this benchmark's `_result` field.
-        """
-        logging.debug("Consolidating all pair statistics")
-        all_df = []
-        for pair in self._all_pairs():
-            path = self._output_dir_path / pair.result_filename()
-            if not path.exists():
-                logging.debug(
-                    "File %s does not exist. The corresponding pair most "
-                    "likely didn't succeed",
-                    path,
-                )
-                continue
-            all_df.append(pd.read_csv(path))
-        self._results = pd.concat(all_df, ignore_index=True)
-        self._results["timedelta"] = pd.to_timedelta(
-            self._results["timedelta"]
-        )
-        self._results = self._results.astype(
-            {
-                "algorithm": "category",
-                "n_gen": "uint32",
-                "n_run": "uint32",
-                "problem": "category",
-            }
-        )
 
     def _pair_done(self, pair: Pair) -> bool:
         """
@@ -589,6 +514,97 @@ class Benchmark:
         df["problem"] = pair.problem_name
         df["n_run"] = pair.n_run
         df.to_csv(self._output_dir_path / pair.result_filename(), index=False)
+
+    def compute_global_pareto_populations(
+        self, n_jobs: int = -1, **joblib_kwargs
+    ) -> None:
+        """
+        The global Pareto population of a problem-algorithm pair is the merged
+        population of all pareto populations across all runs of that pair. THis
+        function calculates global Pareto population of all pairs and dumps it
+        to `output_dir_path/<problem>.<algorithm>.gpp.npz`.
+        """
+        logging.debug("Computing global Pareto populations")
+        pa_pairs = product(self._problems.keys(), self._algorithms.keys())
+        executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
+        executor(
+            delayed(Benchmark._compute_global_pareto_population)(self, an, pn)
+            for an, pn in pa_pairs
+        )
+
+    def compute_performance_indicators(
+        self, n_jobs: int = -1, **joblib_kwargs
+    ) -> None:
+        """
+        Computes all performance indicators and saves the corresponding
+        dataframes in
+        `output_path/<problem_name>.<algorithm_name>.<n_run>.pi.csv`
+        """
+        logging.debug("Computing performance indicators")
+        executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
+        executor(
+            delayed(Benchmark._compute_performance_indicator)(self, pair)
+            for pair in self._all_pairs()
+        )
+
+    def consolidate(self) -> None:
+        """
+        Merges all statistics dataframes
+        (`<problem_name>.<algorithm_name>.<n_run>.csv`) and all PI dataframes
+        (`<problem_name>.<algorithm_name>.<n_run>.pi.csv`) into a single
+        dataframe, and saves it under `output_dir_path/benchmark.csv`.
+        """
+        logging.debug("Consolidating statistics")
+        all_df = []
+        for pair in self._all_pairs():
+            path = self._output_dir_path / pair.result_filename()
+            if not path.exists():
+                logging.debug(
+                    "Statistic file %s does not exist. The corresponding pair "
+                    "most likely didn't succeed",
+                    path,
+                )
+                continue
+            all_df.append(pd.read_csv(path))
+        self._results = pd.concat(all_df, ignore_index=True)
+        self._results["timedelta"] = pd.to_timedelta(
+            self._results["timedelta"]
+        )
+        self._results = self._results.astype(
+            {
+                "algorithm": "category",
+                "n_gen": "uint32",
+                "n_run": "uint32",
+                "problem": "category",
+            }
+        )
+
+        logging.debug("Consolidating performance indicators")
+        all_df = []
+        for pair in self._all_pairs():
+            path = self._output_dir_path / pair.pi_filename()
+            if not path.exists():
+                logging.debug(
+                    "PI file %s does not exist. The corresponding pair most "
+                    "likely didn't succeed",
+                    path,
+                )
+                continue
+            all_df.append(pd.read_csv(path))
+
+        self._results = self._results.merge(
+            pd.concat(all_df, ignore_index=True),
+            how="outer",
+            on=["algorithm", "problem", "n_gen", "n_run"],
+        )
+
+        # ???
+        if "Unnamed: 0" in self._results:
+            del self._results["Unnamed: 0"]
+
+        path = self._output_dir_path / "benchmark.csv"
+        logging.debug("Writing results to %s", path)
+        self.dump_results(path, index=False)
 
     def dump_results(self, path: Union[Path, str], fmt: str = "csv", **kwargs):
         """
@@ -707,14 +723,13 @@ class Benchmark:
             )
             for pair in filter(lambda p: not self._pair_done(p), pairs):
                 logging.warning("    [%s]", pair)
-        self._consolidate_pair_results()
-        self._compute_global_pareto_populations(
+        self.compute_global_pareto_populations(
             n_post_processing_jobs, **joblib_kwargs
         )
-        self._compute_performance_indicators(
+        self.compute_performance_indicators(
             n_post_processing_jobs, **joblib_kwargs
         )
-        self.dump_results(self._output_dir_path / "benchmark.csv", index=False)
+        self.consolidate()
 
 
 def _consolidate_population_list(populations: List[Population]) -> dict:
