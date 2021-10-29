@@ -75,9 +75,9 @@ def _get_benchmark(path: str) -> nmoo.benchmark.Benchmark:
     imports `module[.submodule...]` and returns `function`.
     """
     try:
-        module_name, factory_name = path.split(":")
+        module_name, function_name = path.split(":")
         module = import_module(module_name)
-        factory = getattr(module, factory_name)
+        factory = getattr(module, function_name)
         benchmark = factory()
         assert isinstance(benchmark, nmoo.benchmark.Benchmark)
         return benchmark
@@ -90,7 +90,7 @@ def _get_benchmark(path: str) -> nmoo.benchmark.Benchmark:
     except ModuleNotFoundError:
         logging.fatal("Module '%s' not found.", module_name)
     except TypeError:
-        logging.fatal("Factory '%s' is not callable.", factory_name)
+        logging.fatal("Factory '%s' is not callable.", function_name)
     sys.exit(-1)
 
 
@@ -267,6 +267,14 @@ def consolidate(
     ),
 )
 @click.option(
+    "--restart-on-crash/--no-restart-on-crash",
+    help=(
+        "Restarts the benchmark if it crashes. This can potentially lead an "
+        "infinite loop if the benchmark keeps crashing."
+    ),
+    default=False,
+)
+@click.option(
     "--verbose",
     default=0,
     help="Joblib's verbosity level.",
@@ -283,6 +291,7 @@ def run(
     only_algorithms: str,
     exclude_algorithms: str,
     output_dir: Optional[Path],
+    restart_on_crash: bool,
 ) -> None:
     """
     Runs a benchmark.
@@ -301,11 +310,21 @@ def run(
         exclude_algorithms=exclude_algorithms,
         output_dir=output_dir,
     )
-    b.run(
-        n_jobs=n_jobs,
-        n_post_processing_jobs=n_post_processing_jobs,
-        verbose=verbose,
-    )
+    restart = True
+    while restart:
+        try:
+            b.run(
+                n_jobs=n_jobs,
+                n_post_processing_jobs=n_post_processing_jobs,
+                verbose=verbose,
+            )
+        except KeyboardInterrupt:
+            restart = False
+        except Exception as e:  # pylint: disable=broad-except
+            logging.error("Benchmark crashed: %s", e)
+            restart = restart_on_crash
+        else:
+            restart = False
 
 
 @main.command()
