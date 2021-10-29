@@ -326,7 +326,7 @@ class Benchmark:
             if not path.exists():
                 logging.debug(
                     "File %s does not exist. The corresponding pair most "
-                    "likely didn't succeed",
+                    "likely hasn't finished or failed",
                     path,
                 )
                 continue
@@ -561,7 +561,7 @@ class Benchmark:
             if not path.exists():
                 logging.debug(
                     "Statistic file %s does not exist. The corresponding pair "
-                    "most likely didn't succeed",
+                    "most likely hasn't finished or failed",
                     path,
                 )
                 continue
@@ -586,7 +586,7 @@ class Benchmark:
             if not path.exists():
                 logging.debug(
                     "PI file %s does not exist. The corresponding pair most "
-                    "likely didn't succeed",
+                    "likely hasn't finished or failed",
                     path,
                 )
                 continue
