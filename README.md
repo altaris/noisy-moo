@@ -23,7 +23,16 @@ pip install git+https://github.com/altaris/noisy-moo.git
 
 ## Getting started
 
-See [example.ipynb](/example.ipynb) for a quick example.
+See [example.ipynb](/example.ipynb) for a quick example. For larger benchmarks,
+you may want to use nmoo's CLI. First, create a module, say `foobar.py`,
+containing your benchmark factory (a function that returns your benchrmark),
+say `make_benchmark()`. Then, run it using
+```sh
+nmoo run foobar:make_benchmark
+```
+
+Refer to `nmoo --help` for more information.
+
 
 # Contributing
 
