@@ -1,7 +1,7 @@
 import setuptools
 
 name = "nmoo"
-version = "4.2.0"
+version = "4.2.1"
 
 with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
@@ -31,6 +31,11 @@ setuptools.setup(
         "Topic :: Scientific/Engineering :: Mathematics"
         "Topic :: Scientific/Engineering",
     ],
+    entry_points={
+        'console_scripts': [
+            'nmoo = nmoo.__main__:main',
+        ],
+    },
     install_requires=requirements,
     long_description=long_description,
     long_description_content_type="text/markdown",
