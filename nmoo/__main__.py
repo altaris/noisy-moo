@@ -358,6 +358,18 @@ def run(
     ),
     type=click.STRING,
 )
+@click.option(
+    "--output-dir",
+    help="Overrides the benchmark's output directory.",
+    type=click.Path(
+        exists=False,
+        file_okay=False,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        path_type=Path,
+    ),
+)
 def tally(
     benchmark: str,
     n_runs: Optional[int],
@@ -365,6 +377,7 @@ def tally(
     exclude_problems: str,
     only_algorithms: str,
     exclude_algorithms: str,
+    output_dir: Optional[Path],
 ):
     """
     Reports the current completion of the benchmark. Can be safely called while
@@ -378,6 +391,7 @@ def tally(
         exclude_problems=exclude_problems,
         only_algorithms=only_algorithms,
         exclude_algorithms=exclude_algorithms,
+        output_dir=output_dir,
     )
     all_pairs = b._all_pairs()
     all_gpps = {p.global_pareto_population_filename() for p in all_pairs}
