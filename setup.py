@@ -1,3 +1,7 @@
+"""
+Installation script.
+"""
+
 import setuptools
 
 name = "nmoo"
@@ -9,10 +13,9 @@ with open("README.md", "r", encoding="utf-8") as f:
 with open("requirements.txt", "r", encoding="utf-8") as f:
     requirements = f.read().split()
 
-packages = (
-    ["nmoo"]
-    + ["nmoo." + p for p in setuptools.find_packages(where="./nmoo")]
-)
+packages = ["nmoo"] + [
+    "nmoo." + p for p in setuptools.find_packages(where="./nmoo")
+]
 
 setuptools.setup(
     author="Cédric HT",
@@ -32,8 +35,8 @@ setuptools.setup(
         "Topic :: Scientific/Engineering",
     ],
     entry_points={
-        'console_scripts': [
-            'nmoo = nmoo.__main__:main',
+        "console_scripts": [
+            "nmoo = nmoo.__main__:main",
         ],
     },
     install_requires=requirements,
