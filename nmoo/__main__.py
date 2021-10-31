@@ -87,8 +87,8 @@ def _get_benchmark(path: str) -> nmoo.benchmark.Benchmark:
         logging.fatal(
             "Module '%s' has no attribute '%s'", module_name, function_name
         )
-    except ModuleNotFoundError:
-        logging.fatal("Module '%s' not found.", module_name)
+    except ModuleNotFoundError as e:
+        logging.fatal("%s", e)
     except TypeError:
         logging.fatal("Factory '%s' is not callable.", function_name)
     sys.exit(-1)
