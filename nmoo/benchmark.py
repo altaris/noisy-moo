@@ -14,7 +14,6 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
-from pymoo.core.population import Population
 from pymoo.factory import get_performance_indicator
 from pymoo.optimize import minimize
 
@@ -317,7 +316,7 @@ class Benchmark:
             problem_name,
             algorithm_name,
         )
-        populations = []
+        populations: Dict[str, List[np.ndarray]] = {}
         for n_run in range(1, self._n_runs + 1):
             path = (
                 self._output_dir_path
@@ -330,20 +329,15 @@ class Benchmark:
                     path,
                 )
                 continue
-            data = np.load(path)
-            population = Population.create(data["X"])
-            population.set(
-                F=data["F"],
-                feasible=np.full((data["X"].shape[0], 1), True),
-            )
-            populations.append(population)
+            data = np.load(path, allow_pickle=True)
+            for k, v in data.items():
+                populations[k] = populations.get(k, []) + [v]
 
-        # Dump GPP
-        merged = population_list_to_dict(populations)
-        mask = pareto_frontier_mask(merged["F"])
+        consolidated = {k: np.concatenate(v) for k, v in populations.items()}
+        mask = pareto_frontier_mask(consolidated["F"])
         np.savez_compressed(
             gpp_path,
-            **{k: v[mask] for k, v in merged.items()},
+            **{k: v[mask] for k, v in consolidated.items()},
         )
 
     def _compute_performance_indicator(self, pair: Pair) -> None:
