@@ -332,6 +332,7 @@ class Benchmark:
             data = np.load(path, allow_pickle=True)
             for k, v in data.items():
                 populations[k] = populations.get(k, []) + [v]
+            data.close()
 
         consolidated = {k: np.concatenate(v) for k, v in populations.items()}
         mask = pareto_frontier_mask(consolidated["F"])
@@ -376,6 +377,8 @@ class Benchmark:
                     pareto_history["F"][pidx],
                 )
             )
+        history.close()
+        pareto_history.close()
 
         df = pd.DataFrame()
         # Compute PIs
@@ -399,7 +402,9 @@ class Benchmark:
                             self._output_dir_path
                             / pair.global_pareto_population_filename()
                         )
-                        pf = np.load(path)["F"]
+                        data = np.load(path)
+                        pf = data["F"]
+                        data.close()
                     ind = get_performance_indicator(pi, pf)
                     f = lambda X, F, pX, pF: ind.do(F)
                 except FileNotFoundError:
