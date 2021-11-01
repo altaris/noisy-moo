@@ -335,6 +335,14 @@ class Benchmark:
             data.close()
 
         consolidated = {k: np.concatenate(v) for k, v in populations.items()}
+        if "F" not in consolidated:
+            logging.error(
+                "No Pareto population file found for pair %s - %s. This is "
+                "most likely because none of the runs finished or succeeded.",
+                problem_name,
+                algorithm_name,
+            )
+            return
         mask = pareto_frontier_mask(consolidated["F"])
         np.savez_compressed(
             gpp_path,
