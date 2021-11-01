@@ -90,6 +90,8 @@ def population_list_to_dict(
         populations = [populations]
     fields = ["X", "F", "G", "dF", "dG", "ddF", "ddG", "CV", "feasible"]
     data: Dict[str, List[np.ndarray]] = {f: [] for f in fields + ["_batch"]}
+    if not populations:
+        return {k: np.array([]) for k in data}
     for i, pop in enumerate(populations):
         for f in fields:
             data[f].append(pop.get(f))
