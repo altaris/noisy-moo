@@ -322,7 +322,10 @@ def run(
             restart = False
         except Exception as e:  # pylint: disable=broad-except
             logging.error("Benchmark crashed: %s", e)
-            restart = restart_on_crash
+            if restart_on_crash:
+                restart = True
+            else:
+                raise
         else:
             restart = False
 
