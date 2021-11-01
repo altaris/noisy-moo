@@ -36,7 +36,7 @@ def pareto_frontier_mask(arr: np.ndarray) -> np.ndarray:
 
     def _dom(a: np.ndarray, b: np.ndarray) -> bool:
         """Wether `a` dominates `b` (towards south west), non strictly."""
-        return bool(a <= b)
+        return (a <= b).all()  # type: ignore
 
     # mask[i] indicates wether arr[i] is dominated by NO OTHER point in arr
     undom = np.full(len(arr), True)
