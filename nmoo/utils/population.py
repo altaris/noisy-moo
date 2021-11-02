@@ -27,30 +27,71 @@ def pareto_frontier_mask(arr: np.ndarray) -> np.ndarray:
 
     Todo:
         * Possibility to specify a direction of optimum;
-        * optimize inner loop by setting `undom[j]` as well;
         * fancy tree-based optimization.
 
     """
     if not arr.ndim == 2:
         raise ValueError("The input array must be of shape (N, D).")
 
+    # Low-dimensional optimized methods
+    if arr.shape[1] == 1:
+        mask = np.full(len(arr), False)
+        mask[arr.argmin()] = True
+        return mask
+    if arr.shape[1] == 2:
+        return pareto_frontier_mask_2d(arr)
+
     def _dom(a: np.ndarray, b: np.ndarray) -> bool:
         """Wether `a` dominates `b` (towards south west), non strictly."""
         return (a <= b).all()  # type: ignore
 
-    # mask[i] indicates wether arr[i] is dominated by NO OTHER point in arr
-    undom = np.full(len(arr), True)
+    # mask[i] = (arr[i] is dominated by NO OTHER point in arr)
+    mask = np.full(len(arr), True)
     for i, x in enumerate(arr):
-        if not undom[i]:
+        if not mask[i]:
             continue
         for j, y in enumerate(arr):
-            if i == j:
+            if i == j or not mask[j]:
                 continue
             # not _dom(y, x) is NOT equivalent to _dom(x, y)!
-            undom[i] = not _dom(y, x)
-            if not undom[i]:
+            mask[i], mask[j] = not _dom(y, x), not _dom(x, y)
+            if not mask[i]:
                 break
-    return undom
+    return mask
+
+
+def pareto_frontier_mask_2d(arr: np.ndarray) -> np.ndarray:
+    """
+    Computes the Pareto frontier of a set of 2D points. Faster than
+    `pareto_frontier_mask`. Note that `pareto_frontier_mask` will automatically
+    call this method wheneven possible.
+
+    Returns:
+        A mask (array of booleans) on `arr` selecting the Pareto points
+        belonging to the Pareto frontier. The actual Pareto frontier can be
+        computed with
+
+            pfm = pareto_frontier_mask(arr)
+            pf = arr[pfm]
+
+    Warning:
+        The direction of the optimum is assumed to be south-west.
+
+    Todo:
+        Generalize for higher dimensions?
+    """
+    if not arr.ndim == 2 and arr.shape[-1] != 2:
+        raise ValueError("The input array must be of shape (N, 2).")
+    as0 = np.argsort(arr[:, 0])
+    mask = np.full(len(arr), False)
+    i = as0[0]  # Index of the last Pareto point
+    mask[i] = True
+    for j in as0:
+        # Current point is in the south-east quadrant of the last Pareto point
+        mask[j] = arr[j][1] <= arr[i][1]
+        if mask[j]:
+            i = j
+    return mask
 
 
 def population_list_to_dict(
