@@ -31,32 +31,29 @@ def pareto_frontier_mask(arr: np.ndarray) -> np.ndarray:
 
     """
     if not arr.ndim == 2:
-        raise ValueError("The input array must be of shape (N, D).")
+        raise ValueError("The input array must be of shape (N, d).")
 
-    # Low-dimensional optimized methods
-    if arr.shape[1] == 1:
+    d = arr.shape[-1]
+
+    if d == 1:
         mask = np.full(len(arr), False)
         mask[arr.argmin()] = True
         return mask
-    if arr.shape[1] == 2:
+    if d == 2:
         return pareto_frontier_mask_2d(arr)
 
-    def _dom(a: np.ndarray, b: np.ndarray) -> bool:
-        """Wether `a` dominates `b` (towards south west), non strictly."""
-        return (a <= b).all()  # type: ignore
-
-    # mask[i] = (arr[i] is dominated by NO OTHER point in arr)
-    mask = np.full(len(arr), True)
-    for i, x in enumerate(arr):
-        if not mask[i]:
+    argsort0, mask = np.argsort(arr[:,0]), np.full(len(arr), True)
+    for i, j in enumerate(argsort0):
+        if not mask[j]:
             continue
-        for j, y in enumerate(arr):
-            if i == j or not mask[j]:
-                continue
-            # not _dom(y, x) is NOT equivalent to _dom(x, y)!
-            mask[i], mask[j] = not _dom(y, x), not _dom(x, y)
-            if not mask[i]:
-                break
+        for k in filter(lambda x: mask[x], argsort0[i+1:]):
+            # faster than (arr[k] <= arr[j]).any()
+            for l in range(1, d):
+                if arr[k][l] <= arr[j][l]:
+                    mask[k] = True
+                    break
+            else:
+                mask[k] = False
     return mask
 
 
@@ -82,16 +79,16 @@ def pareto_frontier_mask_2d(arr: np.ndarray) -> np.ndarray:
     """
     if not arr.ndim == 2 and arr.shape[-1] != 2:
         raise ValueError("The input array must be of shape (N, 2).")
-    as0 = np.argsort(arr[:, 0])
-    mask = np.full(len(arr), False)
-    i = as0[0]  # Index of the last Pareto point
+    argsort0, mask = np.argsort(arr[:, 0]), np.full(len(arr), False)
+    i = argsort0[0]  # Index of the last Pareto point
     mask[i] = True
-    for j in as0:
+    for j in argsort0:
         # Current point is in the south-east quadrant of the last Pareto point
         mask[j] = arr[j][1] <= arr[i][1]
         if mask[j]:
             i = j
     return mask
+
 
 
 def population_list_to_dict(

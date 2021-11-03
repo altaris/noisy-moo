@@ -5,7 +5,7 @@ Installation script.
 import setuptools
 
 name = "nmoo"
-version = "4.3.3"
+version = "4.3.4"
 
 with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
