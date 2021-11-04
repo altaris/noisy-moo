@@ -42,11 +42,11 @@ def pareto_frontier_mask(arr: np.ndarray) -> np.ndarray:
     if d == 2:
         return pareto_frontier_mask_2d(arr)
 
-    argsort0, mask = np.argsort(arr[:,0]), np.full(len(arr), True)
+    argsort0, mask = np.argsort(arr[:, 0]), np.full(len(arr), True)
     for i, j in enumerate(argsort0):
         if not mask[j]:
             continue
-        for k in filter(lambda x: mask[x], argsort0[i+1:]):
+        for k in filter(lambda x: mask[x], argsort0[i + 1 :]):
             # faster than (arr[k] <= arr[j]).any()
             for l in range(1, d):
                 if arr[k][l] <= arr[j][l]:
@@ -88,7 +88,6 @@ def pareto_frontier_mask_2d(arr: np.ndarray) -> np.ndarray:
         if mask[j]:
             i = j
     return mask
-
 
 
 def population_list_to_dict(
