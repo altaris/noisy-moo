@@ -537,7 +537,7 @@ class Benchmark:
         function calculates global Pareto population of all pairs and dumps it
         to `output_dir_path/<problem>.<algorithm>.gpp.npz`.
         """
-        logging.debug("Computing global Pareto populations")
+        logging.info("Computing global Pareto populations")
         pa_pairs = product(self._problems.keys(), self._algorithms.keys())
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         executor(
@@ -553,7 +553,7 @@ class Benchmark:
         dataframes in
         `output_path/<problem_name>.<algorithm_name>.<n_run>.pi.csv`
         """
-        logging.debug("Computing performance indicators")
+        logging.info("Computing performance indicators")
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         executor(
             delayed(Benchmark._compute_performance_indicator)(self, pair)
@@ -567,7 +567,7 @@ class Benchmark:
         (`<problem_name>.<algorithm_name>.<n_run>.pi.csv`) into a single
         dataframe, and saves it under `output_dir_path/benchmark.csv`.
         """
-        logging.debug("Consolidating statistics")
+        logging.info("Consolidating statistics")
         all_df = []
         for pair in self._all_pairs():
             path = self._output_dir_path / pair.result_filename()
@@ -592,7 +592,7 @@ class Benchmark:
             }
         )
 
-        logging.debug("Consolidating performance indicators")
+        logging.info("Consolidating performance indicators")
         all_df = []
         for pair in self._all_pairs():
             path = self._output_dir_path / pair.pi_filename()
@@ -616,7 +616,7 @@ class Benchmark:
             del self._results["Unnamed: 0"]
 
         path = self._output_dir_path / "benchmark.csv"
-        logging.debug("Writing results to %s", path)
+        logging.info("Writing results to %s", path)
         self.dump_results(path, index=False)
 
     def dump_results(self, path: Union[Path, str], fmt: str = "csv", **kwargs):
