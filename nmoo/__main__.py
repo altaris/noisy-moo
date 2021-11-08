@@ -8,6 +8,7 @@ import os
 import re
 import sys
 from importlib import import_module
+from itertools import product
 from pathlib import Path
 from typing import Optional
 
@@ -417,10 +418,11 @@ def tally(
     )
     all_triples = b.all_par_triples()
     all_gpps = {t.global_pareto_population_filename() for t in all_triples}
+    all_pis = list(product(all_triples, b._performance_indicators))
     n_run = sum(
         map(
-            lambda p: int(
-                (b._output_dir_path / p.result_filename()).is_file()
+            lambda t: int(
+                (b._output_dir_path / t.result_filename()).is_file()
             ),
             all_triples,
         )
@@ -430,13 +432,15 @@ def tally(
     )
     n_pi = sum(
         map(
-            lambda p: int((b._output_dir_path / p.pi_filename()).is_file()),
-            all_triples,
+            lambda x: int(
+                (b._output_dir_path / x[0].pi_filename(x[1])).is_file()
+            ),
+            all_pis,
         )
     )
     logging.info("Runs: %d/%d", n_run, len(all_triples))
     logging.info("GPPs: %d/%d", n_gpp, len(all_gpps))
-    logging.info("PIs: %d/%d", n_pi, len(all_triples))
+    logging.info("PIs: %d/%d", n_pi, len(all_pis))
 
 
 if __name__ == "__main__":

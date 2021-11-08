@@ -60,9 +60,11 @@ class PARTriple(PAPair):
         """Returns `<problem_name>.<algorithm_name>.<n_run>.pp.npz`."""
         return self.filename_prefix() + ".pp.npz"
 
-    def pi_filename(self) -> str:
-        """Returns `<problem_name>.<algorithm_name>.<n_run>.pi.csv`."""
-        return self.filename_prefix() + ".pi.csv"
+    def pi_filename(self, pi_name: str) -> str:
+        """
+        Returns `<problem_name>.<algorithm_name>.<n_run>.pi-<pi_name>.csv`.
+        """
+        return self.filename_prefix() + f".pi-{pi_name}.csv"
 
     def result_filename(self) -> str:
         """Returns `<problem_name>.<algorithm_name>.<n_run>.csv`."""
@@ -340,15 +342,17 @@ class Benchmark:
             **{k: v[mask] for k, v in consolidated.items()},
         )
 
-    def _compute_performance_indicator(self, triple: PARTriple) -> None:
+    def _compute_performance_indicator(
+        self, triple: PARTriple, pi_name: str
+    ) -> None:
         """
-        Computes all performance indicators for a given problem-algorithm-(run
-        number) triple, and returns the relevant data frame. See
-        `compute_performance_indicators`.
+        Computes a performance indicators for a given problem-algorithm-(run
+        number) triple and stores it under
+        `<problem_name>.<algorithm_name>.<n_run>.pi-<pi_name>.csv`
         """
-        pi_path = self._output_dir_path / triple.pi_filename()
+        pi_path = self._output_dir_path / triple.pi_filename(pi_name)
         if pi_path.is_file():
-            # PIs have already been calculated
+            # PI has already been calculated
             return
 
         # Load top layer history and the pareto history
@@ -361,6 +365,8 @@ class Benchmark:
             )
         except FileNotFoundError:
             return
+
+        logging.debug("Computing PI '%s' for triple [%s]", pi_name, triple)
 
         # Break down histories. Each element of this list is a tuple
         # containing the population's `X` and `F`, and the pareto
@@ -381,45 +387,42 @@ class Benchmark:
         pareto_history.close()
 
         df = pd.DataFrame()
-        # Compute PIs
-        # pylint: disable=cell-var-from-loop
-        for pi in self._performance_indicators:
-            logging.debug("Computing PI '%s' for triple [%s]", pi, triple)
-            f: Callable[
-                [np.ndarray, np.ndarray, np.ndarray, np.ndarray], float
-            ] = lambda *_: np.nan
-            if pi == "df":
-                problem = triple.problem_description["problem"]
-                n_evals = triple.problem_description.get("df_n_evals", 1)
-                delta_f = DeltaF(problem, n_evals)
-                f = lambda X, F, pX, pF: delta_f.do(F, X)
-            elif pi in ["gd", "gd+", "igd", "igd+"]:
-                try:
-                    if "pareto_front" in triple.problem_description:
-                        pf = triple.problem_description.get("pareto_front")
-                    else:
-                        path = (
-                            self._output_dir_path
-                            / triple.global_pareto_population_filename()
-                        )
-                        data = np.load(path)
-                        pf = data["F"]
-                        data.close()
-                    ind = get_performance_indicator(pi, pf)
-                    f = lambda X, F, pX, pF: ind.do(F)
-                except FileNotFoundError:
-                    logging.warning(
-                        "Global Pareto population file %s not found", path
-                    )
-            elif pi == "hv" and "hv_ref_point" in triple.problem_description:
-                hv = get_performance_indicator(
-                    "hv", ref_point=triple.problem_description["hv_ref_point"]
-                )
-                f = lambda X, F, pX, pF: hv.do(F)
-            elif pi == "ps":
-                f = lambda X, F, pX, pF: pX.shape[0]
+        f: Callable[
+            [np.ndarray, np.ndarray, np.ndarray, np.ndarray], float
+        ] = lambda *_: np.nan
 
-            df["perf_" + pi] = [f(*s) for s in states]
+        if pi_name == "df":
+            problem = triple.problem_description["problem"]
+            n_evals = triple.problem_description.get("df_n_evals", 1)
+            delta_f = DeltaF(problem, n_evals)
+            f = lambda X, F, pX, pF: delta_f.do(F, X)
+        elif pi_name in ["gd", "gd+", "igd", "igd+"]:
+            try:
+                if "pareto_front" in triple.problem_description:
+                    pf = triple.problem_description.get("pareto_front")
+                else:
+                    path = (
+                        self._output_dir_path
+                        / triple.global_pareto_population_filename()
+                    )
+                    data = np.load(path)
+                    pf = data["F"]
+                    data.close()
+                ind = get_performance_indicator(pi_name, pf)
+                f = lambda X, F, pX, pF: ind.do(F)
+            except FileNotFoundError:
+                logging.warning(
+                    "Global Pareto population file %s not found", path
+                )
+        elif pi_name == "hv" and "hv_ref_point" in triple.problem_description:
+            hv = get_performance_indicator(
+                "hv", ref_point=triple.problem_description["hv_ref_point"]
+            )
+            f = lambda X, F, pX, pF: hv.do(F)
+        elif pi_name == "ps":
+            f = lambda X, F, pX, pF: pX.shape[0]
+
+        df["perf_" + pi_name] = [f(*s) for s in states]
 
         df["algorithm"] = triple.algorithm_name
         df["problem"] = triple.problem_name
@@ -580,13 +583,16 @@ class Benchmark:
         """
         Computes all performance indicators and saves the corresponding
         dataframes in
-        `output_path/<problem_name>.<algorithm_name>.<n_run>.pi.csv`
+        `output_path/<problem_name>.<algorithm_name>.<n_run>.pi-<pi_name>.csv`.
         """
         logging.info("Computing performance indicators")
+        everything = product(
+            self.all_par_triples(), self._performance_indicators
+        )
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         executor(
-            delayed(Benchmark._compute_performance_indicator)(self, t)
-            for t in self.all_par_triples()
+            delayed(Benchmark._compute_performance_indicator)(self, t, pi)
+            for t, pi in everything
         )
 
     def consolidate(self) -> None:
@@ -625,16 +631,19 @@ class Benchmark:
         logging.info("Consolidating performance indicators")
         all_df = []
         for triple in self.all_par_triples():
-            path = self._output_dir_path / triple.pi_filename()
-            if not path.exists():
-                logging.debug(
-                    "PI file %s does not exist. The corresponding triple [%s] "
-                    "most likely hasn't finished or failed",
-                    path,
-                    triple,
-                )
-                continue
-            all_df.append(pd.read_csv(path))
+            df = pd.DataFrame()
+            for pi_name in self._performance_indicators:
+                path = self._output_dir_path / triple.pi_filename(pi_name)
+                if not path.exists():
+                    logging.debug("PI file %s does not exist.", path)
+                    continue
+                tmp = pd.read_csv(path)
+                if df.empty:
+                    df = tmp
+                else:
+                    col = "perf_" + pi_name
+                    df[col] = tmp[col]
+            all_df.append(df)
 
         self._results = self._results.merge(
             pd.concat(all_df, ignore_index=True),

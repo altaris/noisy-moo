@@ -11,6 +11,10 @@ Changelog
   `nmoo.benchmark.Benchmark._all_pairs` has been replaced by
   `nmoo.benchmark.Benchmark.all_pa_pairs` and
   `nmoo.benchmark.Benchmark.all_par_triples`.
+* Performance indicator files `<problem_name>.<algorithm_name>.<n_run>.pi.csv`
+  are now split into
+  `<problem_name>.<algorithm_name>.<n_run>.pi-<pi_name>.csv`, one for each
+  performance indicator.
 
 # v4.0.0
 
