@@ -291,40 +291,6 @@ class Benchmark:
                 )
         self._problems = problems
 
-    def _all_pa_pairs(self) -> List[PAPair]:
-        """Generate the list of all problem-algorithm pairs."""
-        everything = product(
-            self._algorithms.items(),
-            self._problems.items(),
-        )
-        return [
-            PAPair(
-                algorithm_description=aa,
-                algorithm_name=an,
-                problem_description=pp,
-                problem_name=pn,
-            )
-            for (an, aa), (pn, pp) in everything
-        ]
-
-    def _all_par_triples(self) -> List[PARTriple]:
-        """Generate the list of all problem-algorithm-(run number) triples."""
-        everything = product(
-            self._algorithms.items(),
-            self._problems.items(),
-            range(1, self._n_runs + 1),
-        )
-        return [
-            PARTriple(
-                algorithm_description=aa,
-                algorithm_name=an,
-                n_run=r,
-                problem_description=pp,
-                problem_name=pn,
-            )
-            for (an, aa), (pn, pp), r in everything
-        ]
-
     def _compute_global_pareto_population(self, pair: PAPair) -> None:
         """
         Computes the global Pareto population of a given problem-algorithm
@@ -558,6 +524,40 @@ class Benchmark:
             index=False,
         )
 
+    def all_pa_pairs(self) -> List[PAPair]:
+        """Generate the list of all problem-algorithm pairs."""
+        everything = product(
+            self._algorithms.items(),
+            self._problems.items(),
+        )
+        return [
+            PAPair(
+                algorithm_description=aa,
+                algorithm_name=an,
+                problem_description=pp,
+                problem_name=pn,
+            )
+            for (an, aa), (pn, pp) in everything
+        ]
+
+    def all_par_triples(self) -> List[PARTriple]:
+        """Generate the list of all problem-algorithm-(run number) triples."""
+        everything = product(
+            self._algorithms.items(),
+            self._problems.items(),
+            range(1, self._n_runs + 1),
+        )
+        return [
+            PARTriple(
+                algorithm_description=aa,
+                algorithm_name=an,
+                n_run=r,
+                problem_description=pp,
+                problem_name=pn,
+            )
+            for (an, aa), (pn, pp), r in everything
+        ]
+
     def compute_global_pareto_populations(
         self, n_jobs: int = -1, **joblib_kwargs
     ) -> None:
@@ -571,7 +571,7 @@ class Benchmark:
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         executor(
             delayed(Benchmark._compute_global_pareto_population)(self, p)
-            for p in self._all_pa_pairs()
+            for p in self.all_pa_pairs()
         )
 
     def compute_performance_indicators(
@@ -586,7 +586,7 @@ class Benchmark:
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         executor(
             delayed(Benchmark._compute_performance_indicator)(self, t)
-            for t in self._all_par_triples()
+            for t in self.all_par_triples()
         )
 
     def consolidate(self) -> None:
@@ -598,7 +598,7 @@ class Benchmark:
         """
         logging.info("Consolidating statistics")
         all_df = []
-        for triple in self._all_par_triples():
+        for triple in self.all_par_triples():
             path = self._output_dir_path / triple.result_filename()
             if not path.exists():
                 logging.debug(
@@ -624,7 +624,7 @@ class Benchmark:
 
         logging.info("Consolidating performance indicators")
         all_df = []
-        for triple in self._all_par_triples():
+        for triple in self.all_par_triples():
             path = self._output_dir_path / triple.pi_filename()
             if not path.exists():
                 logging.debug(
@@ -747,7 +747,7 @@ class Benchmark:
         """
         if not os.path.isdir(self._output_dir_path):
             os.mkdir(self._output_dir_path)
-        triples = self._all_par_triples()
+        triples = self.all_par_triples()
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         current_round = 0
         while (

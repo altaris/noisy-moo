@@ -415,7 +415,7 @@ def tally(
         exclude_algorithms=exclude_algorithms,
         output_dir=output_dir,
     )
-    all_triples = b._all_par_triples()
+    all_triples = b.all_par_triples()
     all_gpps = {t.global_pareto_population_filename() for t in all_triples}
     n_run = sum(
         map(

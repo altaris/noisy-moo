@@ -9,8 +9,8 @@ Changelog
   representing a problem-algorithm pair, and `nmoo.benchmark.PARTriple`,
   representing a problem-algorithm-(run number) triple. Method
   `nmoo.benchmark.Benchmark._all_pairs` has been replaced by
-  `nmoo.benchmark.Benchmark._all_pa_pairs` and
-  `nmoo.benchmark.Benchmark._all_par_triples`.
+  `nmoo.benchmark.Benchmark.all_pa_pairs` and
+  `nmoo.benchmark.Benchmark.all_par_triples`.
 
 # v4.0.0
 
