@@ -66,14 +66,13 @@ def plot_performance_indicators(
         tmp["perf"], tmp["indicator"] = results["perf_" + p], p
         all_tmp.append(tmp)
     df = pd.concat(all_tmp, ignore_index=True)
-    grid = sns.FacetGrid(df, col="indicator", row=row)
+    grid = sns.FacetGrid(df, col="indicator", row=row, sharey=False)
     grid.map_dataframe(
         sns.lineplot,
         x="n_gen",
         y="perf",
         style="algorithm",
         hue="problem",
-        sharey=False,
     )
     if legend:
         grid.add_legend()
