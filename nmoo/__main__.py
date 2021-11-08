@@ -415,14 +415,14 @@ def tally(
         exclude_algorithms=exclude_algorithms,
         output_dir=output_dir,
     )
-    all_pairs = b._all_pairs()
-    all_gpps = {p.global_pareto_population_filename() for p in all_pairs}
+    all_triples = b._all_par_triples()
+    all_gpps = {t.global_pareto_population_filename() for t in all_triples}
     n_run = sum(
         map(
             lambda p: int(
                 (b._output_dir_path / p.result_filename()).is_file()
             ),
-            all_pairs,
+            all_triples,
         )
     )
     n_gpp = sum(
@@ -431,12 +431,12 @@ def tally(
     n_pi = sum(
         map(
             lambda p: int((b._output_dir_path / p.pi_filename()).is_file()),
-            all_pairs,
+            all_triples,
         )
     )
-    logging.info("Runs: %d/%d", n_run, len(all_pairs))
+    logging.info("Runs: %d/%d", n_run, len(all_triples))
     logging.info("GPPs: %d/%d", n_gpp, len(all_gpps))
-    logging.info("PIs: %d/%d", n_pi, len(all_pairs))
+    logging.info("PIs: %d/%d", n_pi, len(all_triples))
 
 
 if __name__ == "__main__":

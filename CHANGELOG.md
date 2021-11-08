@@ -1,6 +1,17 @@
 Changelog
 =========
 
+# v5.0.0
+
+## Breaking changes
+
+* Class `nmoo.benchmark.Pair` has been replaced by `nmoo.benchmark.PAPair`,
+  representing a problem-algorithm pair, and `nmoo.benchmark.PARTriple`,
+  representing a problem-algorithm-(run number) triple. Method
+  `nmoo.benchmark.Benchmark._all_pairs` has been replaced by
+  `nmoo.benchmark.Benchmark._all_pa_pairs` and
+  `nmoo.benchmark.Benchmark._all_par_triples`.
+
 # v4.0.0
 
 ## Breaking changes

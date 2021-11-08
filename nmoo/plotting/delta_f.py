@@ -42,8 +42,8 @@ def generate_delta_F_plots(
     """
     Generate all ΔF plots for a given benchmark, and save them as jpg image in
     the benchmark's output directory. The naming pattern is the same as in
-    `nmoo.benchmark.Benchmark._run_pair`, except the files end with the `.jpg`
-    extension instead of `.npz`.
+    `nmoo.wrapped_problem.WrappedProblem.dump_all_histories`, except the files
+    end with the `.jpg` extension instead of `.npz`.
 
     Args:
         n_generations (int): Number of generation to plot.

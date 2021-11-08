@@ -23,16 +23,31 @@ from nmoo.utils.population import pareto_frontier_mask, population_list_to_dict
 
 
 @dataclass
-class Pair:
+class PAPair:
     """
-    Represents a problem-algorithm pair and its result.
+    Represents a problem-algorithm pair.
     """
 
     algorithm_description: Dict[str, Any]
     algorithm_name: str
-    n_run: int
     problem_description: Dict[str, Any]
     problem_name: str
+
+    def __str__(self) -> str:
+        return f"{self.problem_name} - {self.algorithm_name}"
+
+    def global_pareto_population_filename(self) -> str:
+        """Returns `<problem_name>.<algorithm_name>.gpp.npz`."""
+        return f"{self.problem_name}.{self.algorithm_name}.gpp.npz"
+
+
+@dataclass
+class PARTriple(PAPair):
+    """
+    Represents a problem-algorithm-(run number) triple.
+    """
+
+    n_run: int
 
     def __str__(self) -> str:
         return f"{self.problem_name} - {self.algorithm_name} ({self.n_run})"
@@ -40,10 +55,6 @@ class Pair:
     def filename_prefix(self) -> str:
         """Returns `<problem_name>.<algorithm_name>.<n_run>`."""
         return f"{self.problem_name}.{self.algorithm_name}.{self.n_run}"
-
-    def global_pareto_population_filename(self) -> str:
-        """Returns `<problem_name>.<algorithm_name>.gpp.npz`."""
-        return f"{self.problem_name}.{self.algorithm_name}.gpp.npz"
 
     def pareto_population_filename(self) -> str:
         """Returns `<problem_name>.<algorithm_name>.<n_run>.pp.npz`."""
@@ -95,13 +106,13 @@ class Benchmark:
 
     _max_retry: int
     """
-    Maximum number of attempts to run a given problem-algorithm pair before
-    giving up.
+    Maximum number of attempts to run a given problem-algorithm-(run number)
+    triple before giving up.
     """
 
     _n_runs: int
     """
-    Number of times to run a given problem/algorithm pair.
+    Number of times to run a given problem-algorithm pair.
     """
 
     _output_dir_path: Path
@@ -192,9 +203,9 @@ class Benchmark:
                 `WrappedProblem` involved in this benchmark should be written
                 to disk. Defaults to `True`.
             max_retries (int): Maximum number of attempts to run a given
-                problem-algorithm pair before giving up. Set it to `-1` to
-                retry indefinitely.
-            n_runs (int): Number of times to run a given problem/algorithm
+                problem-algorithm-(run number) triple before giving up. Set it
+                to `-1` to retry indefinitely.
+            n_runs (int): Number of times to run a given problem-algorithm
                 pair.
             problems (Dict[str, dict]): Dict of all problems to be benchmarked.
             performance_indicators (Optional[List[str]]): List of perfomance
@@ -249,7 +260,7 @@ class Benchmark:
 
         if n_runs <= 0:
             raise ValueError(
-                "The number of run (for each problem/algorithm pair) must be "
+                "The number of run (for each problem-algorithm pair) must be "
                 "at least 1."
             )
         self._n_runs = n_runs
@@ -280,15 +291,31 @@ class Benchmark:
                 )
         self._problems = problems
 
-    def _all_pairs(self) -> List[Pair]:
-        """Generate the list of all pairs to be run."""
+    def _all_pa_pairs(self) -> List[PAPair]:
+        """Generate the list of all problem-algorithm pairs."""
+        everything = product(
+            self._algorithms.items(),
+            self._problems.items(),
+        )
+        return [
+            PAPair(
+                algorithm_description=aa,
+                algorithm_name=an,
+                problem_description=pp,
+                problem_name=pn,
+            )
+            for (an, aa), (pn, pp) in everything
+        ]
+
+    def _all_par_triples(self) -> List[PARTriple]:
+        """Generate the list of all problem-algorithm-(run number) triples."""
         everything = product(
             self._algorithms.items(),
             self._problems.items(),
             range(1, self._n_runs + 1),
         )
         return [
-            Pair(
+            PARTriple(
                 algorithm_description=aa,
                 algorithm_name=an,
                 n_run=r,
@@ -298,35 +325,34 @@ class Benchmark:
             for (an, aa), (pn, pp), r in everything
         ]
 
-    def _compute_global_pareto_population(
-        self, problem_name: str, algorithm_name: str
-    ) -> None:
+    def _compute_global_pareto_population(self, pair: PAPair) -> None:
         """
         Computes the global Pareto population of a given problem-algorithm
         pair. See `compute_global_pareto_populations`.
         """
         gpp_path = (
-            self._output_dir_path / f"{problem_name}.{algorithm_name}.gpp.npz"
+            self._output_dir_path / pair.global_pareto_population_filename()
         )
         if gpp_path.is_file():
             # Global Pareto population has already been calculated
             return
-        logging.debug(
-            "Computing global Pareto population for pair [%s - %s]",
-            problem_name,
-            algorithm_name,
-        )
+        logging.debug("Computing global Pareto population for pair [%s]", pair)
         populations: Dict[str, List[np.ndarray]] = {}
         for n_run in range(1, self._n_runs + 1):
-            path = (
-                self._output_dir_path
-                / f"{problem_name}.{algorithm_name}.{n_run}.pp.npz"
+            triple = PARTriple(
+                algorithm_description=pair.algorithm_description,
+                algorithm_name=pair.algorithm_name,
+                n_run=n_run,
+                problem_description=pair.problem_description,
+                problem_name=pair.problem_name,
             )
+            path = self._output_dir_path / triple.pareto_population_filename()
             if not path.exists():
                 logging.debug(
-                    "File %s does not exist. The corresponding pair most "
-                    "likely hasn't finished or failed",
+                    "File %s does not exist. The corresponding triple [%s] "
+                    "most likely hasn't finished or failed",
                     path,
+                    triple,
                 )
                 continue
             data = np.load(path, allow_pickle=True)
@@ -337,10 +363,9 @@ class Benchmark:
         consolidated = {k: np.concatenate(v) for k, v in populations.items()}
         if "F" not in consolidated:
             logging.error(
-                "No Pareto population file found for pair %s - %s. This is "
+                "No Pareto population file found for pair [%s]. This is "
                 "most likely because none of the runs finished or succeeded.",
-                problem_name,
-                algorithm_name,
+                pair,
             )
             return
         mask = pareto_frontier_mask(consolidated["F"])
@@ -349,12 +374,13 @@ class Benchmark:
             **{k: v[mask] for k, v in consolidated.items()},
         )
 
-    def _compute_performance_indicator(self, pair: Pair) -> None:
+    def _compute_performance_indicator(self, triple: PARTriple) -> None:
         """
-        Computes all performance indicators for a given pair, and returns the
-        relevant data frame. See `compute_performance_indicators`.
+        Computes all performance indicators for a given problem-algorithm-(run
+        number) triple, and returns the relevant data frame. See
+        `compute_performance_indicators`.
         """
-        pi_path = self._output_dir_path / pair.pi_filename()
+        pi_path = self._output_dir_path / triple.pi_filename()
         if pi_path.is_file():
             # PIs have already been calculated
             return
@@ -362,10 +388,10 @@ class Benchmark:
         # Load top layer history and the pareto history
         try:
             history = np.load(
-                self._output_dir_path / pair.top_layer_history_filename()
+                self._output_dir_path / triple.top_layer_history_filename()
             )
             pareto_history = np.load(
-                self._output_dir_path / pair.pareto_population_filename()
+                self._output_dir_path / triple.pareto_population_filename()
             )
         except FileNotFoundError:
             return
@@ -392,23 +418,23 @@ class Benchmark:
         # Compute PIs
         # pylint: disable=cell-var-from-loop
         for pi in self._performance_indicators:
-            logging.debug("Computing PI '%s' for pair [%s]", pi, pair)
+            logging.debug("Computing PI '%s' for triple [%s]", pi, triple)
             f: Callable[
                 [np.ndarray, np.ndarray, np.ndarray, np.ndarray], float
             ] = lambda *_: np.nan
             if pi == "df":
-                problem = pair.problem_description["problem"]
-                n_evals = pair.problem_description.get("df_n_evals", 1)
+                problem = triple.problem_description["problem"]
+                n_evals = triple.problem_description.get("df_n_evals", 1)
                 delta_f = DeltaF(problem, n_evals)
                 f = lambda X, F, pX, pF: delta_f.do(F, X)
             elif pi in ["gd", "gd+", "igd", "igd+"]:
                 try:
-                    if "pareto_front" in pair.problem_description:
-                        pf = pair.problem_description.get("pareto_front")
+                    if "pareto_front" in triple.problem_description:
+                        pf = triple.problem_description.get("pareto_front")
                     else:
                         path = (
                             self._output_dir_path
-                            / pair.global_pareto_population_filename()
+                            / triple.global_pareto_population_filename()
                         )
                         data = np.load(path)
                         pf = data["F"]
@@ -419,9 +445,9 @@ class Benchmark:
                     logging.warning(
                         "Global Pareto population file %s not found", path
                     )
-            elif pi == "hv" and "hv_ref_point" in pair.problem_description:
+            elif pi == "hv" and "hv_ref_point" in triple.problem_description:
                 hv = get_performance_indicator(
-                    "hv", ref_point=pair.problem_description["hv_ref_point"]
+                    "hv", ref_point=triple.problem_description["hv_ref_point"]
                 )
                 f = lambda X, F, pX, pF: hv.do(F)
             elif pi == "ps":
@@ -429,23 +455,24 @@ class Benchmark:
 
             df["perf_" + pi] = [f(*s) for s in states]
 
-        df["algorithm"] = pair.algorithm_name
-        df["problem"] = pair.problem_name
+        df["algorithm"] = triple.algorithm_name
+        df["problem"] = triple.problem_name
         df["n_gen"] = range(1, len(states) + 1)
-        df["n_run"] = pair.n_run
+        df["n_run"] = triple.n_run
 
         df.to_csv(pi_path)
 
-    def _pair_done(self, pair: Pair) -> bool:
+    def _par_triple_done(self, triple: PARTriple) -> bool:
         """
-        Wether a pair has been successfully executed. This is determined by
-        checking if `_output_dir_path/pair.result_filename()` exists or not.
+        Wether a problem-algorithm-(run number) has been successfully executed.
+        This is determined by checking if
+        `_output_dir_path/triple.result_filename()` exists or not.
         """
-        return (self._output_dir_path / pair.result_filename()).is_file()
+        return (self._output_dir_path / triple.result_filename()).is_file()
 
-    def _run_pair(
+    def _run_par_triple(
         self,
-        pair: Pair,
+        triple: PARTriple,
     ) -> None:
         """
         Runs a given algorithm against a given problem. See
@@ -467,53 +494,53 @@ class Benchmark:
 
             output_dir_path/<problem_name>.<algorithm_name>.<n_run>.csv
 
-        The existence of this file is also used to determine if the pair has
-        already been run when resuming a benchmark.
+        The existence of this file is also used to determine if the
+        problem-algorithm-(run number) triple has already been run when
+        resuming a benchmark.
 
-        Args: pair: A `Pair` object representint the problem-algorithm pair to
-            run.
-
-        Returns: Wether the run was successful or not.
+        Args:
+            triple: A `PARTriple` object representing the
+                problem-algorithm-(run number) triple to run.
         """
-        logging.info("Running pair [%s]", pair)
+        logging.info("Running triple [%s]", triple)
 
-        pair.problem_description["problem"].start_new_run()
-        evaluator = pair.problem_description.get(
+        triple.problem_description["problem"].start_new_run()
+        evaluator = triple.problem_description.get(
             "evaluator",
-            pair.algorithm_description.get("evaluator"),
+            triple.algorithm_description.get("evaluator"),
         )
         try:
             results = minimize(
-                deepcopy(pair.problem_description["problem"]),
-                pair.algorithm_description["algorithm"],
-                termination=pair.algorithm_description.get("termination"),
+                deepcopy(triple.problem_description["problem"]),
+                triple.algorithm_description["algorithm"],
+                termination=triple.algorithm_description.get("termination"),
                 copy_algorithm=True,
                 copy_termination=True,
                 # extra Algorithm.setup kwargs
                 callback=TimerCallback(),
-                display=pair.algorithm_description.get("display"),
+                display=triple.algorithm_description.get("display"),
                 evaluator=deepcopy(evaluator),
-                return_least_infeasible=pair.algorithm_description.get(
+                return_least_infeasible=triple.algorithm_description.get(
                     "return_least_infeasible", False
                 ),
                 save_history=True,
-                seed=pair.algorithm_description.get("seed"),
-                verbose=pair.algorithm_description.get("verbose", False),
+                seed=triple.algorithm_description.get("seed"),
+                verbose=triple.algorithm_description.get("verbose", False),
             )
         except Exception as e:  # pylint: disable=broad-except
-            logging.error("Pair [%s] failed: %s", pair, e)
+            logging.error("Triple [%s] failed: %s", triple, e)
             return
 
         # Dump all layers histories
         if self._dump_histories:
             results.problem.dump_all_histories(
                 self._output_dir_path,
-                pair.filename_prefix(),
+                triple.filename_prefix(),
             )
 
         # Dump pareto sets
         np.savez_compressed(
-            self._output_dir_path / pair.pareto_population_filename(),
+            self._output_dir_path / triple.pareto_population_filename(),
             **population_list_to_dict([h.opt for h in results.history]),
         )
 
@@ -523,10 +550,13 @@ class Benchmark:
         df["timedelta"] = results.algorithm.callback._deltas
         # Important to create these columns once the dataframe has its full
         # length
-        df["algorithm"] = pair.algorithm_name
-        df["problem"] = pair.problem_name
-        df["n_run"] = pair.n_run
-        df.to_csv(self._output_dir_path / pair.result_filename(), index=False)
+        df["algorithm"] = triple.algorithm_name
+        df["problem"] = triple.problem_name
+        df["n_run"] = triple.n_run
+        df.to_csv(
+            self._output_dir_path / triple.result_filename(),
+            index=False,
+        )
 
     def compute_global_pareto_populations(
         self, n_jobs: int = -1, **joblib_kwargs
@@ -538,11 +568,10 @@ class Benchmark:
         to `output_dir_path/<problem>.<algorithm>.gpp.npz`.
         """
         logging.info("Computing global Pareto populations")
-        pa_pairs = product(self._problems.keys(), self._algorithms.keys())
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         executor(
-            delayed(Benchmark._compute_global_pareto_population)(self, an, pn)
-            for an, pn in pa_pairs
+            delayed(Benchmark._compute_global_pareto_population)(self, p)
+            for p in self._all_pa_pairs()
         )
 
     def compute_performance_indicators(
@@ -556,8 +585,8 @@ class Benchmark:
         logging.info("Computing performance indicators")
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         executor(
-            delayed(Benchmark._compute_performance_indicator)(self, pair)
-            for pair in self._all_pairs()
+            delayed(Benchmark._compute_performance_indicator)(self, t)
+            for t in self._all_par_triples()
         )
 
     def consolidate(self) -> None:
@@ -569,13 +598,14 @@ class Benchmark:
         """
         logging.info("Consolidating statistics")
         all_df = []
-        for pair in self._all_pairs():
-            path = self._output_dir_path / pair.result_filename()
+        for triple in self._all_par_triples():
+            path = self._output_dir_path / triple.result_filename()
             if not path.exists():
                 logging.debug(
-                    "Statistic file %s does not exist. The corresponding pair "
-                    "most likely hasn't finished or failed",
+                    "Statistic file %s does not exist. The corresponding "
+                    "triple [%s] most likely hasn't finished or failed",
                     path,
+                    triple,
                 )
                 continue
             all_df.append(pd.read_csv(path))
@@ -594,13 +624,14 @@ class Benchmark:
 
         logging.info("Consolidating performance indicators")
         all_df = []
-        for pair in self._all_pairs():
-            path = self._output_dir_path / pair.pi_filename()
+        for triple in self._all_par_triples():
+            path = self._output_dir_path / triple.pi_filename()
             if not path.exists():
                 logging.debug(
-                    "PI file %s does not exist. The corresponding pair most "
-                    "likely hasn't finished or failed",
+                    "PI file %s does not exist. The corresponding triple [%s] "
+                    "most likely hasn't finished or failed",
                     path,
+                    triple,
                 )
                 continue
             all_df.append(pd.read_csv(path))
@@ -716,26 +747,26 @@ class Benchmark:
         """
         if not os.path.isdir(self._output_dir_path):
             os.mkdir(self._output_dir_path)
-        pairs = self._all_pairs()
+        triples = self._all_par_triples()
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         current_round = 0
         while (
             self._max_retry < 0 or current_round <= self._max_retry
-        ) and any(not self._pair_done(pair) for pair in pairs):
+        ) and any(not self._par_triple_done(t) for t in triples):
             executor(
-                delayed(Benchmark._run_pair)(self, pair)
-                for pair in pairs
-                if not self._pair_done(pair)
+                delayed(Benchmark._run_par_triple)(self, t)
+                for t in triples
+                if not self._par_triple_done(t)
             )
             current_round += 1
-        if any(not self._pair_done(pair) for pair in pairs):
+        if any(not self._par_triple_done(t) for t in triples):
             logging.warning(
-                "Benchmark finished, but some pairs could not be run "
+                "Benchmark finished, but some triples could not be run "
                 "successfully within the retry budget (%d):",
                 self._max_retry,
             )
-            for pair in filter(lambda p: not self._pair_done(p), pairs):
-                logging.warning("    [%s]", pair)
+            for t in filter(lambda x: not self._par_triple_done(x), triples):
+                logging.warning("    [%s]", t)
         self.compute_global_pareto_populations(
             n_post_processing_jobs, **joblib_kwargs
         )
