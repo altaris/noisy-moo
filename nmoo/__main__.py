@@ -443,5 +443,53 @@ def tally(
     logging.info("PIs: %d/%d", n_pi, len(all_pis))
 
 
+@main.command()
+@click.argument(
+    "benchmark",
+    type=click.STRING,
+)
+@click.option(
+    "--output-dir",
+    help="Overrides the benchmark's output directory.",
+    type=click.Path(
+        exists=False,
+        file_okay=False,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        path_type=Path,
+    ),
+)
+def v4_to_v5(benchmark: str, output_dir: Optional[Path]) -> None:
+    """
+    Converts output files from nmoo v4 to v5.
+
+    Refer to the changelog for more details.
+    """
+    # pylint: disable=import-outside-toplevel
+    import pandas as pd
+
+    b = _get_benchmark(benchmark)
+    _apply_overrides(b, output_dir=output_dir)
+    for t in b.all_par_triples():
+        path = (
+            b._output_dir_path
+            / f"{t.problem_name}.{t.algorithm_name}.{t.n_run}.pi.csv"
+        )
+        if not path.is_file():
+            logging.warning("PI file %s not found", path)
+            continue
+        df = pd.read_csv(path)
+        for pi in b._performance_indicators:
+            col = "perf_" + pi
+            if col not in df:
+                logging.error("PI '%s' not present in %s", col, path)
+                continue
+            # pylint: disable=unsubscriptable-object
+            tmp = df[[col, "algorithm", "problem", "n_gen", "n_run"]]
+            tmp.to_csv(b._output_dir_path / t.pi_filename(pi))
+        path.unlink()
+
+
 if __name__ == "__main__":
     main()  # pylint: disable=no-value-for-parameter
