@@ -10,6 +10,9 @@ The following methods are considered:
 * `pymoo`'s `NonDominatedSorting` with `method="fast_non_dominated_sort"`;
 * `nmoo`'s`nmoo.utils.population.pareto_frontier_mask`.
 
+I couldn't get `pymoo`'s `NonDominatedSorting` with
+`method="tree_based_non_dominated_sort"` to work...
+
 # Results
 
 ## Time

@@ -26,7 +26,7 @@ pymoo_methods = [
 ]
 
 
-def _time(algorithm: Callable, data: np.ndarray) -> Tuple[float, float]:
+def _time(algorithm: Callable, data: np.ndarray) -> float:
     """
     Runs `algorithm` on `data`, returns time.
     """

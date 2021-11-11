@@ -15,20 +15,20 @@ def pareto_frontier_mask(arr: np.ndarray) -> np.ndarray:
     `ndim` of 2.
 
     Returns:
-        A mask (array of booleans) on `arr` selecting the Pareto points
-        belonging to the Pareto frontier. The actual Pareto frontier can be
-        computed with
+        A mask (array of booleans) on `arr` selecting the points belonging to
+        the Pareto frontier. The actual Pareto frontier can be computed with
 
             pfm = pareto_frontier_mask(arr)
             pf = arr[pfm]
 
     Warning:
-        The direction of the optimum is assumed to be south-west.
+        The direction of the optimum is assumed to towards the "all negative"
+        quadrant, i.e. `a` dominates `b` if `a[i] <= b[i]` for all
+        `0 <= i < d`.
 
     Todo:
         * Possibility to specify a direction of optimum;
         * fancy tree-based optimization.
-
     """
     if not arr.ndim == 2:
         raise ValueError("The input array must be of shape (N, d).")
@@ -61,21 +61,17 @@ def pareto_frontier_mask_2d(arr: np.ndarray) -> np.ndarray:
     """
     Computes the Pareto frontier of a set of 2D points. Faster than
     `pareto_frontier_mask`. Note that `pareto_frontier_mask` will automatically
-    call this method wheneven possible.
+    call this method whenever possible.
 
     Returns:
-        A mask (array of booleans) on `arr` selecting the Pareto points
-        belonging to the Pareto frontier. The actual Pareto frontier can be
-        computed with
+        A mask (array of booleans) on `arr` selecting the points belonging to
+        the Pareto frontier. The actual Pareto frontier can be computed with
 
             pfm = pareto_frontier_mask(arr)
             pf = arr[pfm]
 
     Warning:
         The direction of the optimum is assumed to be south-west.
-
-    Todo:
-        Generalize for higher dimensions?
     """
     if not arr.ndim == 2 and arr.shape[-1] != 2:
         raise ValueError("The input array must be of shape (N, 2).")
