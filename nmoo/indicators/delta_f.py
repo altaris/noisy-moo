@@ -3,11 +3,12 @@
 """
 __docformat__ = "google"
 
-from typing import Any, Dict
+from pathlib import Path
+from typing import Any, Dict, Union
 
+import numpy as np
 from pymoo.core.indicator import Indicator
 from pymoo.core.problem import Problem
-import numpy as np
 
 from nmoo.wrapped_problem import WrappedProblem
 
@@ -24,8 +25,12 @@ class DeltaF(Indicator):
     """
 
     _ground_problem: Problem
+    """The ground problem."""
+
+    _history: Dict[str, np.ndarray]
     """
-    The ground problem.
+    Contains all `X` values submitted to this indicator, and all denoised `F`
+    values.
     """
 
     _n_evals: int
@@ -37,6 +42,7 @@ class DeltaF(Indicator):
     def __init__(self, problem: WrappedProblem, n_evals: int = 1, **kwargs):
         super().__init__(zero_to_one=False, **kwargs)
         self._ground_problem = problem.ground_problem()
+        self._history = {}
         if n_evals < 1:
             raise ValueError("n_evals must be >= 1")
         self._n_evals = n_evals
@@ -57,4 +63,28 @@ class DeltaF(Indicator):
             self._ground_problem._evaluate(X, out, *args, **kwargs)
             fs.append(out["F"])
         af = np.mean(np.array(fs), axis=0)
+
+        self._history["X"] = (
+            np.append(self._history["X"], X, axis=0)
+            if "X" in self._history
+            else X
+        )
+        self._history["F"] = (
+            np.append(self._history["F"], af, axis=0)
+            if "F" in self._history
+            else af
+        )
+
         return np.mean(np.linalg.norm(F - af, axis=-1))
+
+    def dump_history(self, path: Union[Path, str], compressed: bool = True):
+        """
+        Dumps the history into an NPZ archive.
+
+        Args:
+            path (Union[Path, str]): File path of the output archive.
+            compressed (bool): Wether to compress the archive (defaults to
+                `True`).
+        """
+        saver = np.savez_compressed if compressed else np.savez
+        saver(path, **self._history)

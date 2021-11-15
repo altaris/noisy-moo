@@ -52,6 +52,14 @@ class PARTriple(PAPair):
     def __str__(self) -> str:
         return f"{self.problem_name} - {self.algorithm_name} ({self.n_run})"
 
+    def denoised_top_layer_history_filename(self) -> str:
+        """Returns
+        `<problem_name>.<algorithm_name>.<n_run>`.1-<top_layer_name>.denoised.npz`.
+        """
+        prefix = self.filename_prefix()
+        name = self.problem_description["problem"]._name
+        return f"{prefix}.1-{name}.denoised.npz"
+
     def filename_prefix(self) -> str:
         """Returns `<problem_name>.<algorithm_name>.<n_run>`."""
         return f"{self.problem_name}.{self.algorithm_name}.{self.n_run}"
@@ -428,6 +436,12 @@ class Benchmark:
         df["problem"] = triple.problem_name
         df["n_gen"] = range(1, len(states) + 1)
         df["n_run"] = triple.n_run
+
+        if pi_name == "df":
+            delta_f.dump_history(
+                self._output_dir_path
+                / triple.denoised_top_layer_history_filename()
+            )
 
         df.to_csv(pi_path)
 
