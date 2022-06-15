@@ -2,7 +2,6 @@
 .. include:: ../README.md
 .. include:: ../CHANGELOG.md
 """
-__docformat__ = "google"
 
 from pkg_resources import get_distribution, DistributionNotFound
 

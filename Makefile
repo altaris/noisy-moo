@@ -8,6 +8,7 @@ all: format typecheck lint
 
 .PHONY: docs
 docs:
+	-mkdir $(DOCS_PATH)
 	pdoc --output-directory $(DOCS_PATH) $(SRC_PATH)
 
 .PHONY: docs-browser

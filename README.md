@@ -1,18 +1,22 @@
 noisy-moo
 =========
 
-![Python 3](https://badgen.net/badge/Python/3/blue)
-[![MIT License](https://badgen.net/badge/license/MIT/blue)](https://choosealicense.com/licenses/mit/)
+![Python 3](https://img.shields.io/badge/python-3-blue?logo=python)
+[![MIT License](https://badgen.net/badge/license/MIT/yellow)](https://choosealicense.com/licenses/mit/)
 [![Code style](https://badgen.net/badge/style/black/black)](https://pypi.org/project/black)
 [![Maintainability](https://api.codeclimate.com/v1/badges/aedd8e97a23534a85bc5/maintainability)](https://codeclimate.com/github/altaris/noisy-moo/maintainability)
+[![Documentation](https://badgen.net/badge/documentation/here/blue)](https://altaris.github.io/noisy-moo/nmoo.html)
 
-<img src="https://github.com/altaris/noisy-moo/raw/main/imgs/the_cow.png"
-alt="The Cow" width="250"/>
 
-A wrapper-based framework for pymoo problem modification. Motivated by [the
-works](https://github.com/ERATOMMSD/QUATIC2021-KNN-Averaging) of
-[Klikovits](https://klikovits.net) and
-[Arcaini](http://group-mmm.org/~arcaini/).
+<center>
+    <img src="https://github.com/altaris/noisy-moo/raw/main/imgs/the_cow.png"
+    alt="The C O W" width="200"/>
+</center>
+
+
+A wrapper-based framework for [pymoo](https://pymoo.org/) problem modification
+and algorithm benchmarking. Initially developed to test
+*KNN-averaging*[^quatic21].
 
 # Installation
 
@@ -23,9 +27,12 @@ pip install git+https://github.com/altaris/noisy-moo.git
 
 ## Getting started
 
-See [example.ipynb](/example.ipynb) for a quick example. For larger benchmarks,
-you may want to use nmoo's CLI. First, create a module, say `foobar.py`,
-containing your benchmark factory (a function that returns your benchrmark),
+See
+[example.ipynb](https://github.com/altaris/noisy-moo/blob/main/example.ipynb)
+for a quick example. For larger benchmarks, you may want to use nmoo's CLI.
+First, create a module, say `foobar.py`, containing your benchmark factory (a
+function that returns your
+[benchrmark](https://altaris.github.io/noisy-moo/nmoo/benchmark.html#Benchmark)),
 say `make_benchmark()`. Then, run it using
 ```sh
 nmoo run foobar:make_benchmark
@@ -40,8 +47,8 @@ Refer to `nmoo --help` for more information.
 
 * `python3.8` or newer;
 * `requirements.txt` for runtime dependencies;
-* `requirements.dev.txt` for development dependencies.
-* `make` (optional);
+* `requirements.dev.txt` for development dependencies (optional);
+* `make` (optional).
 
 Simply run
 ```sh
@@ -72,3 +79,13 @@ make
 to format the code following [black](https://pypi.org/project/black/),
 typecheck it using [mypy](http://mypy-lang.org/), and check it against coding
 standards using [pylint](https://pylint.org/).
+
+
+
+
+[^quatic21]: Klikovits, S., Arcaini, P. (2021). KNN-Averaging for Noisy
+    Multi-objective Optimisation. In: Paiva, A.C.R., Cavalli, A.R., Ventura
+    Martins, P., Pérez-Castillo, R. (eds) Quality of Information and
+    Communications Technology. QUATIC 2021. Communications in Computer and
+    Information Science, vol 1439. Springer, Cham.
+    https://doi.org/10.1007/978-3-030-85347-1_36
