@@ -4,7 +4,7 @@ Random noises to apply to objective functions.
 __docformat__ = "google"
 
 import logging
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 from pymoo.core.problem import Problem
 import numpy as np
@@ -14,7 +14,32 @@ from nmoo.wrapped_problem import WrappedProblem
 
 class GaussianNoise(WrappedProblem):
     """
-    A Gaussian noisy problem.
+    A wrapper that adds a (multivariate) gaussian noise to a problem.
+
+    Assume that the output of the wrapped problem as an `F` numerical component
+    (as they almost always do). The following creates a new problem by adding a
+    `N(0, .2)` noise on all components of `F` (without any covariance):
+
+        mean_F = np.array([0., 0.])
+        cov_F = .2 * np.eye(2)
+        noisy_problem = nmoo.GaussianNoise(problem, mean_F, cov_F)
+
+    Assume that in addition, the problem has a `G` numerical component to which
+    we would also like to add noise. The following a 0-mean 1-dimensional
+    gaussian noise along the plane antidiagonal (line with -pi/4 orientation)
+    to `G`, and the same noise as above to `F`:
+
+        mean_F = np.array([0., 0.])
+        cov_F = .2 * np.eye(2)
+        mean_G = np.array([0., 0.])
+        cov_G = np.array([[1., -1.], [-1., 1.]])
+        noisy_problem = nmoo.GaussianNoise(
+            problem, {
+                "F": (mean_F, cov_F),
+                "G": (mean_G, cov_G),
+            },
+        )
+
     """
 
     _generator: np.random.Generator
@@ -29,53 +54,42 @@ class GaussianNoise(WrappedProblem):
     def __init__(
         self,
         problem: Problem,
-        parameters: Dict[str, Tuple[np.ndarray, np.ndarray]],
+        mean: Optional[np.ndarray] = None,
+        covariance: Optional[np.ndarray] = None,
+        parameters: Optional[Dict[str, Tuple[np.ndarray, np.ndarray]]] = None,
         *,
         name: str = "gaussian_noise",
     ):
         """
-        Constructor.
-
         Args:
             name (str): An optional name for this problem. This will be used
-                when creating history dump files. Defaults to
-                `gaussian_noise`.
+                when creating history dump files. Defaults to `gaussian_noise`.
             problem (:obj:`Problem`): A non-noisy pymoo problem.
-            parameters (dict): Gaussian noise parameters, in the form of a dict
-                mapping the name of an objective to a numpy array pair
-                (mean, covariance matrix). The set of keys should be a subset
-                of the final `out` dictionary keys in the wrapped problem's
-                `_evaluate` method.
-
-        Example:
-            Assume that the output of the wrapped problem has an `F` and a `G`
-            numerical component, both of wich are 2-dimensional. The following
-            creates a new problem by adding a `N(0, .2)` noise on all
-            components of `F` (without any covariance), and a 0-mean
-            1-dimensional gaussian noise along the plane antidiagonal (line
-            with -pi/4 orientation):
-
-                mean_F = np.array([0., 0.])
-                cov_F = .2 * np.eye(2)
-                mean_G = np.array([0., 0.])
-                cov_G = np.array([
-                    [1., -1.],
-                    [-1., 1.],
-                ])
-                noisy_problem = nmoo.GaussianNoise(
-                    problem,
-                    {
-                        "F": (mean_F, cov_F),
-                        "G": (mean_G, cov_G),
-                    },
-                )
-
-        See also:
-            `pymoo documentation
-            <https://pymoo.org/getting_started.html#By-Class>`_
+            mean (optional `np.ndarray`): The mean vector of the gaussian
+                distribution. If specified, the `covariance` argument must also
+                be specified, and `parameters` must be left to its default
+                `None`.
+            covariance (optional `np.ndarray`): The covariance matrix of the
+                gaussian distribution. If specified, the `mean` argument must
+                also be specified, and `parameters` must be left to its default
+                `None`.
+            parameters (optional dict): Gaussian noise parameters, in the form
+                of a dict mapping the name of an objective to a numpy array
+                pair (mean, covariance matrix). The set of keys should be a
+                subset of the final `out` dictionary keys in the wrapped
+                problem's `_evaluate` method. If specified, the `mean` and
+                `covariance` arguments must be left to their default `None`.
         """
         super().__init__(problem, name=name)
-        self._parameters = parameters
+        if mean is not None and covariance is not None and parameters is None:
+            self._parameters = {"F": (mean, covariance)}
+        elif mean is None and covariance is None and parameters is not None:
+            self._parameters = parameters
+        else:
+            raise ValueError(
+                "Invalid noise specification. Either mean and covariance are "
+                "both set, or a parameters dict is set."
+            )
         self._generator = np.random.default_rng()
 
     def _evaluate(self, x, out, *args, **kwargs):
@@ -86,17 +100,17 @@ class GaussianNoise(WrappedProblem):
 
         Example:
 
-            If the wrapped problem's output dict looks like::
+            If the wrapped problem's output dict looks like:
 
                 {
                     "A": (n, m) np.ndarray,
                     "B": not an np.ndarray
                 }
 
-            then the history will look like this::
+            then the history will look like this:
 
                 {
-                    "A": an np.ndarray,
+                    "A": an np.ndarray (with the noise added),
                     "A_noise": an np.ndarray of the same dimension
                 }
 

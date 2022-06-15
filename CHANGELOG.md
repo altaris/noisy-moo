@@ -3,6 +3,21 @@ Changelog
 
 # v5.0.0
 
+## New features
+
+* In simple use cases, gaussian noises can be specified more easily:
+  ```py
+  # Assume that the F component is numerical and 2-dimensional.
+
+  # Before (still possible)
+  mean = np.array([0., 0.])
+  cov = np.eye(2)
+  noisy_problem = nmoo.GaussianNoise(problem, parameters={"F": (mean, cov)})
+
+  # Now
+  noisy_problem = nmoo.GaussianNoise(problem, mean, cov)
+  ```
+
 ## Breaking changes
 
 * Class `nmoo.benchmark.Pair` has been replaced by `nmoo.benchmark.PAPair`,
@@ -15,6 +30,19 @@ Changelog
   are now split into
   `<problem_name>.<algorithm_name>.<n_run>.pi-<pi_name>.csv`, one for each
   performance indicator.
+* `GaussianNoise.__init__`: The old parameter dicts must bow be passed as a
+  key-value argument:
+  ```py
+  # Assume that the F component is numerical and 2-dimensional.
+
+  # Old way, NO LONGER WORKS
+  mean = np.array([0., 0.])
+  cov = np.eye(2)
+  noisy_problem = nmoo.GaussianNoise(problem, {"F": (mean, cov)})
+
+  # New way
+  noisy_problem = nmoo.GaussianNoise(problem, parameters={"F": (mean, cov)})
+  ```
 
 # v4.0.0
 
