@@ -43,6 +43,27 @@ Changelog
   # New way
   noisy_problem = nmoo.GaussianNoise(problem, parameters={"F": (mean, cov)})
   ```
+* `EvaluationPenaltyEvaluator.__init__`: In the past, the only supported
+  penalty type was `"times"` (meaning that the perceived number of evaluations
+  was the actual number times a certain coefficient). Since this will not
+  change in the forseeable future, the `penalty_type` argument has been
+  removed.
+  ```py
+  # Old way, NO LONGER WORKS
+  evaluator = EvaluationPenaltyEvaluator("times", 5)
+
+  # New way
+  evaluator = EvaluationPenaltyEvaluator(5)
+  ```
+  Aditionally, the name of the argument is now `multiplier` (instead of the old
+  `coefficient`).
+  ```py
+  # Old keyval style, NO LONGER WORKS
+  evaluator = EvaluationPenaltyEvaluator(penalty_type="times", coefficient=5)
+
+  # New keyval style
+  evaluator = EvaluationPenaltyEvaluator(multiplier=5)
+  ```
 
 # v4.0.0
 
