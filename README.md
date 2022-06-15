@@ -22,7 +22,7 @@ and algorithm benchmarking. Initially developed to test
 
 Simply run
 ```sh
-pip install git+https://github.com/altaris/noisy-moo.git
+pip install nmoo
 ```
 
 ## Getting started
