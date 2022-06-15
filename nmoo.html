@@ -81,18 +81,20 @@ nmoo    </h1>
 
                         <div class="docstring"><h1 id="noisy-moo">noisy-moo</h1>
 
-<p><img src="https://img.shields.io/badge/python-3-blue" alt="Python 3" />
-<a href="https://choosealicense.com/licenses/mit/"><img src="https://badgen.net/badge/license/MIT/blue" alt="MIT License" /></a>
+<p><img src="https://img.shields.io/badge/python-3-blue?logo=python" alt="Python 3" />
+<a href="https://choosealicense.com/licenses/mit/"><img src="https://badgen.net/badge/license/MIT/yellow?logo=" alt="MIT License" /></a>
 <a href="https://pypi.org/project/black"><img src="https://badgen.net/badge/style/black/black" alt="Code style" /></a>
-<a href="https://codeclimate.com/github/altaris/noisy-moo/maintainability"><img src="https://api.codeclimate.com/v1/badges/aedd8e97a23534a85bc5/maintainability" alt="Maintainability" /></a></p>
+<a href="https://codeclimate.com/github/altaris/noisy-moo/maintainability"><img src="https://api.codeclimate.com/v1/badges/aedd8e97a23534a85bc5/maintainability" alt="Maintainability" /></a>
+<a href="https://altaris.github.io/noisy-moo/nmoo.html"><img src="https://badgen.net/badge/documentation/here/blue" alt="Documentation" /></a></p>
 
-<p><img src="https://github.com/altaris/noisy-moo/raw/main/imgs/the_cow.png"
-alt="The Cow" width="250"/></p>
+<p><center>
+    <img src="https://github.com/altaris/noisy-moo/raw/main/imgs/the_cow.png"
+    alt="The C O W" width="200"/>
+</center></p>
 
-<p>A wrapper-based framework for pymoo problem modification. Motivated by <a href="https://github.com/ERATOMMSD/QUATIC2021-KNN-Averaging">the
-works</a> of
-<a href="https://klikovits.net">Klikovits</a> and
-<a href="http://group-mmm.org/~arcaini/">Arcaini</a>.</p>
+<p>A wrapper-based framework for <a href="https://pymoo.org/">pymoo</a> problem modification
+and algorithm benchmarking. Initially developed to test
+<em>KNN-averaging</em><sup class="footnote-ref" id="fnref-quatic21"><a href="#fn-quatic21">1</a></sup>.</p>
 
 <h1 id="installation">Installation</h1>
 
@@ -107,8 +109,9 @@ works</a> of
 <a href="https://github.com/altaris/noisy-moo/blob/main/example.ipynb">example.ipynb</a>
 for a quick example. For larger benchmarks, you may want to use nmoo's CLI.
 First, create a module, say <code>foobar.py</code>, containing your benchmark factory (a
-function that returns your benchrmark), say <code>make_benchmark()</code>. Then, run it
-using</p>
+function that returns your
+<a href="https://altaris.github.io/noisy-moo/nmoo/benchmark.html#Benchmark">benchrmark</a>),
+say <code>make_benchmark()</code>. Then, run it using</p>
 
 <div class="pdoc-code codehilite"><pre><span></span><code>nmoo run foobar:make_benchmark
 </code></pre></div>
@@ -122,8 +125,8 @@ using</p>
 <ul>
 <li><code>python3.8</code> or newer;</li>
 <li><code>requirements.txt</code> for runtime dependencies;</li>
-<li><code>requirements.dev.txt</code> for development dependencies.</li>
-<li><code>make</code> (optional);</li>
+<li><code>requirements.dev.txt</code> for development dependencies (optional);</li>
+<li><code>make</code> (optional).</li>
 </ul>
 
 <p>Simply run</p>
@@ -208,6 +211,20 @@ equivalent:</p>
 <span class="n">noisy_problem</span> <span class="o">=</span> <span class="n">nmoo</span><span class="o">.</span><span class="n">GaussianNoise</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">)})</span>
 </code></pre></div></li>
 </ul>
+
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn-quatic21">
+<p>Klikovits, S., Arcaini, P. (2021). KNN-Averaging for Noisy
+Multi-objective Optimisation. In: Paiva, A.C.R., Cavalli, A.R., Ventura
+Martins, P., Pérez-Castillo, R. (eds) Quality of Information and
+Communications Technology. QUATIC 2021. Communications in Computer and
+Information Science, vol 1439. Springer, Cham.
+<a href="https://doi.org/10.1007/978-3-030-85347-1_36">https://doi.org/10.1007/978-3-030-85347-1_36</a>&#160;<a href="#fnref-quatic21" class="footnoteBackLink" title="Jump back to footnote 1 in the text.">&#8617;</a></p>
+</li>
+</ol>
+</div>
 </div>
 
                         <input id="nmoo-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
