@@ -17,13 +17,14 @@ docs-browser:
 
 .PHONY: format
 format:
-	black --line-length 79 --target-version py38 $(SRC_PATH) setup.py
+	black --line-length 79 --target-version py38 $(SRC_PATH) setup.py example.py
 
 .PHONY: lint
 lint:
-	pylint $(SRC_PATH) setup.py
+	pylint $(SRC_PATH) setup.py example.py
 
 .PHONY: typecheck
 typecheck:
 	-mypy -p $(SRC_PATH)
 	-mypy setup.py
+	-mypy example.py
