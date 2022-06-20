@@ -20,6 +20,7 @@ Changelog
   # Since cov is constand diagonal, the following is also possible
   noisy_problem = nmoo.GaussianNoise(problem, mean, .1)
   ```
+* Added uniform noise wrapper, see `nmoo.noises.UniformNoise`.
 
 ## Breaking changes
 
