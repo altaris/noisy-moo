@@ -1,5 +1,6 @@
 """
-Custom performance indicators
+Custom [pymoo performance indicators](https://pymoo.org/misc/indicators.html).
+* `nmoo.indicators.delta_f.DeltaF`
 """
 __docformat__ = "google"
 

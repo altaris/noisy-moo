@@ -1,6 +1,4 @@
-"""
-A denoiser tries to cancel noise. (also water is wet)
-"""
+"""KNN-Averaging"""
 __docformat__ = "google"
 
 from scipy.spatial.distance import cdist
@@ -12,15 +10,15 @@ from nmoo.wrapped_problem import WrappedProblem
 
 class KNNAvg(WrappedProblem):
     """
-    Implementation of the KNN-Avg algorithm of Klikovits and Arcaini.
+    Implementation of the KNN-Avg algorithm of Klikovits and
+    Arcaini[^quatic21].
 
-    See also:
-        `Original KNN-Avg repository
-        <https://github.com/ERTOMMSD/QUATIC2021-KNN-Averaging>`_
-        `KNN-Avg QUATIC2021 paper
-        <https://raw.githubusercontent.com/ERATOMMSD/QUATIC2021-KNN-Averaging/main/KlikovitsArcaini-KNNAvgForNoisyNoisyMOO.pdf>`_
-
-
+    [^quatic21]: Klikovits, S., Arcaini, P. (2021). KNN-Averaging for Noisy
+    Multi-objective Optimisation. In: Paiva, A.C.R., Cavalli, A.R., Ventura
+    Martins, P., Pérez-Castillo, R. (eds) Quality of Information and
+    Communications Technology. QUATIC 2021. Communications in Computer and
+    Information Science, vol 1439. Springer, Cham.
+    https://doi.org/10.1007/978-3-030-85347-1_36
     """
 
     _distance_weight_mode: str

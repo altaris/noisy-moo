@@ -1,5 +1,6 @@
 """
-Custom callbacks
+Custom [pymoo callbacks](https://pymoo.org/interface/callback.html).
+* `nmoo.callbacks.timer_callback.TimerCallback`
 """
 __docformat__ = "google"
 

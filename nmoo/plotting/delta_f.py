@@ -45,8 +45,22 @@ def generate_delta_F_plots(
     `nmoo.wrapped_problem.WrappedProblem.dump_all_histories`, except the files
     end with the `.jpg` extension instead of `.npz`.
 
+    <center>
+        <img src="https://github.com/altaris/noisy-moo/raw/main/imgs/generate_delta_F_plots.png"
+        alt="Example"/>
+    </center>
+
+    A ΔF plot show the predicted value of a denoised noisy problem (in blue)
+    against the true value of the base problem (in orange). In addition, the
+    Pareto front is plotted in red. This kind of plot is only possible in a
+    synthetic setting.
+
     Args:
         n_generations (int): Number of generation to plot.
+
+    Warning:
+        The ground pymoo problem must have a `pareto_front()` method that
+        returns an actual array.
     """
     if not benchmark._dump_histories:
         raise RuntimeError(

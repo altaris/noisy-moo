@@ -23,13 +23,19 @@ def plot_performance_indicators(
     legend: bool = True,
 ) -> sns.FacetGrid:
     """
-    Plots all performance indicators in a grid of line plots. The columns of
-    this grid correspond to the performance indicators, whereas the rows can be
-    set to correspond to either `n_run`, `problem` or `algorithm`. For example,
-    if `row="problem"`, then each row will correspond to a problem, whereas
-    `n_run` and `algorithm` will be compounded in the line plots. If left to
-    `None`, then `n_run`, `problem` and `algorithm` will all be compounded
-    together.
+    Plots all performance indicators in a grid of line plots.
+
+    <center>
+        <img src="https://github.com/altaris/noisy-moo/raw/main/imgs/plot_performance_indicators.png"
+        alt="Example"/>
+    </center>
+
+    The columns of this grid correspond to the performance indicators, whereas
+    the rows can be set to correspond to either `n_run`, `problem` or
+    `algorithm`. For example, if `row="algorithm"` (as is the case above), then
+    each row will correspond to an algorithm, whereas `n_run` and `problem`
+    will be compounded in the line plots. If left to `None`, then `n_run`,
+    `problem` and `algorithm` will all be compounded together.
 
     Note:
         If you have the benchmark definition, the `benchmark.csv` file, but do
