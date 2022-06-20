@@ -32,7 +32,7 @@ def _load_problem_data(
     d1["F0"], d1["F1"] = history["F"][:, 0], history["F"][:, 1]
     d2["F0"], d2["F1"] = out["F"][:, 0], out["F"][:, 1]
     history.close()
-    return d1.append(d2, ignore_index=True)
+    return pd.concat([d1, d2], ignore_index=True)
 
 
 def generate_delta_F_plots(
