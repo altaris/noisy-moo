@@ -4,7 +4,7 @@ Random noises to apply to objective functions.
 __docformat__ = "google"
 
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Union
 
 from pymoo.core.problem import Problem
 import numpy as np
@@ -55,7 +55,7 @@ class GaussianNoise(WrappedProblem):
         self,
         problem: Problem,
         mean: Optional[np.ndarray] = None,
-        covariance: Optional[np.ndarray] = None,
+        covariance: Optional[Union[float, int, np.ndarray]] = None,
         parameters: Optional[Dict[str, Tuple[np.ndarray, np.ndarray]]] = None,
         *,
         name: str = "gaussian_noise",
@@ -69,10 +69,14 @@ class GaussianNoise(WrappedProblem):
                 distribution. If specified, the `covariance` argument must also
                 be specified, and `parameters` must be left to its default
                 `None`.
-            covariance (optional `np.ndarray`): The covariance matrix of the
-                gaussian distribution. If specified, the `mean` argument must
-                also be specified, and `parameters` must be left to its default
-                `None`.
+            covariance (optional `np.ndarray` or number): The covariance
+                matrix of the gaussian distribution. If specified, the `mean`
+                argument must also be specified, and `parameters` must be left
+                to its default `None`. For convenience, a number `v` can be
+                passed instead of a matrix, in which case the covariance matrix
+                is set to be `v * I_n`, where `n` is the dimension of the
+                `mean` vector. Note that `v` is then the variance of every
+                component of the distribution, **not the standard deviation**!
             parameters (optional dict): Gaussian noise parameters, in the form
                 of a dict mapping the name of an objective to a numpy array
                 pair (mean, covariance matrix). The set of keys should be a
@@ -82,6 +86,8 @@ class GaussianNoise(WrappedProblem):
         """
         super().__init__(problem, name=name)
         if mean is not None and covariance is not None and parameters is None:
+            if not isinstance(covariance, np.ndarray):
+                covariance = covariance * np.eye(mean.shape[0])
             self._parameters = {"F": (mean, covariance)}
         elif mean is None and covariance is None and parameters is not None:
             self._parameters = parameters

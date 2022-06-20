@@ -11,11 +11,14 @@ Changelog
 
   # Before (still possible)
   mean = np.array([0., 0.])
-  cov = np.eye(2)
+  cov = .1 * np.eye(2)
   noisy_problem = nmoo.GaussianNoise(problem, parameters={"F": (mean, cov)})
 
   # Now
   noisy_problem = nmoo.GaussianNoise(problem, mean, cov)
+
+  # Since cov is constand diagonal, the following is also possible
+  noisy_problem = nmoo.GaussianNoise(problem, mean, .1)
   ```
 
 ## Breaking changes
@@ -37,7 +40,7 @@ Changelog
 
   # Old way, NO LONGER WORKS
   mean = np.array([0., 0.])
-  cov = np.eye(2)
+  cov = .1 * np.eye(2)
   noisy_problem = nmoo.GaussianNoise(problem, {"F": (mean, cov)})
 
   # New way
