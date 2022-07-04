@@ -13,7 +13,7 @@ docs:
 
 .PHONY: docs-browser
 docs-browser:
-	pdoc $(SRC_PATH)
+	pdoc --math $(SRC_PATH)
 
 .PHONY: format
 format:
