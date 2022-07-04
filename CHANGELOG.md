@@ -5,6 +5,9 @@ Changelog
 
 ## New features
 
+* Essentially all the classes and methods of `nmoo` are exposed at the root
+  level, e.g. `nmoo.Benchmark` instead of the old `nmoo.benchmark.Benchmark`.
+  (the latter is still possible of course)
 * In simple use cases, gaussian noises can be specified more easily:
   ```py
   # Assume that the F component is numerical and 2-dimensional.
@@ -20,16 +23,15 @@ Changelog
   # Since cov is constand diagonal, the following is also possible
   noisy_problem = nmoo.GaussianNoise(problem, mean, .1)
   ```
-* Added uniform noise wrapper, see `nmoo.noises.UniformNoise`.
+* Added uniform noise wrapper, see `nmoo.UniformNoise`.
 
 ## Breaking changes
 
 * Class `nmoo.benchmark.Pair` has been replaced by `nmoo.benchmark.PAPair`,
   representing a problem-algorithm pair, and `nmoo.benchmark.PARTriple`,
   representing a problem-algorithm-(run number) triple. Method
-  `nmoo.benchmark.Benchmark._all_pairs` has been replaced by
-  `nmoo.benchmark.Benchmark.all_pa_pairs` and
-  `nmoo.benchmark.Benchmark.all_par_triples`.
+  `nmoo.Benchmark._all_pairs` has been replaced by
+  `nmoo.Benchmark.all_pa_pairs` and `nmoo.Benchmark.all_par_triples`.
 * Performance indicator files `<problem_name>.<algorithm_name>.<n_run>.pi.csv`
   are now split into
   `<problem_name>.<algorithm_name>.<n_run>.pi-<pi_name>.csv`, one for each

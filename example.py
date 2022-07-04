@@ -16,7 +16,7 @@ from pymoo.problems.multi import ZDT1
 import nmoo
 
 
-def make_benchmark() -> nmoo.benchmark.Benchmark:
+def make_benchmark() -> nmoo.Benchmark:
     """Benchmark factory"""
 
     zdt1 = ZDT1()
@@ -24,16 +24,16 @@ def make_benchmark() -> nmoo.benchmark.Benchmark:
 
     mean = np.array([0, 0])
     covariance = np.array([[1.0, -0.5], [-0.5, 1]])
-    noisy_zdt1 = nmoo.noises.GaussianNoise(wrapped_zdt1, mean, covariance)
+    noisy_zdt1 = nmoo.GaussianNoise(wrapped_zdt1, mean, covariance)
 
-    avg_zdt1 = nmoo.denoisers.ResampleAverage(noisy_zdt1, n_evaluations=10)
-    knnavg_zdt1 = nmoo.denoisers.KNNAvg(noisy_zdt1, max_distance=1.0)
+    avg_zdt1 = nmoo.ResampleAverage(noisy_zdt1, n_evaluations=10)
+    knnavg_zdt1 = nmoo.KNNAvg(noisy_zdt1, max_distance=1.0)
 
     nsga2 = NSGA2()
 
     pareto_front = zdt1.pareto_front(100)
 
-    return nmoo.benchmark.Benchmark(
+    return nmoo.Benchmark(
         output_dir_path="./out",
         problems={
             "knnavg": {
@@ -43,7 +43,7 @@ def make_benchmark() -> nmoo.benchmark.Benchmark:
             "avg": {
                 "problem": avg_zdt1,
                 "pareto_front": pareto_front,
-                "evaluator": nmoo.evaluators.EvaluationPenaltyEvaluator(10),
+                "evaluator": nmoo.EvaluationPenaltyEvaluator(10),
             },
         },
         algorithms={
