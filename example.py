@@ -43,7 +43,7 @@ def make_benchmark() -> nmoo.Benchmark:
             "avg": {
                 "problem": avg_zdt1,
                 "pareto_front": pareto_front,
-                "evaluator": nmoo.EvaluationPenaltyEvaluator(10),
+                "evaluator": nmoo.PenalizedEvaluator(10),
             },
         },
         algorithms={

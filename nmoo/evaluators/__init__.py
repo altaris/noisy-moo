@@ -1,8 +1,8 @@
 """
 Custom [pymoo
 evaluators](https://github.com/anyoptimization/pymoo/blob/master/pymoo/core/evaluator.py).
-* `nmoo.evaluators.evaluation_penalty_evaluator.EvaluationPenaltyEvaluator`
+* `nmoo.evaluators.penalized_evaluator.PenalizedEvaluator`
 """
 __docformat__ = "google"
 
-from .evaluation_penalty_evaluator import EvaluationPenaltyEvaluator
+from .penalized_evaluator import PenalizedEvaluator
