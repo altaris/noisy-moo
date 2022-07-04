@@ -251,55 +251,18 @@ class Benchmark:
                 named `perf_<name of indicator>`, e.g. `perf_igd`. If left
                 unspecified, defaults to `["igd"]`.
         """
-        if not algorithms:
-            raise ValueError("A benchmark requires at least 1 algorithm.")
-        for k, v in algorithms.items():
-            if not isinstance(v, dict):
-                raise ValueError(
-                    f"Description for algorithm '{k}' must be a dict."
-                )
-            if "algorithm" not in v:
-                raise ValueError(
-                    f"Description for algorithm '{k}' is missing mandatory "
-                    "key 'algorithm'."
-                )
-        self._algorithms = algorithms
-
-        self._dump_histories = dump_histories
-        self._max_retry = max_retry
-
+        self._output_dir_path = Path(output_dir_path)
+        self._set_problems(problems)
+        self._set_algorithms(algorithms)
         if n_runs <= 0:
             raise ValueError(
                 "The number of run (for each problem-algorithm pair) must be "
                 "at least 1."
             )
         self._n_runs = n_runs
-
-        self._output_dir_path = Path(output_dir_path)
-
-        if performance_indicators is None:
-            self._performance_indicators = ["igd"]
-        else:
-            self._performance_indicators = []
-            for pi in set(performance_indicators):
-                if pi not in Benchmark.SUPPORTED_PERFOMANCE_INDICATORS:
-                    raise ValueError(f"Unknown performance indicator '{pi}'")
-                self._performance_indicators.append(pi)
-            self._performance_indicators = sorted(self._performance_indicators)
-
-        if not problems:
-            raise ValueError("A benchmark requires at least 1 problem.")
-        for k, v in problems.items():
-            if not isinstance(v, dict):
-                raise ValueError(
-                    f"Description for problem '{k}' must be a dict."
-                )
-            if "problem" not in v:
-                raise ValueError(
-                    f"Description for problem '{k}' is missing mandatory key "
-                    "'problem'."
-                )
-        self._problems = problems
+        self._dump_histories = dump_histories
+        self._set_performance_indicators(performance_indicators)
+        self._max_retry = max_retry
 
     def _compute_global_pareto_population(self, pair: PAPair) -> None:
         """
@@ -350,6 +313,7 @@ class Benchmark:
             **{k: v[mask] for k, v in consolidated.items()},
         )
 
+    # pylint: disable=too-many-locals
     def _compute_performance_indicator(
         self, triple: PARTriple, pi_name: str
     ) -> None:
@@ -540,6 +504,52 @@ class Benchmark:
             self._output_dir_path / triple.result_filename(),
             index=False,
         )
+
+    def _set_algorithms(self, algorithms: Dict[str, dict]) -> None:
+        """Validates and sets the algorithms dict"""
+        if not algorithms:
+            raise ValueError("A benchmark requires at least 1 algorithm.")
+        for k, v in algorithms.items():
+            if not isinstance(v, dict):
+                raise ValueError(
+                    f"Description for algorithm '{k}' must be a dict."
+                )
+            if "algorithm" not in v:
+                raise ValueError(
+                    f"Description for algorithm '{k}' is missing mandatory "
+                    "key 'algorithm'."
+                )
+        self._algorithms = algorithms
+
+    def _set_performance_indicators(
+        self, performance_indicators: Optional[List[str]]
+    ) -> None:
+        """Validates and sets the performance indicator list"""
+        if performance_indicators is None:
+            self._performance_indicators = ["igd"]
+        else:
+            self._performance_indicators = []
+            for pi in set(performance_indicators):
+                if pi not in Benchmark.SUPPORTED_PERFOMANCE_INDICATORS:
+                    raise ValueError(f"Unknown performance indicator '{pi}'")
+                self._performance_indicators.append(pi)
+            self._performance_indicators = sorted(self._performance_indicators)
+
+    def _set_problems(self, problems: Dict[str, dict]) -> None:
+        """Validates and sets the problem dict"""
+        if not problems:
+            raise ValueError("A benchmark requires at least 1 problem.")
+        for k, v in problems.items():
+            if not isinstance(v, dict):
+                raise ValueError(
+                    f"Description for problem '{k}' must be a dict."
+                )
+            if "problem" not in v:
+                raise ValueError(
+                    f"Description for problem '{k}' is missing mandatory key "
+                    "'problem'."
+                )
+        self._problems = problems
 
     def all_pa_pairs(self) -> List[PAPair]:
         """Generate the list of all problem-algorithm pairs."""
