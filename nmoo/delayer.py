@@ -29,6 +29,7 @@ class Delayer(WrappedProblem):
         delay: float = 0.05,
         *,
         name: str = "delayer",
+        **kwargs,
     ):
         """
         Args:
@@ -36,7 +37,7 @@ class Delayer(WrappedProblem):
                 when creating history dump files. Defaults to
                 `wrapped_problem`.
         """
-        super().__init__(problem, name=name)
+        super().__init__(problem, name=name, **kwargs)
 
         if delay < 0.0:
             raise ValueError("Delay must be a positive.")

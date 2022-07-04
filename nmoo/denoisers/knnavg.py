@@ -33,6 +33,7 @@ class KNNAvg(WrappedProblem):
         distance_weight_type: str = "uniform",
         *,
         name: str = "knn_avg",
+        **kwargs,
     ):
         """
         Constructor.
@@ -47,7 +48,7 @@ class KNNAvg(WrappedProblem):
             name (str): An optional name for this problem. This will be used
                 when creating history dump files. Defaults to `knn_avg`.
         """
-        super().__init__(problem, name=name)
+        super().__init__(problem, name=name, **kwargs)
 
         if distance_weight_type not in ["squared", "uniform"]:
             raise ValueError(

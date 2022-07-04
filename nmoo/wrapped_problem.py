@@ -3,12 +3,13 @@ Base nmoo problem class.
 """
 __docformat__ = "google"
 
-from pathlib import Path
 import logging
+from copy import deepcopy
+from pathlib import Path
 from typing import Dict, List, Union
 
-from pymoo.core.problem import Problem
 import numpy as np
+from pymoo.core.problem import Problem
 
 
 class WrappedProblem(Problem):
@@ -44,11 +45,22 @@ class WrappedProblem(Problem):
     _problem: Problem
     """Wrapped pymoo problem."""
 
-    def __init__(self, problem: Problem, *, name: str = "wrapped_problem"):
+    def __init__(
+        self,
+        problem: Problem,
+        *,
+        copy_problem: bool = True,
+        name: str = "wrapped_problem",
+    ):
         """
         Constructor.
 
         Args:
+            copy_problem (bool): Wether to deepcopy the problem. If `problem`
+                is a `WrappedProblem`, this is recommended to avoid history
+                clashes. However, if whatever benchmark that uses this problem
+                uses multiprocessing (as opposed to single or multithreading),
+                this does not seem to be necessary.
             problem (:obj:`Problem`): A non-noisy pymoo problem.
             name (str): An optional name for this problem. This will be used
                 when creating history dump files. Defaults to
@@ -67,7 +79,7 @@ class WrappedProblem(Problem):
         )
         self._history = {}
         self._name = name
-        self._problem = problem
+        self._problem = deepcopy(problem) if copy_problem else problem
 
     def __str__(self):
         return self._name

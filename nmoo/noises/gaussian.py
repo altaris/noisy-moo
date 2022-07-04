@@ -59,6 +59,7 @@ class GaussianNoise(WrappedProblem):
         parameters: Optional[Dict[str, Tuple[np.ndarray, np.ndarray]]] = None,
         *,
         name: str = "gaussian_noise",
+        **kwargs,
     ):
         """
         Args:
@@ -84,7 +85,7 @@ class GaussianNoise(WrappedProblem):
                 problem's `_evaluate` method. If specified, the `mean` and
                 `covariance` arguments must be left to their default `None`.
         """
-        super().__init__(problem, name=name)
+        super().__init__(problem, name=name, **kwargs)
         if mean is not None and covariance is not None and parameters is None:
             if not isinstance(covariance, np.ndarray):
                 covariance = covariance * np.eye(mean.shape[0])

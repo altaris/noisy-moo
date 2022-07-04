@@ -25,6 +25,7 @@ class ResampleAverage(WrappedProblem):
         n_evaluations: int = 5,
         *,
         name: str = "resample_avg",
+        **kwargs,
     ):
         """
         Constructor.
@@ -37,7 +38,7 @@ class ResampleAverage(WrappedProblem):
                 when creating history dump files. Defaults to
                 `resample_avg`.
         """
-        super().__init__(problem, name=name)
+        super().__init__(problem, name=name, **kwargs)
 
         if n_evaluations <= 0:
             raise ValueError("The number of evaluations should be at least 1.")

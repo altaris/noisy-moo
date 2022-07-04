@@ -26,6 +26,7 @@ class Lambda(WrappedProblem):
         functions: Dict[str, Callable[[np.ndarray], np.ndarray]],
         *,
         name: str = "lambda",
+        **kwargs,
     ):
         """
         Constructor.
@@ -50,7 +51,7 @@ class Lambda(WrappedProblem):
                     },
                 )
         """
-        super().__init__(problem, name=name)
+        super().__init__(problem, name=name, **kwargs)
         self._functions = functions
 
     def _evaluate(self, x, out, *args, **kwargs):

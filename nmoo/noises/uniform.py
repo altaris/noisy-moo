@@ -82,6 +82,7 @@ class UniformNoise(WrappedProblem):
         ],
         *,
         name: str = "uniform_noise",
+        **kwargs,
     ):
         """
         Args:
@@ -90,7 +91,7 @@ class UniformNoise(WrappedProblem):
             problem (:obj:`Problem`): A non-noisy pymoo problem.
             parameters: See the examples above.
         """
-        super().__init__(problem, name=name)
+        super().__init__(problem, name=name, **kwargs)
         if not isinstance(parameters, dict):
             parameters = {"F": parameters}
         try:

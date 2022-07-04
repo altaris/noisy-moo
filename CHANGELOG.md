@@ -5,6 +5,14 @@ Changelog
 
 ## New features
 
+* When constructing a `WrappedProblem`, the wrapped problem is now deepcopyied
+  by default:
+  ```py
+  zdt1 = ZDT1()
+  noisy_problem = nmoo.GaussianNoise(zdt1, ...)
+  # noisy_problem._problem is now a deep copy of zdt1
+  zdt1 == noisy_problem._problem  # False
+  ```
 * Essentially all the classes and methods of `nmoo` are exposed at the root
   level, e.g. `nmoo.Benchmark` instead of the old `nmoo.benchmark.Benchmark`.
   (the latter is still possible of course)
