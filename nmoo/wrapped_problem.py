@@ -1,5 +1,14 @@
 """
-Base nmoo problem class.
+Base `nmoo` problem class. A `WrappedProblem` is simply a
+[`pymoo.core.problem.Problem`](https://pymoo.org/problems/definition.html) that
+contains another problem (`nmoo` or `pymoo`) to which calls to `_evaluate` are
+deferred to. A `WrappedProblem` also have call history features (although it is
+the responsability of the `_evaluate` implementation to populate it).
+
+Note:
+    Since `WrappedProblem` directly inherits from
+    [`pymoo.core.problem.Problem`](https://pymoo.org/problems/definition.html),
+    wrapped problems can be used seemlessly with `pymoo`.
 """
 __docformat__ = "google"
 

@@ -3,7 +3,7 @@ Changelog
 
 # v5.0.0
 
-## New features
+## New features
 
 * When constructing a `WrappedProblem`, the wrapped problem is now deepcopyied
   by default:
