@@ -4,7 +4,7 @@ Random noises to apply to objective functions.
 __docformat__ = "google"
 
 import logging
-from typing import Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 from pymoo.core.problem import Problem
 import numpy as np
@@ -57,6 +57,7 @@ class GaussianNoise(WrappedProblem):
         mean: Optional[np.ndarray] = None,
         covariance: Optional[Union[float, int, np.ndarray]] = None,
         parameters: Optional[Dict[str, Tuple[np.ndarray, np.ndarray]]] = None,
+        seed: Any = None,
         *,
         name: str = "gaussian_noise",
         **kwargs,
@@ -84,6 +85,8 @@ class GaussianNoise(WrappedProblem):
                 subset of the final `out` dictionary keys in the wrapped
                 problem's `_evaluate` method. If specified, the `mean` and
                 `covariance` arguments must be left to their default `None`.
+            seed: Seed for
+                [`numpy.random.default_rng`](https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng)
         """
         super().__init__(problem, name=name, **kwargs)
         if mean is not None and covariance is not None and parameters is None:
@@ -97,7 +100,7 @@ class GaussianNoise(WrappedProblem):
                 "Invalid noise specification. Either mean and covariance are "
                 "both set, or a parameters dict is set."
             )
-        self._generator = np.random.default_rng()
+        self._generator = np.random.default_rng(seed)
 
     def _evaluate(self, x, out, *args, **kwargs):
         """

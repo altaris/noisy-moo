@@ -4,7 +4,7 @@ Wrapper that generates a uniform noise.
 __docformat__ = "google"
 
 import logging
-from typing import Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 from pymoo.core.problem import Problem
 import numpy as np
@@ -80,6 +80,7 @@ class UniformNoise(WrappedProblem):
                 ],
             ],
         ],
+        seed: Any = None,
         *,
         name: str = "uniform_noise",
         **kwargs,
@@ -90,6 +91,8 @@ class UniformNoise(WrappedProblem):
                 when creating history dump files. Defaults to `gaussian_noise`.
             problem (:obj:`Problem`): A non-noisy pymoo problem.
             parameters: See the examples above.
+            seed: Seed for
+                [`numpy.random.default_rng`](https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng)
         """
         super().__init__(problem, name=name, **kwargs)
         if not isinstance(parameters, dict):
@@ -115,7 +118,7 @@ class UniformNoise(WrappedProblem):
                         self._parameters[k].append((-a, a))
         except AssertionError as e:
             raise ValueError("Invalid noise parameters") from e
-        self._generator = np.random.default_rng()
+        self._generator = np.random.default_rng(seed)
 
     # pylint: disable=duplicate-code
     def _evaluate(self, x, out, *args, **kwargs):
