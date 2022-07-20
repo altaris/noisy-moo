@@ -100,7 +100,7 @@ class GaussianNoise(WrappedProblem):
                 "Invalid noise specification. Either mean and covariance are "
                 "both set, or a parameters dict is set."
             )
-        self._generator = np.random.default_rng(seed)
+        self.reseed(seed)
 
     def _evaluate(self, x, out, *args, **kwargs):
         """
@@ -147,3 +147,8 @@ class GaussianNoise(WrappedProblem):
         self.add_to_history_x_out(
             x, out, **{k + "_noise": v for k, v in noises.items()}
         )
+
+    def reseed(self, seed: Any) -> None:
+        self._generator = np.random.default_rng(seed)
+        if isinstance(self._problem, WrappedProblem):
+            self._problem.reseed(seed)

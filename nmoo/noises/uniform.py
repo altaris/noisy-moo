@@ -118,7 +118,7 @@ class UniformNoise(WrappedProblem):
                         self._parameters[k].append((-a, a))
         except AssertionError as e:
             raise ValueError("Invalid noise parameters") from e
-        self._generator = np.random.default_rng(seed)
+        self.reseed(seed)
 
     # pylint: disable=duplicate-code
     def _evaluate(self, x, out, *args, **kwargs):
@@ -146,3 +146,8 @@ class UniformNoise(WrappedProblem):
         self.add_to_history_x_out(
             x, out, **{k + "_noise": v for k, v in noises.items()}
         )
+
+    def reseed(self, seed: Any) -> None:
+        self._generator = np.random.default_rng(seed)
+        if isinstance(self._problem, WrappedProblem):
+            self._problem.reseed(seed)

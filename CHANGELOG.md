@@ -5,6 +5,10 @@ Changelog
 
 ## New features
 
+* Seed rotations: `Benchmark.__init__` now has a `seeds` argument which can
+  receive a list of seeds. The first seed will be used for all random
+  generators involved in the first run of every algorithm-problem pair, the
+  second for all second runs, etc.
 * When constructing a `WrappedProblem`, the wrapped problem is now deepcopyied
   by default:
   ```py
@@ -35,6 +39,9 @@ Changelog
 
 ## Breaking changes
 
+* Seeds can no longer be specified in algorithm description dicts (see
+  `Benchmark.__init__`). Instead, use the `seeds` argument when constructing
+  benchmarks (see above).
 * Class `nmoo.benchmark.Pair` has been replaced by `nmoo.benchmark.PAPair`,
   representing a problem-algorithm pair, and `nmoo.benchmark.PARTriple`,
   representing a problem-algorithm-(run number) triple. Method

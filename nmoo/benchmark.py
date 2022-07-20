@@ -145,6 +145,11 @@ class Benchmark:
     Results of all runs.
     """
 
+    _seeds: List[Optional[int]]
+    """
+    List of seeds to use. Must be of length `_n_runs`.
+    """
+
     def __init__(
         self,
         output_dir_path: Union[Path, str],
@@ -154,10 +159,11 @@ class Benchmark:
         dump_histories: bool = True,
         performance_indicators: Optional[List[str]] = None,
         max_retry: int = -1,
+        seeds: Optional[List[Optional[int]]] = None,
     ):
         """
         Constructor. The set of problems to be benchmarked is represented by a
-        dictionary with the following structure::
+        dictionary with the following structure:
 
             problems = {
                 <problem_name>: <problem_description>,
@@ -198,9 +204,8 @@ class Benchmark:
         * `evaluator` (optional): an algorithm evaluator object; note that it
             is deepcopied for every run of `minimize`;
         * `return_least_infeasible` (optional, bool): if the algorithm cannot
-            find a feasable solution, wether the least infeasable solution
+            find a feasible solution, wether the least infeasible solution
             should still be returned; defaults to `False`;
-        * `seed` (optional, int): a seed;
         * `termination` (optional): a pymoo termination criterion; note that it
             is deepcopied for every run of `minimize`;
         * `verbose` (optional, bool): wether outputs should be printed during
@@ -250,6 +255,9 @@ class Benchmark:
                 In the result dataframe, the corresponding columns will be
                 named `perf_<name of indicator>`, e.g. `perf_igd`. If left
                 unspecified, defaults to `["igd"]`.
+            seeds (Optional[List[Optional[int]]]): List of seeds to use. The
+                first seed will be used for the first run of every
+                algorithm-problem pair, etc.
         """
         self._output_dir_path = Path(output_dir_path)
         self._set_problems(problems)
@@ -263,6 +271,12 @@ class Benchmark:
         self._dump_histories = dump_histories
         self._set_performance_indicators(performance_indicators)
         self._max_retry = max_retry
+        if seeds is None:
+            self._seeds = [None] * n_runs
+        elif len(seeds) != n_runs:
+            raise ValueError("Seed list must be of length n_runs")
+        else:
+            self._seeds = seeds
 
     def _compute_global_pareto_population(self, pair: PAPair) -> None:
         """
@@ -457,8 +471,11 @@ class Benchmark:
             triple.algorithm_description.get("evaluator"),
         )
         try:
+            seed = self._seeds[triple.n_run - 1]
+            problem = deepcopy(triple.problem_description["problem"])
+            problem.reseed(seed)
             results = minimize(
-                deepcopy(triple.problem_description["problem"]),
+                problem,
                 triple.algorithm_description["algorithm"],
                 termination=triple.algorithm_description.get("termination"),
                 copy_algorithm=True,
@@ -471,7 +488,7 @@ class Benchmark:
                     "return_least_infeasible", False
                 ),
                 save_history=True,
-                seed=triple.algorithm_description.get("seed"),
+                seed=seed,
                 verbose=triple.algorithm_description.get("verbose", False),
             )
         except Exception as e:  # pylint: disable=broad-except

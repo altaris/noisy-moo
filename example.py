@@ -56,4 +56,5 @@ def make_benchmark() -> nmoo.Benchmark:
             },
         },
         n_runs=3,
+        seeds=[123, 456, 789],
     )

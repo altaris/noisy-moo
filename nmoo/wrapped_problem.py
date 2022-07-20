@@ -15,7 +15,7 @@ __docformat__ = "google"
 import logging
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
 import numpy as np
 from pymoo.core.problem import Problem
@@ -202,6 +202,25 @@ class WrappedProblem(Problem):
         saver = np.savez_compressed if compressed else np.savez
         saver(path, **self._history)
 
+    def ground_problem(self) -> Problem:
+        """
+        Recursively goes down the problem wrappers until an actual
+        `pymoo.Problem` is found, and returns it.
+        """
+        if isinstance(self._problem, WrappedProblem):
+            return self._problem.ground_problem()
+        return self._problem
+
+    def reseed(self, seed: Any) -> None:
+        """
+        Recursively resets the internal random state of the problem. See the
+        [numpy
+        documentation](https://numpy.org/doc/stable/reference/random/generator.html?highlight=default_rng#numpy.random.default_rng)
+        for details about acceptable seeds.
+        """
+        if isinstance(self._problem, WrappedProblem):
+            self._problem.reseed(seed)
+
     def start_new_run(self):
         """
         In short, it rotates the history of the current problem, and all
@@ -219,15 +238,6 @@ class WrappedProblem(Problem):
         self._current_history_batch = 0
         if isinstance(self._problem, WrappedProblem):
             self._problem.start_new_run()
-
-    def ground_problem(self) -> Problem:
-        """
-        Recursively goes down the problem wrappers until an actual
-        `pymoo.Problem` is found, and returns it.
-        """
-        if isinstance(self._problem, WrappedProblem):
-            return self._problem.ground_problem()
-        return self._problem
 
     def _evaluate(self, x, out, *args, **kwargs):
         """
