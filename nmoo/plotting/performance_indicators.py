@@ -5,7 +5,6 @@ __docformat__ = "google"
 
 from typing import Iterable, Optional
 
-import pandas as pd
 import seaborn as sns
 
 from nmoo.benchmark import Benchmark
@@ -21,6 +20,7 @@ def plot_performance_indicators(
     performance_indicators: Optional[Iterable[str]] = None,
     problems: Optional[Iterable[str]] = None,
     legend: bool = True,
+    x: str = "n_gen",
 ) -> sns.FacetGrid:
     """
     Plots all performance indicators in a grid of line plots.
@@ -55,6 +55,8 @@ def plot_performance_indicators(
         problems (Optional[Iterable[str]]): List of problems to plot, defaults
             to all.
         legend (bool): Wether to display the legend. Defaults to `True`.
+        x (str): Column for the x axis. Should be among `n_gen` (the default),
+            `n_eval`, or `timedelta`.
     """
     if algorithms is None:
         algorithms = benchmark._algorithms.keys()
@@ -62,23 +64,24 @@ def plot_performance_indicators(
         performance_indicators = benchmark._performance_indicators
     if problems is None:
         problems = benchmark._problems.keys()
-    results = benchmark._results
-    results = results[
-        (results.algorithm.isin(algorithms)) & (results.problem.isin(problems))
+    df = benchmark._results[
+        ["algorithm", "n_eval", "n_gen", "n_run", "problem", "timedelta"]
+        + ["perf_" + pi for pi in performance_indicators]
     ]
-    all_tmp = []
-    for p in performance_indicators:
-        tmp = results[["algorithm", "problem", "n_run", "n_gen"]].copy()
-        tmp["perf"], tmp["indicator"] = results["perf_" + p], p
-        all_tmp.append(tmp)
-    df = pd.concat(all_tmp, ignore_index=True)
-    grid = sns.FacetGrid(df, col="indicator", row=row, sharey=False)
+    df = df[(df.algorithm.isin(algorithms)) & (df.problem.isin(problems))]
+    df.rename(
+        columns={f"perf_{pi}": pi for pi in performance_indicators},
+        inplace=True,
+    )
+    df = df.melt(
+        id_vars=[
+            c for c in df.columns if c not in benchmark._performance_indicators
+        ],
+        var_name="pi",
+    )
+    grid = sns.FacetGrid(df, col="pi", row=row, sharey=False)
     grid.map_dataframe(
-        sns.lineplot,
-        x="n_gen",
-        y="perf",
-        style="algorithm",
-        hue="problem",
+        sns.lineplot, x=x, y="value", style="algorithm", hue="problem"
     )
     if legend:
         grid.add_legend()
