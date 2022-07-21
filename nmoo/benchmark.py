@@ -511,6 +511,7 @@ class Benchmark:
         # Create and dump CSV file
         df = pd.DataFrame()
         df["n_gen"] = [a.n_gen for a in results.history]
+        df["n_eval"] = [a.evaluator.n_eval for a in results.history]
         df["timedelta"] = results.algorithm.callback._deltas
         # Important to create these columns once the dataframe has its full
         # length
