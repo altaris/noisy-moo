@@ -273,9 +273,19 @@ class Benchmark:
         self._max_retry = max_retry
         if seeds is None:
             self._seeds = [None] * n_runs
-        elif len(seeds) != n_runs:
-            raise ValueError("Seed list must be of length n_runs")
+        elif len(seeds) < n_runs:
+            raise ValueError(
+                f"Not enough seeds: provided {len(seeds)} seeds but specified "
+                f"{n_runs} runs."
+            )
         else:
+            if len(seeds) > n_runs:
+                logging.warning(
+                    "Too many seeds: provided %d but only need %d "
+                    "(i.e. n_run)",
+                    len(seeds),
+                    n_runs,
+                )
             self._seeds = seeds
 
     def _compute_global_pareto_population(self, pair: PAPair) -> None:
