@@ -4,14 +4,31 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="pdoc 12.0.2"/>
-    <title>nmoo.evaluators.evaluation_penalty_evaluator API documentation</title>
+    <title>nmoo.evaluators.penalized_evaluator API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
     <style>/*! syntax-highlighting.css */pre{line-height:125%;}span.linenos{color:inherit; background-color:transparent; padding-left:5px; padding-right:20px;}.pdoc-code .hll{background-color:#ffffcc}.pdoc-code{background:#f8f8f8;}.pdoc-code .c{color:#3D7B7B; font-style:italic}.pdoc-code .err{border:1px solid #FF0000}.pdoc-code .k{color:#008000; font-weight:bold}.pdoc-code .o{color:#666666}.pdoc-code .ch{color:#3D7B7B; font-style:italic}.pdoc-code .cm{color:#3D7B7B; font-style:italic}.pdoc-code .cp{color:#9C6500}.pdoc-code .cpf{color:#3D7B7B; font-style:italic}.pdoc-code .c1{color:#3D7B7B; font-style:italic}.pdoc-code .cs{color:#3D7B7B; font-style:italic}.pdoc-code .gd{color:#A00000}.pdoc-code .ge{font-style:italic}.pdoc-code .gr{color:#E40000}.pdoc-code .gh{color:#000080; font-weight:bold}.pdoc-code .gi{color:#008400}.pdoc-code .go{color:#717171}.pdoc-code .gp{color:#000080; font-weight:bold}.pdoc-code .gs{font-weight:bold}.pdoc-code .gu{color:#800080; font-weight:bold}.pdoc-code .gt{color:#0044DD}.pdoc-code .kc{color:#008000; font-weight:bold}.pdoc-code .kd{color:#008000; font-weight:bold}.pdoc-code .kn{color:#008000; font-weight:bold}.pdoc-code .kp{color:#008000}.pdoc-code .kr{color:#008000; font-weight:bold}.pdoc-code .kt{color:#B00040}.pdoc-code .m{color:#666666}.pdoc-code .s{color:#BA2121}.pdoc-code .na{color:#687822}.pdoc-code .nb{color:#008000}.pdoc-code .nc{color:#0000FF; font-weight:bold}.pdoc-code .no{color:#880000}.pdoc-code .nd{color:#AA22FF}.pdoc-code .ni{color:#717171; font-weight:bold}.pdoc-code .ne{color:#CB3F38; font-weight:bold}.pdoc-code .nf{color:#0000FF}.pdoc-code .nl{color:#767600}.pdoc-code .nn{color:#0000FF; font-weight:bold}.pdoc-code .nt{color:#008000; font-weight:bold}.pdoc-code .nv{color:#19177C}.pdoc-code .ow{color:#AA22FF; font-weight:bold}.pdoc-code .w{color:#bbbbbb}.pdoc-code .mb{color:#666666}.pdoc-code .mf{color:#666666}.pdoc-code .mh{color:#666666}.pdoc-code .mi{color:#666666}.pdoc-code .mo{color:#666666}.pdoc-code .sa{color:#BA2121}.pdoc-code .sb{color:#BA2121}.pdoc-code .sc{color:#BA2121}.pdoc-code .dl{color:#BA2121}.pdoc-code .sd{color:#BA2121; font-style:italic}.pdoc-code .s2{color:#BA2121}.pdoc-code .se{color:#AA5D1F; font-weight:bold}.pdoc-code .sh{color:#BA2121}.pdoc-code .si{color:#A45A77; font-weight:bold}.pdoc-code .sx{color:#008000}.pdoc-code .sr{color:#A45A77}.pdoc-code .s1{color:#BA2121}.pdoc-code .ss{color:#19177C}.pdoc-code .bp{color:#008000}.pdoc-code .fm{color:#0000FF}.pdoc-code .vc{color:#19177C}.pdoc-code .vg{color:#19177C}.pdoc-code .vi{color:#19177C}.pdoc-code .vm{color:#19177C}.pdoc-code .il{color:#666666}</style>
     <style>/*! theme.css */:root{--pdoc-background:#fff;}.pdoc{--text:#212529;--muted:#6c757d;--link:#3660a5;--link-hover:#1659c5;--code:#f8f8f8;--active:#fff598;--accent:#eee;--accent2:#c1c1c1;--nav-hover:rgba(255, 255, 255, 0.5);--name:#0066BB;--def:#008800;--annotation:#007020;}</style>
     <style>/*! layout.css */html, body{width:100%;height:100%;}html, main{scroll-behavior:smooth;}body{background-color:var(--pdoc-background);}@media (max-width:769px){#navtoggle{cursor:pointer;position:absolute;width:50px;height:40px;top:1rem;right:1rem;border-color:var(--text);color:var(--text);display:flex;opacity:0.8;}#navtoggle:hover{opacity:1;}#togglestate + div{display:none;}#togglestate:checked + div{display:inherit;}main, header{padding:2rem 3vw;}header + main{margin-top:-3rem;}.git-button{display:none !important;}nav input[type="search"]{max-width:77%;}nav input[type="search"]:first-child{margin-top:-6px;}nav input[type="search"]:valid ~ *{display:none !important;}}@media (min-width:770px){:root{--sidebar-width:clamp(12.5rem, 28vw, 22rem);}nav{position:fixed;overflow:auto;height:100vh;width:var(--sidebar-width);}main, header{padding:3rem 2rem 3rem calc(var(--sidebar-width) + 3rem);width:calc(54rem + var(--sidebar-width));max-width:100%;}header + main{margin-top:-4rem;}#navtoggle{display:none;}}#togglestate{position:absolute;height:0;opacity:0;}nav.pdoc{--pad:clamp(0.5rem, 2vw, 1.75rem);--indent:1.5rem;background-color:var(--accent);border-right:1px solid var(--accent2);box-shadow:0 0 20px rgba(50, 50, 50, .2) inset;padding:0 0 0 var(--pad);overflow-wrap:anywhere;scrollbar-width:thin; scrollbar-color:var(--accent2) transparent }nav.pdoc::-webkit-scrollbar{width:.4rem; }nav.pdoc::-webkit-scrollbar-thumb{background-color:var(--accent2); }nav.pdoc > div{padding:var(--pad) 0;}nav.pdoc .module-list-button{display:inline-flex;align-items:center;color:var(--text);border-color:var(--muted);margin-bottom:1rem;}nav.pdoc .module-list-button:hover{border-color:var(--text);}nav.pdoc input[type=search]{display:block;outline-offset:0;width:calc(100% - var(--pad));}nav.pdoc .logo{max-width:calc(100% - var(--pad));max-height:35vh;display:block;margin:0 auto 1rem;transform:translate(calc(-.5 * var(--pad)), 0);}nav.pdoc ul{list-style:none;padding-left:0;}nav.pdoc > div > ul{margin-left:calc(0px - var(--pad));}nav.pdoc li a{padding:.2rem 0 .2rem calc(var(--pad) + var(--indent));}nav.pdoc > div > ul > li > a{padding-left:var(--pad);}nav.pdoc li{transition:all 100ms;}nav.pdoc li:hover{background-color:var(--nav-hover);}nav.pdoc a, nav.pdoc a:hover{color:var(--text);}nav.pdoc a{display:block;}nav.pdoc > h2:first-of-type{margin-top:1.5rem;}nav.pdoc .class:before{content:"class ";color:var(--muted);}nav.pdoc .function:after{content:"()";color:var(--muted);}nav.pdoc footer:before{content:"";display:block;width:calc(100% - var(--pad));border-top:solid var(--accent2) 1px;margin-top:1.5rem;padding-top:.5rem;}nav.pdoc footer{font-size:small;}</style>
     <style>/*! content.css */.pdoc{color:var(--text);box-sizing:border-box;line-height:1.5;background:none;}.pdoc .pdoc-button{display:inline-block;border:solid black 1px;border-radius:2px;font-size:.75rem;padding:calc(0.5em - 1px) 1em;transition:100ms all;}.pdoc .pdoc-alert{padding:1rem 1rem 1rem calc(1.5rem + 24px);border:1px solid transparent;border-radius:.25rem;background-repeat:no-repeat;background-position:1rem center;margin-bottom:1rem;}.pdoc .pdoc-alert > *:last-child{margin-bottom:0;}.pdoc .pdoc-alert-note {color:#084298;background-color:#cfe2ff;border-color:#b6d4fe;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23084298%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8%2016A8%208%200%201%200%208%200a8%208%200%200%200%200%2016zm.93-9.412-1%204.705c-.07.34.029.533.304.533.194%200%20.487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703%200-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381%202.29-.287zM8%205.5a1%201%200%201%201%200-2%201%201%200%200%201%200%202z%22/%3E%3C/svg%3E");}.pdoc .pdoc-alert-warning{color:#664d03;background-color:#fff3cd;border-color:#ffecb5;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23664d03%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8.982%201.566a1.13%201.13%200%200%200-1.96%200L.165%2013.233c-.457.778.091%201.767.98%201.767h13.713c.889%200%201.438-.99.98-1.767L8.982%201.566zM8%205c.535%200%20.954.462.9.995l-.35%203.507a.552.552%200%200%201-1.1%200L7.1%205.995A.905.905%200%200%201%208%205zm.002%206a1%201%200%201%201%200%202%201%201%200%200%201%200-2z%22/%3E%3C/svg%3E");}.pdoc .pdoc-alert-danger{color:#842029;background-color:#f8d7da;border-color:#f5c2c7;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23842029%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5.52.359A.5.5%200%200%201%206%200h4a.5.5%200%200%201%20.474.658L8.694%206H12.5a.5.5%200%200%201%20.395.807l-7%209a.5.5%200%200%201-.873-.454L6.823%209.5H3.5a.5.5%200%200%201-.48-.641l2.5-8.5z%22/%3E%3C/svg%3E");}.pdoc .visually-hidden{position:absolute !important;width:1px !important;height:1px !important;padding:0 !important;margin:-1px !important;overflow:hidden !important;clip:rect(0, 0, 0, 0) !important;white-space:nowrap !important;border:0 !important;}.pdoc h1, .pdoc h2, .pdoc h3{font-weight:300;margin:.3em 0;padding:.2em 0;}.pdoc > section:not(.module-info) h1{font-size:1.5rem;font-weight:500;}.pdoc > section:not(.module-info) h2{font-size:1.4rem;font-weight:500;}.pdoc > section:not(.module-info) h3{font-size:1.3rem;font-weight:500;}.pdoc > section:not(.module-info) h4{font-size:1.2rem;}.pdoc > section:not(.module-info) h5{font-size:1.1rem;}.pdoc a{text-decoration:none;color:var(--link);}.pdoc a:hover{color:var(--link-hover);}.pdoc blockquote{margin-left:2rem;}.pdoc pre{border-top:1px solid var(--accent2);border-bottom:1px solid var(--accent2);margin-top:0;margin-bottom:1em;padding:.5rem 0 .5rem .5rem;overflow-x:auto;background-color:var(--code);}.pdoc code{color:var(--text);padding:.2em .4em;margin:0;font-size:85%;background-color:var(--code);border-radius:6px;}.pdoc a > code{color:inherit;}.pdoc pre > code{display:inline-block;font-size:inherit;background:none;border:none;padding:0;}.pdoc > section:not(.module-info){margin-bottom:1.5rem;}.pdoc .modulename{margin-top:0;font-weight:bold;}.pdoc .modulename a{color:var(--link);transition:100ms all;}.pdoc .git-button{float:right;border:solid var(--link) 1px;}.pdoc .git-button:hover{background-color:var(--link);color:var(--pdoc-background);}.view-source-toggle-state,.view-source-toggle-state ~ .pdoc-code{display:none;}.view-source-toggle-state:checked ~ .pdoc-code{display:block;}.view-source-button{display:inline-block;float:right;font-size:.75rem;line-height:1.5rem;color:var(--muted);padding:0 .4rem 0 1.3rem;cursor:pointer;text-indent:-2px;}.view-source-button > span{visibility:hidden;}.module-info .view-source-button{float:none;display:flex;justify-content:flex-end;margin:-1.2rem .4rem -.2rem 0;}.view-source-button::before{position:absolute;content:"View Source";display:list-item;list-style-type:disclosure-closed;}.view-source-toggle-state:checked ~ .attr .view-source-button::before,.view-source-toggle-state:checked ~ .view-source-button::before{list-style-type:disclosure-open;}.pdoc .docstring{margin-bottom:1.5rem;}.pdoc section:not(.module-info) .docstring{margin-left:clamp(0rem, 5vw - 2rem, 1rem);}.pdoc .docstring .pdoc-code{margin-left:1em;margin-right:1em;}.pdoc h1:target,.pdoc h2:target,.pdoc h3:target,.pdoc h4:target,.pdoc h5:target,.pdoc h6:target,.pdoc .pdoc-code > pre > span:target{background-color:var(--active);box-shadow:-1rem 0 0 0 var(--active);}.pdoc .pdoc-code > pre > span:target{display:block;}.pdoc div:target > .attr,.pdoc section:target > .attr,.pdoc dd:target > a{background-color:var(--active);}.pdoc *{scroll-margin:2rem;}.pdoc .pdoc-code .linenos{user-select:none;}.pdoc .attr:hover{filter:contrast(0.95);}.pdoc section, .pdoc .classattr{position:relative;}.pdoc .headerlink{--width:clamp(1rem, 3vw, 2rem);position:absolute;top:0;left:calc(0rem - var(--width));transition:all 100ms ease-in-out;opacity:0;}.pdoc .headerlink::before{content:"#";display:block;text-align:center;width:var(--width);height:2.3rem;line-height:2.3rem;font-size:1.5rem;}.pdoc .attr:hover ~ .headerlink,.pdoc *:target > .headerlink,.pdoc .headerlink:hover{opacity:1;}.pdoc .attr{display:block;margin:.5rem 0 .5rem;padding:.4rem .4rem .4rem 1rem;background-color:var(--accent);overflow-x:auto;}.pdoc .classattr{margin-left:2rem;}.pdoc .name{color:var(--name);font-weight:bold;}.pdoc .def{color:var(--def);font-weight:bold;}.pdoc .signature{background-color:transparent;}.pdoc .param, .pdoc .return-annotation{white-space:pre;}.pdoc .signature.multiline .param{display:block;}.pdoc .signature.condensed .param{display:inline-block;}.pdoc .annotation{color:var(--annotation);}.pdoc .inherited{margin-left:2rem;}.pdoc .inherited dt{font-weight:700;}.pdoc .inherited dt, .pdoc .inherited dd{display:inline;margin-left:0;margin-bottom:.5rem;}.pdoc .inherited dd:not(:last-child):after{content:", ";}.pdoc .inherited .class:before{content:"class ";}.pdoc .inherited .function a:after{content:"()";}.pdoc .search-result .docstring{overflow:auto;max-height:25vh;}.pdoc .search-result.focused > .attr{background-color:var(--active);}.pdoc .attribution{margin-top:2rem;display:block;opacity:0.5;transition:all 200ms;filter:grayscale(100%);}.pdoc .attribution:hover{opacity:1;filter:grayscale(0%);}.pdoc .attribution img{margin-left:5px;height:35px;vertical-align:middle;width:70px;transition:all 200ms;}.pdoc table{display:block;width:max-content;max-width:100%;overflow:auto;margin-bottom:1rem;}.pdoc table th{font-weight:600;}.pdoc table th, .pdoc table td{padding:6px 13px;border:1px solid var(--accent2);}</style>
-    <style>/*! custom.css */</style></head>
+    <style>/*! custom.css */</style><script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+        }
+    };
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+    /* Re-invoke MathJax when DOM content changes, for example during search. */
+    document.addEventListener("DOMContentLoaded", () => {
+        new MutationObserver(() => MathJax.typeset()).observe(
+            document.querySelector("main.pdoc").parentNode,
+            {childList: true}
+        );
+    })
+</script></head>
 <body>
     <nav class="pdoc">
         <label id="navtoggle" for="togglestate" class="pdoc-button"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke-linecap='round' stroke="currentColor" stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg></label>
@@ -31,16 +48,13 @@
         <h2>API Documentation</h2>
             <ul class="memberlist">
             <li>
-                    <a class="class" href="#EvaluationPenaltyEvaluator">EvaluationPenaltyEvaluator</a>
+                    <a class="class" href="#PenalizedEvaluator">PenalizedEvaluator</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="function" href="#EvaluationPenaltyEvaluator.__init__">EvaluationPenaltyEvaluator</a>
+                                <a class="function" href="#PenalizedEvaluator.__init__">PenalizedEvaluator</a>
                         </li>
                         <li>
-                                <a class="variable" href="#EvaluationPenaltyEvaluator.PENALTY_TYPES">PENALTY_TYPES</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#EvaluationPenaltyEvaluator.eval">eval</a>
+                                <a class="function" href="#PenalizedEvaluator.eval">eval</a>
                         </li>
                 </ul>
 
@@ -59,18 +73,18 @@
     <main class="pdoc">
             <section class="module-info">
                     <h1 class="modulename">
-<a href="./../../nmoo.html">nmoo</a><wbr>.<a href="./../evaluators.html">evaluators</a><wbr>.evaluation_penalty_evaluator    </h1>
+<a href="./../../nmoo.html">nmoo</a><wbr>.<a href="./../evaluators.html">evaluators</a><wbr>.penalized_evaluator    </h1>
 
-                        <div class="docstring"><p>A custom evaluator that modifies the percieved number of evaluations
+                        <div class="docstring"><p>A custom evaluator that modifies the perceived number of evaluations
 (<code>n_eval</code>).</p>
 </div>
 
-                        <input id="evaluation_penalty_evaluator-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                        <input id="penalized_evaluator-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
-                        <label class="view-source-button" for="evaluation_penalty_evaluator-view-source"><span>View Source</span></label>
+                        <label class="view-source-button" for="penalized_evaluator-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">A custom evaluator that modifies the percieved number of evaluations</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">A custom evaluator that modifies the perceived number of evaluations</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">(`n_eval`).</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
@@ -78,197 +92,157 @@
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span> <span class="nn">pymoo.core.evaluator</span> <span class="kn">import</span> <span class="n">Evaluator</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
 </span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="k">class</span> <span class="nc">EvaluationPenaltyEvaluator</span><span class="p">(</span><span class="n">Evaluator</span><span class="p">):</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="k">class</span> <span class="nc">PenalizedEvaluator</span><span class="p">(</span><span class="n">Evaluator</span><span class="p">):</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    A custom evaluator that modifies the percieved number of evaluations</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    A custom evaluator that multiplies the perceived number of evaluations</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    (`n_eval`).</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">    For example, an algorithm using the following evaluator</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">    For example, an pymoo algorithm using the following evaluator</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">        EvaluationPenaltyEvaluator(&quot;times&quot;, 5)</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">        PenalizedEvaluator(5)</span>
 </span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">    will percieve every evaluation of the underlying problem as `5`</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">    will perceive every evaluation of the underlying problem as `5`</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">    evaluations. In other words, if the algorithm&#39;s maximum evaluation count is</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">    `N`, then the problem&#39;s `_evaluate` method will be called on at most `N /</span>
 </span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">    5` values.</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="n">PENALTY_TYPES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;times&quot;</span><span class="p">]</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="n">_multiplier</span><span class="p">:</span> <span class="nb">int</span>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">_coefficient</span><span class="p">:</span> <span class="nb">int</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="n">_penalty_type</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">penalty_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;times&quot;</span><span class="p">,</span> <span class="n">coefficient</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">        Args:</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">            penalty_type (str): the type of evaluation penalty to be applied.</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">                Currently, must be `times`.</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">            coefficient (int): coefficient pertaining to the penalty being</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">                applied.</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_coefficient</span> <span class="o">=</span> <span class="n">coefficient</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="k">if</span> <span class="n">penalty_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">EvaluationPenaltyEvaluator</span><span class="o">.</span><span class="n">PENALTY_TYPES</span><span class="p">:</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown penalty type &#39;</span><span class="si">{</span><span class="n">penalty_type</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_penalty_type</span> <span class="o">=</span> <span class="n">penalty_type</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=signature-differs</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">        Calls `Evaluator.eval` and modifies `n_eval` according to the penalty</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">        parameters.</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_penalty_type</span> <span class="o">==</span> <span class="s2">&quot;times&quot;</span><span class="p">:</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">n_eval</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coefficient</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>        <span class="k">return</span> <span class="n">result</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiplier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="sd">        Args:</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">            multiplier (int): multiplier pertaining to the penalty being</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">                applied.</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_multiplier</span> <span class="o">=</span> <span class="n">multiplier</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=signature-differs</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">        Calls `Evaluator.eval` and modifies `n_eval` according to the penalty</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">        parameters.</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">n_eval</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_multiplier</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="k">return</span> <span class="n">result</span>
 </span></pre></div>
 
 
             </section>
-                <section id="EvaluationPenaltyEvaluator">
-                            <input id="EvaluationPenaltyEvaluator-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="PenalizedEvaluator">
+                            <input id="PenalizedEvaluator-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">EvaluationPenaltyEvaluator</span><wbr>(<span class="base">pymoo.core.evaluator.Evaluator</span>):
+    <span class="name">PenalizedEvaluator</span><wbr>(<span class="base">pymoo.core.evaluator.Evaluator</span>):
 
-                <label class="view-source-button" for="EvaluationPenaltyEvaluator-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="PenalizedEvaluator-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#EvaluationPenaltyEvaluator"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="EvaluationPenaltyEvaluator-11"><a href="#EvaluationPenaltyEvaluator-11"><span class="linenos">11</span></a><span class="k">class</span> <span class="nc">EvaluationPenaltyEvaluator</span><span class="p">(</span><span class="n">Evaluator</span><span class="p">):</span>
-</span><span id="EvaluationPenaltyEvaluator-12"><a href="#EvaluationPenaltyEvaluator-12"><span class="linenos">12</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="EvaluationPenaltyEvaluator-13"><a href="#EvaluationPenaltyEvaluator-13"><span class="linenos">13</span></a><span class="sd">    A custom evaluator that modifies the percieved number of evaluations</span>
-</span><span id="EvaluationPenaltyEvaluator-14"><a href="#EvaluationPenaltyEvaluator-14"><span class="linenos">14</span></a><span class="sd">    (`n_eval`).</span>
-</span><span id="EvaluationPenaltyEvaluator-15"><a href="#EvaluationPenaltyEvaluator-15"><span class="linenos">15</span></a>
-</span><span id="EvaluationPenaltyEvaluator-16"><a href="#EvaluationPenaltyEvaluator-16"><span class="linenos">16</span></a><span class="sd">    For example, an algorithm using the following evaluator</span>
-</span><span id="EvaluationPenaltyEvaluator-17"><a href="#EvaluationPenaltyEvaluator-17"><span class="linenos">17</span></a>
-</span><span id="EvaluationPenaltyEvaluator-18"><a href="#EvaluationPenaltyEvaluator-18"><span class="linenos">18</span></a><span class="sd">        EvaluationPenaltyEvaluator(&quot;times&quot;, 5)</span>
-</span><span id="EvaluationPenaltyEvaluator-19"><a href="#EvaluationPenaltyEvaluator-19"><span class="linenos">19</span></a>
-</span><span id="EvaluationPenaltyEvaluator-20"><a href="#EvaluationPenaltyEvaluator-20"><span class="linenos">20</span></a><span class="sd">    will percieve every evaluation of the underlying problem as `5`</span>
-</span><span id="EvaluationPenaltyEvaluator-21"><a href="#EvaluationPenaltyEvaluator-21"><span class="linenos">21</span></a><span class="sd">    evaluations. In other words, if the algorithm&#39;s maximum evaluation count is</span>
-</span><span id="EvaluationPenaltyEvaluator-22"><a href="#EvaluationPenaltyEvaluator-22"><span class="linenos">22</span></a><span class="sd">    `N`, then the problem&#39;s `_evaluate` method will be called on at most `N /</span>
-</span><span id="EvaluationPenaltyEvaluator-23"><a href="#EvaluationPenaltyEvaluator-23"><span class="linenos">23</span></a><span class="sd">    5` values.</span>
-</span><span id="EvaluationPenaltyEvaluator-24"><a href="#EvaluationPenaltyEvaluator-24"><span class="linenos">24</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="EvaluationPenaltyEvaluator-25"><a href="#EvaluationPenaltyEvaluator-25"><span class="linenos">25</span></a>
-</span><span id="EvaluationPenaltyEvaluator-26"><a href="#EvaluationPenaltyEvaluator-26"><span class="linenos">26</span></a>    <span class="n">PENALTY_TYPES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;times&quot;</span><span class="p">]</span>
-</span><span id="EvaluationPenaltyEvaluator-27"><a href="#EvaluationPenaltyEvaluator-27"><span class="linenos">27</span></a>
-</span><span id="EvaluationPenaltyEvaluator-28"><a href="#EvaluationPenaltyEvaluator-28"><span class="linenos">28</span></a>    <span class="n">_coefficient</span><span class="p">:</span> <span class="nb">int</span>
-</span><span id="EvaluationPenaltyEvaluator-29"><a href="#EvaluationPenaltyEvaluator-29"><span class="linenos">29</span></a>    <span class="n">_penalty_type</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="EvaluationPenaltyEvaluator-30"><a href="#EvaluationPenaltyEvaluator-30"><span class="linenos">30</span></a>
-</span><span id="EvaluationPenaltyEvaluator-31"><a href="#EvaluationPenaltyEvaluator-31"><span class="linenos">31</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">penalty_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;times&quot;</span><span class="p">,</span> <span class="n">coefficient</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
-</span><span id="EvaluationPenaltyEvaluator-32"><a href="#EvaluationPenaltyEvaluator-32"><span class="linenos">32</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="EvaluationPenaltyEvaluator-33"><a href="#EvaluationPenaltyEvaluator-33"><span class="linenos">33</span></a><span class="sd">        Args:</span>
-</span><span id="EvaluationPenaltyEvaluator-34"><a href="#EvaluationPenaltyEvaluator-34"><span class="linenos">34</span></a><span class="sd">            penalty_type (str): the type of evaluation penalty to be applied.</span>
-</span><span id="EvaluationPenaltyEvaluator-35"><a href="#EvaluationPenaltyEvaluator-35"><span class="linenos">35</span></a><span class="sd">                Currently, must be `times`.</span>
-</span><span id="EvaluationPenaltyEvaluator-36"><a href="#EvaluationPenaltyEvaluator-36"><span class="linenos">36</span></a><span class="sd">            coefficient (int): coefficient pertaining to the penalty being</span>
-</span><span id="EvaluationPenaltyEvaluator-37"><a href="#EvaluationPenaltyEvaluator-37"><span class="linenos">37</span></a><span class="sd">                applied.</span>
-</span><span id="EvaluationPenaltyEvaluator-38"><a href="#EvaluationPenaltyEvaluator-38"><span class="linenos">38</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="EvaluationPenaltyEvaluator-39"><a href="#EvaluationPenaltyEvaluator-39"><span class="linenos">39</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</span><span id="EvaluationPenaltyEvaluator-40"><a href="#EvaluationPenaltyEvaluator-40"><span class="linenos">40</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_coefficient</span> <span class="o">=</span> <span class="n">coefficient</span>
-</span><span id="EvaluationPenaltyEvaluator-41"><a href="#EvaluationPenaltyEvaluator-41"><span class="linenos">41</span></a>
-</span><span id="EvaluationPenaltyEvaluator-42"><a href="#EvaluationPenaltyEvaluator-42"><span class="linenos">42</span></a>        <span class="k">if</span> <span class="n">penalty_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">EvaluationPenaltyEvaluator</span><span class="o">.</span><span class="n">PENALTY_TYPES</span><span class="p">:</span>
-</span><span id="EvaluationPenaltyEvaluator-43"><a href="#EvaluationPenaltyEvaluator-43"><span class="linenos">43</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown penalty type &#39;</span><span class="si">{</span><span class="n">penalty_type</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-</span><span id="EvaluationPenaltyEvaluator-44"><a href="#EvaluationPenaltyEvaluator-44"><span class="linenos">44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_penalty_type</span> <span class="o">=</span> <span class="n">penalty_type</span>
-</span><span id="EvaluationPenaltyEvaluator-45"><a href="#EvaluationPenaltyEvaluator-45"><span class="linenos">45</span></a>
-</span><span id="EvaluationPenaltyEvaluator-46"><a href="#EvaluationPenaltyEvaluator-46"><span class="linenos">46</span></a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=signature-differs</span>
-</span><span id="EvaluationPenaltyEvaluator-47"><a href="#EvaluationPenaltyEvaluator-47"><span class="linenos">47</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="EvaluationPenaltyEvaluator-48"><a href="#EvaluationPenaltyEvaluator-48"><span class="linenos">48</span></a><span class="sd">        Calls `Evaluator.eval` and modifies `n_eval` according to the penalty</span>
-</span><span id="EvaluationPenaltyEvaluator-49"><a href="#EvaluationPenaltyEvaluator-49"><span class="linenos">49</span></a><span class="sd">        parameters.</span>
-</span><span id="EvaluationPenaltyEvaluator-50"><a href="#EvaluationPenaltyEvaluator-50"><span class="linenos">50</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="EvaluationPenaltyEvaluator-51"><a href="#EvaluationPenaltyEvaluator-51"><span class="linenos">51</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="EvaluationPenaltyEvaluator-52"><a href="#EvaluationPenaltyEvaluator-52"><span class="linenos">52</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_penalty_type</span> <span class="o">==</span> <span class="s2">&quot;times&quot;</span><span class="p">:</span>
-</span><span id="EvaluationPenaltyEvaluator-53"><a href="#EvaluationPenaltyEvaluator-53"><span class="linenos">53</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">n_eval</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coefficient</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="EvaluationPenaltyEvaluator-54"><a href="#EvaluationPenaltyEvaluator-54"><span class="linenos">54</span></a>        <span class="k">return</span> <span class="n">result</span>
+    <a class="headerlink" href="#PenalizedEvaluator"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="PenalizedEvaluator-11"><a href="#PenalizedEvaluator-11"><span class="linenos">11</span></a><span class="k">class</span> <span class="nc">PenalizedEvaluator</span><span class="p">(</span><span class="n">Evaluator</span><span class="p">):</span>
+</span><span id="PenalizedEvaluator-12"><a href="#PenalizedEvaluator-12"><span class="linenos">12</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="PenalizedEvaluator-13"><a href="#PenalizedEvaluator-13"><span class="linenos">13</span></a><span class="sd">    A custom evaluator that multiplies the perceived number of evaluations</span>
+</span><span id="PenalizedEvaluator-14"><a href="#PenalizedEvaluator-14"><span class="linenos">14</span></a><span class="sd">    (`n_eval`).</span>
+</span><span id="PenalizedEvaluator-15"><a href="#PenalizedEvaluator-15"><span class="linenos">15</span></a>
+</span><span id="PenalizedEvaluator-16"><a href="#PenalizedEvaluator-16"><span class="linenos">16</span></a><span class="sd">    For example, an pymoo algorithm using the following evaluator</span>
+</span><span id="PenalizedEvaluator-17"><a href="#PenalizedEvaluator-17"><span class="linenos">17</span></a>
+</span><span id="PenalizedEvaluator-18"><a href="#PenalizedEvaluator-18"><span class="linenos">18</span></a><span class="sd">        PenalizedEvaluator(5)</span>
+</span><span id="PenalizedEvaluator-19"><a href="#PenalizedEvaluator-19"><span class="linenos">19</span></a>
+</span><span id="PenalizedEvaluator-20"><a href="#PenalizedEvaluator-20"><span class="linenos">20</span></a><span class="sd">    will perceive every evaluation of the underlying problem as `5`</span>
+</span><span id="PenalizedEvaluator-21"><a href="#PenalizedEvaluator-21"><span class="linenos">21</span></a><span class="sd">    evaluations. In other words, if the algorithm&#39;s maximum evaluation count is</span>
+</span><span id="PenalizedEvaluator-22"><a href="#PenalizedEvaluator-22"><span class="linenos">22</span></a><span class="sd">    `N`, then the problem&#39;s `_evaluate` method will be called on at most `N /</span>
+</span><span id="PenalizedEvaluator-23"><a href="#PenalizedEvaluator-23"><span class="linenos">23</span></a><span class="sd">    5` values.</span>
+</span><span id="PenalizedEvaluator-24"><a href="#PenalizedEvaluator-24"><span class="linenos">24</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="PenalizedEvaluator-25"><a href="#PenalizedEvaluator-25"><span class="linenos">25</span></a>
+</span><span id="PenalizedEvaluator-26"><a href="#PenalizedEvaluator-26"><span class="linenos">26</span></a>    <span class="n">_multiplier</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="PenalizedEvaluator-27"><a href="#PenalizedEvaluator-27"><span class="linenos">27</span></a>
+</span><span id="PenalizedEvaluator-28"><a href="#PenalizedEvaluator-28"><span class="linenos">28</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiplier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+</span><span id="PenalizedEvaluator-29"><a href="#PenalizedEvaluator-29"><span class="linenos">29</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="PenalizedEvaluator-30"><a href="#PenalizedEvaluator-30"><span class="linenos">30</span></a><span class="sd">        Args:</span>
+</span><span id="PenalizedEvaluator-31"><a href="#PenalizedEvaluator-31"><span class="linenos">31</span></a><span class="sd">            multiplier (int): multiplier pertaining to the penalty being</span>
+</span><span id="PenalizedEvaluator-32"><a href="#PenalizedEvaluator-32"><span class="linenos">32</span></a><span class="sd">                applied.</span>
+</span><span id="PenalizedEvaluator-33"><a href="#PenalizedEvaluator-33"><span class="linenos">33</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="PenalizedEvaluator-34"><a href="#PenalizedEvaluator-34"><span class="linenos">34</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="PenalizedEvaluator-35"><a href="#PenalizedEvaluator-35"><span class="linenos">35</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_multiplier</span> <span class="o">=</span> <span class="n">multiplier</span>
+</span><span id="PenalizedEvaluator-36"><a href="#PenalizedEvaluator-36"><span class="linenos">36</span></a>
+</span><span id="PenalizedEvaluator-37"><a href="#PenalizedEvaluator-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=signature-differs</span>
+</span><span id="PenalizedEvaluator-38"><a href="#PenalizedEvaluator-38"><span class="linenos">38</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="PenalizedEvaluator-39"><a href="#PenalizedEvaluator-39"><span class="linenos">39</span></a><span class="sd">        Calls `Evaluator.eval` and modifies `n_eval` according to the penalty</span>
+</span><span id="PenalizedEvaluator-40"><a href="#PenalizedEvaluator-40"><span class="linenos">40</span></a><span class="sd">        parameters.</span>
+</span><span id="PenalizedEvaluator-41"><a href="#PenalizedEvaluator-41"><span class="linenos">41</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="PenalizedEvaluator-42"><a href="#PenalizedEvaluator-42"><span class="linenos">42</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="PenalizedEvaluator-43"><a href="#PenalizedEvaluator-43"><span class="linenos">43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">n_eval</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_multiplier</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="PenalizedEvaluator-44"><a href="#PenalizedEvaluator-44"><span class="linenos">44</span></a>        <span class="k">return</span> <span class="n">result</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>A custom evaluator that modifies the percieved number of evaluations
+            <div class="docstring"><p>A custom evaluator that multiplies the perceived number of evaluations
 (<code>n_eval</code>).</p>
 
-<p>For example, an algorithm using the following evaluator</p>
+<p>For example, an pymoo algorithm using the following evaluator</p>
 
-<pre><code>EvaluationPenaltyEvaluator("times", 5)
+<pre><code>PenalizedEvaluator(5)
 </code></pre>
 
-<p>will percieve every evaluation of the underlying problem as <code>5</code>
+<p>will perceive every evaluation of the underlying problem as <code>5</code>
 evaluations. In other words, if the algorithm's maximum evaluation count is
 <code>N</code>, then the problem's <code>_evaluate</code> method will be called on at most <code>N /
 5</code> values.</p>
 </div>
 
 
-                            <div id="EvaluationPenaltyEvaluator.__init__" class="classattr">
-                                        <input id="EvaluationPenaltyEvaluator.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                            <div id="PenalizedEvaluator.__init__" class="classattr">
+                                        <input id="PenalizedEvaluator.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">EvaluationPenaltyEvaluator</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">penalty_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;times&#39;</span>, </span><span class="param"><span class="n">coefficient</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span></span>)</span>
+        <span class="name">PenalizedEvaluator</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">multiplier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span></span>)</span>
 
-                <label class="view-source-button" for="EvaluationPenaltyEvaluator.__init__-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="PenalizedEvaluator.__init__-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#EvaluationPenaltyEvaluator.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="EvaluationPenaltyEvaluator.__init__-31"><a href="#EvaluationPenaltyEvaluator.__init__-31"><span class="linenos">31</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">penalty_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;times&quot;</span><span class="p">,</span> <span class="n">coefficient</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-32"><a href="#EvaluationPenaltyEvaluator.__init__-32"><span class="linenos">32</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-33"><a href="#EvaluationPenaltyEvaluator.__init__-33"><span class="linenos">33</span></a><span class="sd">        Args:</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-34"><a href="#EvaluationPenaltyEvaluator.__init__-34"><span class="linenos">34</span></a><span class="sd">            penalty_type (str): the type of evaluation penalty to be applied.</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-35"><a href="#EvaluationPenaltyEvaluator.__init__-35"><span class="linenos">35</span></a><span class="sd">                Currently, must be `times`.</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-36"><a href="#EvaluationPenaltyEvaluator.__init__-36"><span class="linenos">36</span></a><span class="sd">            coefficient (int): coefficient pertaining to the penalty being</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-37"><a href="#EvaluationPenaltyEvaluator.__init__-37"><span class="linenos">37</span></a><span class="sd">                applied.</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-38"><a href="#EvaluationPenaltyEvaluator.__init__-38"><span class="linenos">38</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-39"><a href="#EvaluationPenaltyEvaluator.__init__-39"><span class="linenos">39</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-40"><a href="#EvaluationPenaltyEvaluator.__init__-40"><span class="linenos">40</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_coefficient</span> <span class="o">=</span> <span class="n">coefficient</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-41"><a href="#EvaluationPenaltyEvaluator.__init__-41"><span class="linenos">41</span></a>
-</span><span id="EvaluationPenaltyEvaluator.__init__-42"><a href="#EvaluationPenaltyEvaluator.__init__-42"><span class="linenos">42</span></a>        <span class="k">if</span> <span class="n">penalty_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">EvaluationPenaltyEvaluator</span><span class="o">.</span><span class="n">PENALTY_TYPES</span><span class="p">:</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-43"><a href="#EvaluationPenaltyEvaluator.__init__-43"><span class="linenos">43</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown penalty type &#39;</span><span class="si">{</span><span class="n">penalty_type</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-</span><span id="EvaluationPenaltyEvaluator.__init__-44"><a href="#EvaluationPenaltyEvaluator.__init__-44"><span class="linenos">44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_penalty_type</span> <span class="o">=</span> <span class="n">penalty_type</span>
+    <a class="headerlink" href="#PenalizedEvaluator.__init__"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="PenalizedEvaluator.__init__-28"><a href="#PenalizedEvaluator.__init__-28"><span class="linenos">28</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiplier</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+</span><span id="PenalizedEvaluator.__init__-29"><a href="#PenalizedEvaluator.__init__-29"><span class="linenos">29</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="PenalizedEvaluator.__init__-30"><a href="#PenalizedEvaluator.__init__-30"><span class="linenos">30</span></a><span class="sd">        Args:</span>
+</span><span id="PenalizedEvaluator.__init__-31"><a href="#PenalizedEvaluator.__init__-31"><span class="linenos">31</span></a><span class="sd">            multiplier (int): multiplier pertaining to the penalty being</span>
+</span><span id="PenalizedEvaluator.__init__-32"><a href="#PenalizedEvaluator.__init__-32"><span class="linenos">32</span></a><span class="sd">                applied.</span>
+</span><span id="PenalizedEvaluator.__init__-33"><a href="#PenalizedEvaluator.__init__-33"><span class="linenos">33</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="PenalizedEvaluator.__init__-34"><a href="#PenalizedEvaluator.__init__-34"><span class="linenos">34</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="PenalizedEvaluator.__init__-35"><a href="#PenalizedEvaluator.__init__-35"><span class="linenos">35</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_multiplier</span> <span class="o">=</span> <span class="n">multiplier</span>
 </span></pre></div>
 
 
             <div class="docstring"><h6 id="args">Args</h6>
 
 <ul>
-<li><strong>penalty_type (str):</strong>  the type of evaluation penalty to be applied.
-Currently, must be <code>times</code>.</li>
-<li><strong>coefficient (int):</strong>  coefficient pertaining to the penalty being
+<li><strong>multiplier (int):</strong>  multiplier pertaining to the penalty being
 applied.</li>
 </ul>
 </div>
 
 
                             </div>
-                            <div id="EvaluationPenaltyEvaluator.PENALTY_TYPES" class="classattr">
-                                <div class="attr variable">
-            <span class="name">PENALTY_TYPES</span><span class="default_value"> = [&#39;times&#39;]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#EvaluationPenaltyEvaluator.PENALTY_TYPES"></a>
-    
-    
-
-                            </div>
-                            <div id="EvaluationPenaltyEvaluator.eval" class="classattr">
-                                        <input id="EvaluationPenaltyEvaluator.eval-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                            <div id="PenalizedEvaluator.eval" class="classattr">
+                                        <input id="PenalizedEvaluator.eval-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
         <span class="def">def</span>
         <span class="name">eval</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">*</span><span class="n">args</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span>)</span>
 
-                <label class="view-source-button" for="EvaluationPenaltyEvaluator.eval-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="PenalizedEvaluator.eval-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#EvaluationPenaltyEvaluator.eval"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="EvaluationPenaltyEvaluator.eval-46"><a href="#EvaluationPenaltyEvaluator.eval-46"><span class="linenos">46</span></a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=signature-differs</span>
-</span><span id="EvaluationPenaltyEvaluator.eval-47"><a href="#EvaluationPenaltyEvaluator.eval-47"><span class="linenos">47</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="EvaluationPenaltyEvaluator.eval-48"><a href="#EvaluationPenaltyEvaluator.eval-48"><span class="linenos">48</span></a><span class="sd">        Calls `Evaluator.eval` and modifies `n_eval` according to the penalty</span>
-</span><span id="EvaluationPenaltyEvaluator.eval-49"><a href="#EvaluationPenaltyEvaluator.eval-49"><span class="linenos">49</span></a><span class="sd">        parameters.</span>
-</span><span id="EvaluationPenaltyEvaluator.eval-50"><a href="#EvaluationPenaltyEvaluator.eval-50"><span class="linenos">50</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="EvaluationPenaltyEvaluator.eval-51"><a href="#EvaluationPenaltyEvaluator.eval-51"><span class="linenos">51</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="EvaluationPenaltyEvaluator.eval-52"><a href="#EvaluationPenaltyEvaluator.eval-52"><span class="linenos">52</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_penalty_type</span> <span class="o">==</span> <span class="s2">&quot;times&quot;</span><span class="p">:</span>
-</span><span id="EvaluationPenaltyEvaluator.eval-53"><a href="#EvaluationPenaltyEvaluator.eval-53"><span class="linenos">53</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">n_eval</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coefficient</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="EvaluationPenaltyEvaluator.eval-54"><a href="#EvaluationPenaltyEvaluator.eval-54"><span class="linenos">54</span></a>        <span class="k">return</span> <span class="n">result</span>
+    <a class="headerlink" href="#PenalizedEvaluator.eval"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="PenalizedEvaluator.eval-37"><a href="#PenalizedEvaluator.eval-37"><span class="linenos">37</span></a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=signature-differs</span>
+</span><span id="PenalizedEvaluator.eval-38"><a href="#PenalizedEvaluator.eval-38"><span class="linenos">38</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="PenalizedEvaluator.eval-39"><a href="#PenalizedEvaluator.eval-39"><span class="linenos">39</span></a><span class="sd">        Calls `Evaluator.eval` and modifies `n_eval` according to the penalty</span>
+</span><span id="PenalizedEvaluator.eval-40"><a href="#PenalizedEvaluator.eval-40"><span class="linenos">40</span></a><span class="sd">        parameters.</span>
+</span><span id="PenalizedEvaluator.eval-41"><a href="#PenalizedEvaluator.eval-41"><span class="linenos">41</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="PenalizedEvaluator.eval-42"><a href="#PenalizedEvaluator.eval-42"><span class="linenos">42</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="PenalizedEvaluator.eval-43"><a href="#PenalizedEvaluator.eval-43"><span class="linenos">43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">n_eval</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_multiplier</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="PenalizedEvaluator.eval-44"><a href="#PenalizedEvaluator.eval-44"><span class="linenos">44</span></a>        <span class="k">return</span> <span class="n">result</span>
 </span></pre></div>
 
 

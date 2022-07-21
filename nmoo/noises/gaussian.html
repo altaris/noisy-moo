@@ -11,7 +11,24 @@
     <style>/*! theme.css */:root{--pdoc-background:#fff;}.pdoc{--text:#212529;--muted:#6c757d;--link:#3660a5;--link-hover:#1659c5;--code:#f8f8f8;--active:#fff598;--accent:#eee;--accent2:#c1c1c1;--nav-hover:rgba(255, 255, 255, 0.5);--name:#0066BB;--def:#008800;--annotation:#007020;}</style>
     <style>/*! layout.css */html, body{width:100%;height:100%;}html, main{scroll-behavior:smooth;}body{background-color:var(--pdoc-background);}@media (max-width:769px){#navtoggle{cursor:pointer;position:absolute;width:50px;height:40px;top:1rem;right:1rem;border-color:var(--text);color:var(--text);display:flex;opacity:0.8;}#navtoggle:hover{opacity:1;}#togglestate + div{display:none;}#togglestate:checked + div{display:inherit;}main, header{padding:2rem 3vw;}header + main{margin-top:-3rem;}.git-button{display:none !important;}nav input[type="search"]{max-width:77%;}nav input[type="search"]:first-child{margin-top:-6px;}nav input[type="search"]:valid ~ *{display:none !important;}}@media (min-width:770px){:root{--sidebar-width:clamp(12.5rem, 28vw, 22rem);}nav{position:fixed;overflow:auto;height:100vh;width:var(--sidebar-width);}main, header{padding:3rem 2rem 3rem calc(var(--sidebar-width) + 3rem);width:calc(54rem + var(--sidebar-width));max-width:100%;}header + main{margin-top:-4rem;}#navtoggle{display:none;}}#togglestate{position:absolute;height:0;opacity:0;}nav.pdoc{--pad:clamp(0.5rem, 2vw, 1.75rem);--indent:1.5rem;background-color:var(--accent);border-right:1px solid var(--accent2);box-shadow:0 0 20px rgba(50, 50, 50, .2) inset;padding:0 0 0 var(--pad);overflow-wrap:anywhere;scrollbar-width:thin; scrollbar-color:var(--accent2) transparent }nav.pdoc::-webkit-scrollbar{width:.4rem; }nav.pdoc::-webkit-scrollbar-thumb{background-color:var(--accent2); }nav.pdoc > div{padding:var(--pad) 0;}nav.pdoc .module-list-button{display:inline-flex;align-items:center;color:var(--text);border-color:var(--muted);margin-bottom:1rem;}nav.pdoc .module-list-button:hover{border-color:var(--text);}nav.pdoc input[type=search]{display:block;outline-offset:0;width:calc(100% - var(--pad));}nav.pdoc .logo{max-width:calc(100% - var(--pad));max-height:35vh;display:block;margin:0 auto 1rem;transform:translate(calc(-.5 * var(--pad)), 0);}nav.pdoc ul{list-style:none;padding-left:0;}nav.pdoc > div > ul{margin-left:calc(0px - var(--pad));}nav.pdoc li a{padding:.2rem 0 .2rem calc(var(--pad) + var(--indent));}nav.pdoc > div > ul > li > a{padding-left:var(--pad);}nav.pdoc li{transition:all 100ms;}nav.pdoc li:hover{background-color:var(--nav-hover);}nav.pdoc a, nav.pdoc a:hover{color:var(--text);}nav.pdoc a{display:block;}nav.pdoc > h2:first-of-type{margin-top:1.5rem;}nav.pdoc .class:before{content:"class ";color:var(--muted);}nav.pdoc .function:after{content:"()";color:var(--muted);}nav.pdoc footer:before{content:"";display:block;width:calc(100% - var(--pad));border-top:solid var(--accent2) 1px;margin-top:1.5rem;padding-top:.5rem;}nav.pdoc footer{font-size:small;}</style>
     <style>/*! content.css */.pdoc{color:var(--text);box-sizing:border-box;line-height:1.5;background:none;}.pdoc .pdoc-button{display:inline-block;border:solid black 1px;border-radius:2px;font-size:.75rem;padding:calc(0.5em - 1px) 1em;transition:100ms all;}.pdoc .pdoc-alert{padding:1rem 1rem 1rem calc(1.5rem + 24px);border:1px solid transparent;border-radius:.25rem;background-repeat:no-repeat;background-position:1rem center;margin-bottom:1rem;}.pdoc .pdoc-alert > *:last-child{margin-bottom:0;}.pdoc .pdoc-alert-note {color:#084298;background-color:#cfe2ff;border-color:#b6d4fe;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23084298%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8%2016A8%208%200%201%200%208%200a8%208%200%200%200%200%2016zm.93-9.412-1%204.705c-.07.34.029.533.304.533.194%200%20.487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703%200-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381%202.29-.287zM8%205.5a1%201%200%201%201%200-2%201%201%200%200%201%200%202z%22/%3E%3C/svg%3E");}.pdoc .pdoc-alert-warning{color:#664d03;background-color:#fff3cd;border-color:#ffecb5;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23664d03%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8.982%201.566a1.13%201.13%200%200%200-1.96%200L.165%2013.233c-.457.778.091%201.767.98%201.767h13.713c.889%200%201.438-.99.98-1.767L8.982%201.566zM8%205c.535%200%20.954.462.9.995l-.35%203.507a.552.552%200%200%201-1.1%200L7.1%205.995A.905.905%200%200%201%208%205zm.002%206a1%201%200%201%201%200%202%201%201%200%200%201%200-2z%22/%3E%3C/svg%3E");}.pdoc .pdoc-alert-danger{color:#842029;background-color:#f8d7da;border-color:#f5c2c7;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23842029%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5.52.359A.5.5%200%200%201%206%200h4a.5.5%200%200%201%20.474.658L8.694%206H12.5a.5.5%200%200%201%20.395.807l-7%209a.5.5%200%200%201-.873-.454L6.823%209.5H3.5a.5.5%200%200%201-.48-.641l2.5-8.5z%22/%3E%3C/svg%3E");}.pdoc .visually-hidden{position:absolute !important;width:1px !important;height:1px !important;padding:0 !important;margin:-1px !important;overflow:hidden !important;clip:rect(0, 0, 0, 0) !important;white-space:nowrap !important;border:0 !important;}.pdoc h1, .pdoc h2, .pdoc h3{font-weight:300;margin:.3em 0;padding:.2em 0;}.pdoc > section:not(.module-info) h1{font-size:1.5rem;font-weight:500;}.pdoc > section:not(.module-info) h2{font-size:1.4rem;font-weight:500;}.pdoc > section:not(.module-info) h3{font-size:1.3rem;font-weight:500;}.pdoc > section:not(.module-info) h4{font-size:1.2rem;}.pdoc > section:not(.module-info) h5{font-size:1.1rem;}.pdoc a{text-decoration:none;color:var(--link);}.pdoc a:hover{color:var(--link-hover);}.pdoc blockquote{margin-left:2rem;}.pdoc pre{border-top:1px solid var(--accent2);border-bottom:1px solid var(--accent2);margin-top:0;margin-bottom:1em;padding:.5rem 0 .5rem .5rem;overflow-x:auto;background-color:var(--code);}.pdoc code{color:var(--text);padding:.2em .4em;margin:0;font-size:85%;background-color:var(--code);border-radius:6px;}.pdoc a > code{color:inherit;}.pdoc pre > code{display:inline-block;font-size:inherit;background:none;border:none;padding:0;}.pdoc > section:not(.module-info){margin-bottom:1.5rem;}.pdoc .modulename{margin-top:0;font-weight:bold;}.pdoc .modulename a{color:var(--link);transition:100ms all;}.pdoc .git-button{float:right;border:solid var(--link) 1px;}.pdoc .git-button:hover{background-color:var(--link);color:var(--pdoc-background);}.view-source-toggle-state,.view-source-toggle-state ~ .pdoc-code{display:none;}.view-source-toggle-state:checked ~ .pdoc-code{display:block;}.view-source-button{display:inline-block;float:right;font-size:.75rem;line-height:1.5rem;color:var(--muted);padding:0 .4rem 0 1.3rem;cursor:pointer;text-indent:-2px;}.view-source-button > span{visibility:hidden;}.module-info .view-source-button{float:none;display:flex;justify-content:flex-end;margin:-1.2rem .4rem -.2rem 0;}.view-source-button::before{position:absolute;content:"View Source";display:list-item;list-style-type:disclosure-closed;}.view-source-toggle-state:checked ~ .attr .view-source-button::before,.view-source-toggle-state:checked ~ .view-source-button::before{list-style-type:disclosure-open;}.pdoc .docstring{margin-bottom:1.5rem;}.pdoc section:not(.module-info) .docstring{margin-left:clamp(0rem, 5vw - 2rem, 1rem);}.pdoc .docstring .pdoc-code{margin-left:1em;margin-right:1em;}.pdoc h1:target,.pdoc h2:target,.pdoc h3:target,.pdoc h4:target,.pdoc h5:target,.pdoc h6:target,.pdoc .pdoc-code > pre > span:target{background-color:var(--active);box-shadow:-1rem 0 0 0 var(--active);}.pdoc .pdoc-code > pre > span:target{display:block;}.pdoc div:target > .attr,.pdoc section:target > .attr,.pdoc dd:target > a{background-color:var(--active);}.pdoc *{scroll-margin:2rem;}.pdoc .pdoc-code .linenos{user-select:none;}.pdoc .attr:hover{filter:contrast(0.95);}.pdoc section, .pdoc .classattr{position:relative;}.pdoc .headerlink{--width:clamp(1rem, 3vw, 2rem);position:absolute;top:0;left:calc(0rem - var(--width));transition:all 100ms ease-in-out;opacity:0;}.pdoc .headerlink::before{content:"#";display:block;text-align:center;width:var(--width);height:2.3rem;line-height:2.3rem;font-size:1.5rem;}.pdoc .attr:hover ~ .headerlink,.pdoc *:target > .headerlink,.pdoc .headerlink:hover{opacity:1;}.pdoc .attr{display:block;margin:.5rem 0 .5rem;padding:.4rem .4rem .4rem 1rem;background-color:var(--accent);overflow-x:auto;}.pdoc .classattr{margin-left:2rem;}.pdoc .name{color:var(--name);font-weight:bold;}.pdoc .def{color:var(--def);font-weight:bold;}.pdoc .signature{background-color:transparent;}.pdoc .param, .pdoc .return-annotation{white-space:pre;}.pdoc .signature.multiline .param{display:block;}.pdoc .signature.condensed .param{display:inline-block;}.pdoc .annotation{color:var(--annotation);}.pdoc .inherited{margin-left:2rem;}.pdoc .inherited dt{font-weight:700;}.pdoc .inherited dt, .pdoc .inherited dd{display:inline;margin-left:0;margin-bottom:.5rem;}.pdoc .inherited dd:not(:last-child):after{content:", ";}.pdoc .inherited .class:before{content:"class ";}.pdoc .inherited .function a:after{content:"()";}.pdoc .search-result .docstring{overflow:auto;max-height:25vh;}.pdoc .search-result.focused > .attr{background-color:var(--active);}.pdoc .attribution{margin-top:2rem;display:block;opacity:0.5;transition:all 200ms;filter:grayscale(100%);}.pdoc .attribution:hover{opacity:1;filter:grayscale(0%);}.pdoc .attribution img{margin-left:5px;height:35px;vertical-align:middle;width:70px;transition:all 200ms;}.pdoc table{display:block;width:max-content;max-width:100%;overflow:auto;margin-bottom:1rem;}.pdoc table th{font-weight:600;}.pdoc table th, .pdoc table td{padding:6px 13px;border:1px solid var(--accent2);}</style>
-    <style>/*! custom.css */</style></head>
+    <style>/*! custom.css */</style><script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+        }
+    };
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+    /* Re-invoke MathJax when DOM content changes, for example during search. */
+    document.addEventListener("DOMContentLoaded", () => {
+        new MutationObserver(() => MathJax.typeset()).observe(
+            document.querySelector("main.pdoc").parentNode,
+            {childList: true}
+        );
+    })
+</script></head>
 <body>
     <nav class="pdoc">
         <label id="navtoggle" for="togglestate" class="pdoc-button"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke-linecap='round' stroke="currentColor" stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg></label>
@@ -35,6 +52,9 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#GaussianNoise.__init__">GaussianNoise</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#GaussianNoise.reseed">reseed</a>
                         </li>
                 </ul>
 
@@ -68,7 +88,7 @@
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">import</span> <span class="nn">logging</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">from</span> <span class="nn">pymoo.core.problem</span> <span class="kn">import</span> <span class="n">Problem</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -78,115 +98,144 @@
 </span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="k">class</span> <span class="nc">GaussianNoise</span><span class="p">(</span><span class="n">WrappedProblem</span><span class="p">):</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="sd">    A Gaussian noisy problem.</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>    <span class="n">_generator</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>    <span class="sd">&quot;&quot;&quot;Random number generator.&quot;&quot;&quot;</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="sd">    A wrapper that adds a (multivariate) gaussian noise to a problem.</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="sd">    Assume that the output of the wrapped problem as an `F` numerical component</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="sd">    (as they almost always do). The following creates a new problem by adding a</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="sd">    `N(0, .2)` noise on all components of `F` (without any covariance):</span>
 </span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>
-</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>    <span class="n">_parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="sd">    Noise parameters. Each entry is a tuple containing the noise&#39;s mean vector</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="sd">    and covariance matrix.</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>
-</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>        <span class="n">parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>        <span class="o">*</span><span class="p">,</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>    <span class="p">):</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">        Constructor.</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="sd">        Args:</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="sd">                when creating history dump files. Defaults to</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">                `gaussian_noise`.</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">            parameters (dict): Gaussian noise parameters, in the form of a dict</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">                mapping the name of an objective to a numpy array pair</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="sd">                (mean, covariance matrix). The set of keys should be a subset</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">                of the final `out` dictionary keys in the wrapped problem&#39;s</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">                `_evaluate` method.</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="sd">        Example:</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">            Assume that the output of the wrapped problem has an `F` and a `G`</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">            numerical component, both of wich are 2-dimensional. The following</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">            creates a new problem by adding a `N(0, .2)` noise on all</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">            components of `F` (without any covariance), and a 0-mean</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">            1-dimensional gaussian noise along the plane antidiagonal (line</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">            with -pi/4 orientation):</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="sd">                mean_F = np.array([0., 0.])</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">                cov_F = .2 * np.eye(2)</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">                mean_G = np.array([0., 0.])</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">                cov_G = np.array([</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">                    [1., -1.],</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">                    [-1., 1.],</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">                ])</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">                noisy_problem = nmoo.GaussianNoise(</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">                    problem,</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">                    {</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">                        &quot;F&quot;: (mean_F, cov_F),</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">                        &quot;G&quot;: (mean_G, cov_G),</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">                    },</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">                )</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">        See also:</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">            `pymoo documentation</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">            &lt;https://pymoo.org/getting_started.html#By-Class&gt;`_</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">parameters</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_generator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">        Calls the wrapped problems&#39;s `_evaluate` method and adds a Gaussian</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">        noise. Adds the input (`x`), the noisy output, and the noise values to</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">        history.</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">        Example:</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="sd">            If the wrapped problem&#39;s output dict looks like::</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="sd">                {</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="sd">                    &quot;A&quot;: (n, m) np.ndarray,</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">                    &quot;B&quot;: not an np.ndarray</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">                }</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">            then the history will look like this::</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">                {</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="sd">                    &quot;A&quot;: an np.ndarray,</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">                    &quot;A_noise&quot;: an np.ndarray of the same dimension</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">                }</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>        <span class="n">noises</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>            <span class="k">try</span><span class="p">:</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>                <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>                <span class="n">noises</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generator</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>                    <span class="n">mean</span><span class="p">,</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>                    <span class="n">cov</span><span class="p">,</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>                    <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>                <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>                <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">noises</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>                    <span class="s2">&quot;Noise parameter key </span><span class="si">%s</span><span class="s2"> is not present in objective &quot;</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>                    <span class="s2">&quot;function output keys. No noise will be applied. &quot;</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>                    <span class="s2">&quot;Objective function keys: </span><span class="si">%s</span><span class="s2">. &quot;</span><span class="p">,</span>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>                    <span class="n">k</span><span class="p">,</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>                    <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>                <span class="p">)</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>            <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span> <span class="o">+</span> <span class="s2">&quot;_noise&quot;</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">noises</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>        <span class="p">)</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="sd">        mean_F = np.array([0., 0.])</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="sd">        cov_F = .2 * np.eye(2)</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="sd">        noisy_problem = nmoo.GaussianNoise(problem, mean_F, cov_F)</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="sd">    Assume that in addition, the problem has a `G` numerical component to which</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="sd">    we would also like to add noise. The following a 0-mean 1-dimensional</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a><span class="sd">    gaussian noise along the plane antidiagonal (line with -pi/4 orientation)</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a><span class="sd">    to `G`, and the same noise as above to `F`:</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a><span class="sd">        mean_F = np.array([0., 0.])</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="sd">        cov_F = .2 * np.eye(2)</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="sd">        mean_G = np.array([0., 0.])</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="sd">        cov_G = np.array([[1., -1.], [-1., 1.]])</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="sd">        noisy_problem = nmoo.GaussianNoise(</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">            problem, {</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="sd">                &quot;F&quot;: (mean_F, cov_F),</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="sd">                &quot;G&quot;: (mean_G, cov_G),</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="sd">            },</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="sd">        )</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="n">_generator</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="sd">&quot;&quot;&quot;Random number generator.&quot;&quot;&quot;</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>    <span class="n">_parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="sd">    Noise parameters. Each entry is a tuple containing the noise&#39;s mean vector</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">    and covariance matrix.</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>        <span class="n">mean</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="n">covariance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>        <span class="n">parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>        <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="o">*</span><span class="p">,</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="p">):</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">        Args:</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">                when creating history dump files. Defaults to `gaussian_noise`.</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">            mean (optional `np.ndarray`): The mean vector of the gaussian</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">                distribution. If specified, the `covariance` argument must also</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">                be specified, and `parameters` must be left to its default</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">                `None`.</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">            covariance (optional `np.ndarray` or number): The covariance</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">                matrix of the gaussian distribution. If specified, the `mean`</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">                argument must also be specified, and `parameters` must be left</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">                to its default `None`. For convenience, a number `v` can be</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">                passed instead of a matrix, in which case the covariance matrix</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">                is set to be `v * I_n`, where `n` is the dimension of the</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">                `mean` vector. Note that `v` is then the variance of every</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">                component of the distribution, **not the standard deviation**!</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">            parameters (optional dict): Gaussian noise parameters, in the form</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">                of a dict mapping the name of an objective to a numpy array</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">                pair (mean, covariance matrix). The set of keys should be a</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">                subset of the final `out` dictionary keys in the wrapped</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">                problem&#39;s `_evaluate` method. If specified, the `mean` and</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">                `covariance` arguments must be left to their default `None`.</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="sd">            seed: Seed for</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="sd">                [`numpy.random.default_rng`](https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng)</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>        <span class="k">if</span> <span class="n">mean</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">covariance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">covariance</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>                <span class="n">covariance</span> <span class="o">=</span> <span class="n">covariance</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">mean</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">covariance</span><span class="p">)}</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>        <span class="k">elif</span> <span class="n">mean</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">covariance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parameters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">parameters</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>                <span class="s2">&quot;Invalid noise specification. Either mean and covariance are &quot;</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>                <span class="s2">&quot;both set, or a parameters dict is set.&quot;</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>            <span class="p">)</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">        Calls the wrapped problems&#39;s `_evaluate` method and adds a Gaussian</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="sd">        noise. Adds the input (`x`), the noisy output, and the noise values to</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">        history.</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">        Example:</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">            If the wrapped problem&#39;s output dict looks like:</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a><span class="sd">                {</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">                    &quot;A&quot;: (n, m) np.ndarray,</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a><span class="sd">                    &quot;B&quot;: not an np.ndarray</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="sd">                }</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="sd">            then the history will look like this:</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="sd">                {</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="sd">                    &quot;A&quot;: an np.ndarray (with the noise added),</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="sd">                    &quot;A_noise&quot;: an np.ndarray of the same dimension</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">                }</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>        <span class="n">noises</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>            <span class="k">try</span><span class="p">:</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>                <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>                <span class="n">noises</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generator</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>                    <span class="n">mean</span><span class="p">,</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>                    <span class="n">cov</span><span class="p">,</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>                    <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>                <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>                <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">noises</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>                    <span class="s2">&quot;Noise parameter key </span><span class="si">%s</span><span class="s2"> is not present in objective &quot;</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>                    <span class="s2">&quot;function output keys. No noise will be applied. &quot;</span>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>                    <span class="s2">&quot;Objective function keys: </span><span class="si">%s</span><span class="s2">. &quot;</span><span class="p">,</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>                    <span class="n">k</span><span class="p">,</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>                    <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>                <span class="p">)</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>            <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span> <span class="o">+</span> <span class="s2">&quot;_noise&quot;</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">noises</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>        <span class="p">)</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>    <span class="k">def</span> <span class="nf">reseed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_generator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -204,119 +253,174 @@
     <a class="headerlink" href="#GaussianNoise"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="GaussianNoise-16"><a href="#GaussianNoise-16"><span class="linenos"> 16</span></a><span class="k">class</span> <span class="nc">GaussianNoise</span><span class="p">(</span><span class="n">WrappedProblem</span><span class="p">):</span>
 </span><span id="GaussianNoise-17"><a href="#GaussianNoise-17"><span class="linenos"> 17</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="GaussianNoise-18"><a href="#GaussianNoise-18"><span class="linenos"> 18</span></a><span class="sd">    A Gaussian noisy problem.</span>
-</span><span id="GaussianNoise-19"><a href="#GaussianNoise-19"><span class="linenos"> 19</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="GaussianNoise-20"><a href="#GaussianNoise-20"><span class="linenos"> 20</span></a>
-</span><span id="GaussianNoise-21"><a href="#GaussianNoise-21"><span class="linenos"> 21</span></a>    <span class="n">_generator</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span>
-</span><span id="GaussianNoise-22"><a href="#GaussianNoise-22"><span class="linenos"> 22</span></a>    <span class="sd">&quot;&quot;&quot;Random number generator.&quot;&quot;&quot;</span>
+</span><span id="GaussianNoise-18"><a href="#GaussianNoise-18"><span class="linenos"> 18</span></a><span class="sd">    A wrapper that adds a (multivariate) gaussian noise to a problem.</span>
+</span><span id="GaussianNoise-19"><a href="#GaussianNoise-19"><span class="linenos"> 19</span></a>
+</span><span id="GaussianNoise-20"><a href="#GaussianNoise-20"><span class="linenos"> 20</span></a><span class="sd">    Assume that the output of the wrapped problem as an `F` numerical component</span>
+</span><span id="GaussianNoise-21"><a href="#GaussianNoise-21"><span class="linenos"> 21</span></a><span class="sd">    (as they almost always do). The following creates a new problem by adding a</span>
+</span><span id="GaussianNoise-22"><a href="#GaussianNoise-22"><span class="linenos"> 22</span></a><span class="sd">    `N(0, .2)` noise on all components of `F` (without any covariance):</span>
 </span><span id="GaussianNoise-23"><a href="#GaussianNoise-23"><span class="linenos"> 23</span></a>
-</span><span id="GaussianNoise-24"><a href="#GaussianNoise-24"><span class="linenos"> 24</span></a>    <span class="n">_parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span>
-</span><span id="GaussianNoise-25"><a href="#GaussianNoise-25"><span class="linenos"> 25</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="GaussianNoise-26"><a href="#GaussianNoise-26"><span class="linenos"> 26</span></a><span class="sd">    Noise parameters. Each entry is a tuple containing the noise&#39;s mean vector</span>
-</span><span id="GaussianNoise-27"><a href="#GaussianNoise-27"><span class="linenos"> 27</span></a><span class="sd">    and covariance matrix.</span>
-</span><span id="GaussianNoise-28"><a href="#GaussianNoise-28"><span class="linenos"> 28</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="GaussianNoise-29"><a href="#GaussianNoise-29"><span class="linenos"> 29</span></a>
-</span><span id="GaussianNoise-30"><a href="#GaussianNoise-30"><span class="linenos"> 30</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="GaussianNoise-31"><a href="#GaussianNoise-31"><span class="linenos"> 31</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="GaussianNoise-32"><a href="#GaussianNoise-32"><span class="linenos"> 32</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
-</span><span id="GaussianNoise-33"><a href="#GaussianNoise-33"><span class="linenos"> 33</span></a>        <span class="n">parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span>
-</span><span id="GaussianNoise-34"><a href="#GaussianNoise-34"><span class="linenos"> 34</span></a>        <span class="o">*</span><span class="p">,</span>
-</span><span id="GaussianNoise-35"><a href="#GaussianNoise-35"><span class="linenos"> 35</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span>
-</span><span id="GaussianNoise-36"><a href="#GaussianNoise-36"><span class="linenos"> 36</span></a>    <span class="p">):</span>
-</span><span id="GaussianNoise-37"><a href="#GaussianNoise-37"><span class="linenos"> 37</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="GaussianNoise-38"><a href="#GaussianNoise-38"><span class="linenos"> 38</span></a><span class="sd">        Constructor.</span>
-</span><span id="GaussianNoise-39"><a href="#GaussianNoise-39"><span class="linenos"> 39</span></a>
-</span><span id="GaussianNoise-40"><a href="#GaussianNoise-40"><span class="linenos"> 40</span></a><span class="sd">        Args:</span>
-</span><span id="GaussianNoise-41"><a href="#GaussianNoise-41"><span class="linenos"> 41</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
-</span><span id="GaussianNoise-42"><a href="#GaussianNoise-42"><span class="linenos"> 42</span></a><span class="sd">                when creating history dump files. Defaults to</span>
-</span><span id="GaussianNoise-43"><a href="#GaussianNoise-43"><span class="linenos"> 43</span></a><span class="sd">                `gaussian_noise`.</span>
-</span><span id="GaussianNoise-44"><a href="#GaussianNoise-44"><span class="linenos"> 44</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
-</span><span id="GaussianNoise-45"><a href="#GaussianNoise-45"><span class="linenos"> 45</span></a><span class="sd">            parameters (dict): Gaussian noise parameters, in the form of a dict</span>
-</span><span id="GaussianNoise-46"><a href="#GaussianNoise-46"><span class="linenos"> 46</span></a><span class="sd">                mapping the name of an objective to a numpy array pair</span>
-</span><span id="GaussianNoise-47"><a href="#GaussianNoise-47"><span class="linenos"> 47</span></a><span class="sd">                (mean, covariance matrix). The set of keys should be a subset</span>
-</span><span id="GaussianNoise-48"><a href="#GaussianNoise-48"><span class="linenos"> 48</span></a><span class="sd">                of the final `out` dictionary keys in the wrapped problem&#39;s</span>
-</span><span id="GaussianNoise-49"><a href="#GaussianNoise-49"><span class="linenos"> 49</span></a><span class="sd">                `_evaluate` method.</span>
-</span><span id="GaussianNoise-50"><a href="#GaussianNoise-50"><span class="linenos"> 50</span></a>
-</span><span id="GaussianNoise-51"><a href="#GaussianNoise-51"><span class="linenos"> 51</span></a><span class="sd">        Example:</span>
-</span><span id="GaussianNoise-52"><a href="#GaussianNoise-52"><span class="linenos"> 52</span></a><span class="sd">            Assume that the output of the wrapped problem has an `F` and a `G`</span>
-</span><span id="GaussianNoise-53"><a href="#GaussianNoise-53"><span class="linenos"> 53</span></a><span class="sd">            numerical component, both of wich are 2-dimensional. The following</span>
-</span><span id="GaussianNoise-54"><a href="#GaussianNoise-54"><span class="linenos"> 54</span></a><span class="sd">            creates a new problem by adding a `N(0, .2)` noise on all</span>
-</span><span id="GaussianNoise-55"><a href="#GaussianNoise-55"><span class="linenos"> 55</span></a><span class="sd">            components of `F` (without any covariance), and a 0-mean</span>
-</span><span id="GaussianNoise-56"><a href="#GaussianNoise-56"><span class="linenos"> 56</span></a><span class="sd">            1-dimensional gaussian noise along the plane antidiagonal (line</span>
-</span><span id="GaussianNoise-57"><a href="#GaussianNoise-57"><span class="linenos"> 57</span></a><span class="sd">            with -pi/4 orientation):</span>
-</span><span id="GaussianNoise-58"><a href="#GaussianNoise-58"><span class="linenos"> 58</span></a>
-</span><span id="GaussianNoise-59"><a href="#GaussianNoise-59"><span class="linenos"> 59</span></a><span class="sd">                mean_F = np.array([0., 0.])</span>
-</span><span id="GaussianNoise-60"><a href="#GaussianNoise-60"><span class="linenos"> 60</span></a><span class="sd">                cov_F = .2 * np.eye(2)</span>
-</span><span id="GaussianNoise-61"><a href="#GaussianNoise-61"><span class="linenos"> 61</span></a><span class="sd">                mean_G = np.array([0., 0.])</span>
-</span><span id="GaussianNoise-62"><a href="#GaussianNoise-62"><span class="linenos"> 62</span></a><span class="sd">                cov_G = np.array([</span>
-</span><span id="GaussianNoise-63"><a href="#GaussianNoise-63"><span class="linenos"> 63</span></a><span class="sd">                    [1., -1.],</span>
-</span><span id="GaussianNoise-64"><a href="#GaussianNoise-64"><span class="linenos"> 64</span></a><span class="sd">                    [-1., 1.],</span>
-</span><span id="GaussianNoise-65"><a href="#GaussianNoise-65"><span class="linenos"> 65</span></a><span class="sd">                ])</span>
-</span><span id="GaussianNoise-66"><a href="#GaussianNoise-66"><span class="linenos"> 66</span></a><span class="sd">                noisy_problem = nmoo.GaussianNoise(</span>
-</span><span id="GaussianNoise-67"><a href="#GaussianNoise-67"><span class="linenos"> 67</span></a><span class="sd">                    problem,</span>
-</span><span id="GaussianNoise-68"><a href="#GaussianNoise-68"><span class="linenos"> 68</span></a><span class="sd">                    {</span>
-</span><span id="GaussianNoise-69"><a href="#GaussianNoise-69"><span class="linenos"> 69</span></a><span class="sd">                        &quot;F&quot;: (mean_F, cov_F),</span>
-</span><span id="GaussianNoise-70"><a href="#GaussianNoise-70"><span class="linenos"> 70</span></a><span class="sd">                        &quot;G&quot;: (mean_G, cov_G),</span>
-</span><span id="GaussianNoise-71"><a href="#GaussianNoise-71"><span class="linenos"> 71</span></a><span class="sd">                    },</span>
-</span><span id="GaussianNoise-72"><a href="#GaussianNoise-72"><span class="linenos"> 72</span></a><span class="sd">                )</span>
-</span><span id="GaussianNoise-73"><a href="#GaussianNoise-73"><span class="linenos"> 73</span></a>
-</span><span id="GaussianNoise-74"><a href="#GaussianNoise-74"><span class="linenos"> 74</span></a><span class="sd">        See also:</span>
-</span><span id="GaussianNoise-75"><a href="#GaussianNoise-75"><span class="linenos"> 75</span></a><span class="sd">            `pymoo documentation</span>
-</span><span id="GaussianNoise-76"><a href="#GaussianNoise-76"><span class="linenos"> 76</span></a><span class="sd">            &lt;https://pymoo.org/getting_started.html#By-Class&gt;`_</span>
-</span><span id="GaussianNoise-77"><a href="#GaussianNoise-77"><span class="linenos"> 77</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GaussianNoise-78"><a href="#GaussianNoise-78"><span class="linenos"> 78</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-</span><span id="GaussianNoise-79"><a href="#GaussianNoise-79"><span class="linenos"> 79</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">parameters</span>
-</span><span id="GaussianNoise-80"><a href="#GaussianNoise-80"><span class="linenos"> 80</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_generator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
-</span><span id="GaussianNoise-81"><a href="#GaussianNoise-81"><span class="linenos"> 81</span></a>
-</span><span id="GaussianNoise-82"><a href="#GaussianNoise-82"><span class="linenos"> 82</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="GaussianNoise-83"><a href="#GaussianNoise-83"><span class="linenos"> 83</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="GaussianNoise-84"><a href="#GaussianNoise-84"><span class="linenos"> 84</span></a><span class="sd">        Calls the wrapped problems&#39;s `_evaluate` method and adds a Gaussian</span>
-</span><span id="GaussianNoise-85"><a href="#GaussianNoise-85"><span class="linenos"> 85</span></a><span class="sd">        noise. Adds the input (`x`), the noisy output, and the noise values to</span>
-</span><span id="GaussianNoise-86"><a href="#GaussianNoise-86"><span class="linenos"> 86</span></a><span class="sd">        history.</span>
-</span><span id="GaussianNoise-87"><a href="#GaussianNoise-87"><span class="linenos"> 87</span></a>
-</span><span id="GaussianNoise-88"><a href="#GaussianNoise-88"><span class="linenos"> 88</span></a><span class="sd">        Example:</span>
-</span><span id="GaussianNoise-89"><a href="#GaussianNoise-89"><span class="linenos"> 89</span></a>
-</span><span id="GaussianNoise-90"><a href="#GaussianNoise-90"><span class="linenos"> 90</span></a><span class="sd">            If the wrapped problem&#39;s output dict looks like::</span>
-</span><span id="GaussianNoise-91"><a href="#GaussianNoise-91"><span class="linenos"> 91</span></a>
-</span><span id="GaussianNoise-92"><a href="#GaussianNoise-92"><span class="linenos"> 92</span></a><span class="sd">                {</span>
-</span><span id="GaussianNoise-93"><a href="#GaussianNoise-93"><span class="linenos"> 93</span></a><span class="sd">                    &quot;A&quot;: (n, m) np.ndarray,</span>
-</span><span id="GaussianNoise-94"><a href="#GaussianNoise-94"><span class="linenos"> 94</span></a><span class="sd">                    &quot;B&quot;: not an np.ndarray</span>
-</span><span id="GaussianNoise-95"><a href="#GaussianNoise-95"><span class="linenos"> 95</span></a><span class="sd">                }</span>
-</span><span id="GaussianNoise-96"><a href="#GaussianNoise-96"><span class="linenos"> 96</span></a>
-</span><span id="GaussianNoise-97"><a href="#GaussianNoise-97"><span class="linenos"> 97</span></a><span class="sd">            then the history will look like this::</span>
-</span><span id="GaussianNoise-98"><a href="#GaussianNoise-98"><span class="linenos"> 98</span></a>
-</span><span id="GaussianNoise-99"><a href="#GaussianNoise-99"><span class="linenos"> 99</span></a><span class="sd">                {</span>
-</span><span id="GaussianNoise-100"><a href="#GaussianNoise-100"><span class="linenos">100</span></a><span class="sd">                    &quot;A&quot;: an np.ndarray,</span>
-</span><span id="GaussianNoise-101"><a href="#GaussianNoise-101"><span class="linenos">101</span></a><span class="sd">                    &quot;A_noise&quot;: an np.ndarray of the same dimension</span>
-</span><span id="GaussianNoise-102"><a href="#GaussianNoise-102"><span class="linenos">102</span></a><span class="sd">                }</span>
-</span><span id="GaussianNoise-103"><a href="#GaussianNoise-103"><span class="linenos">103</span></a>
-</span><span id="GaussianNoise-104"><a href="#GaussianNoise-104"><span class="linenos">104</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GaussianNoise-105"><a href="#GaussianNoise-105"><span class="linenos">105</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="GaussianNoise-106"><a href="#GaussianNoise-106"><span class="linenos">106</span></a>        <span class="n">noises</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="GaussianNoise-107"><a href="#GaussianNoise-107"><span class="linenos">107</span></a>        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-</span><span id="GaussianNoise-108"><a href="#GaussianNoise-108"><span class="linenos">108</span></a>            <span class="k">try</span><span class="p">:</span>
-</span><span id="GaussianNoise-109"><a href="#GaussianNoise-109"><span class="linenos">109</span></a>                <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-</span><span id="GaussianNoise-110"><a href="#GaussianNoise-110"><span class="linenos">110</span></a>                <span class="n">noises</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generator</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span>
-</span><span id="GaussianNoise-111"><a href="#GaussianNoise-111"><span class="linenos">111</span></a>                    <span class="n">mean</span><span class="p">,</span>
-</span><span id="GaussianNoise-112"><a href="#GaussianNoise-112"><span class="linenos">112</span></a>                    <span class="n">cov</span><span class="p">,</span>
-</span><span id="GaussianNoise-113"><a href="#GaussianNoise-113"><span class="linenos">113</span></a>                    <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-</span><span id="GaussianNoise-114"><a href="#GaussianNoise-114"><span class="linenos">114</span></a>                <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-</span><span id="GaussianNoise-115"><a href="#GaussianNoise-115"><span class="linenos">115</span></a>                <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">noises</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-</span><span id="GaussianNoise-116"><a href="#GaussianNoise-116"><span class="linenos">116</span></a>            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-</span><span id="GaussianNoise-117"><a href="#GaussianNoise-117"><span class="linenos">117</span></a>                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-</span><span id="GaussianNoise-118"><a href="#GaussianNoise-118"><span class="linenos">118</span></a>                    <span class="s2">&quot;Noise parameter key </span><span class="si">%s</span><span class="s2"> is not present in objective &quot;</span>
-</span><span id="GaussianNoise-119"><a href="#GaussianNoise-119"><span class="linenos">119</span></a>                    <span class="s2">&quot;function output keys. No noise will be applied. &quot;</span>
-</span><span id="GaussianNoise-120"><a href="#GaussianNoise-120"><span class="linenos">120</span></a>                    <span class="s2">&quot;Objective function keys: </span><span class="si">%s</span><span class="s2">. &quot;</span><span class="p">,</span>
-</span><span id="GaussianNoise-121"><a href="#GaussianNoise-121"><span class="linenos">121</span></a>                    <span class="n">k</span><span class="p">,</span>
-</span><span id="GaussianNoise-122"><a href="#GaussianNoise-122"><span class="linenos">122</span></a>                    <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
-</span><span id="GaussianNoise-123"><a href="#GaussianNoise-123"><span class="linenos">123</span></a>                <span class="p">)</span>
-</span><span id="GaussianNoise-124"><a href="#GaussianNoise-124"><span class="linenos">124</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span>
-</span><span id="GaussianNoise-125"><a href="#GaussianNoise-125"><span class="linenos">125</span></a>            <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span> <span class="o">+</span> <span class="s2">&quot;_noise&quot;</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">noises</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-</span><span id="GaussianNoise-126"><a href="#GaussianNoise-126"><span class="linenos">126</span></a>        <span class="p">)</span>
+</span><span id="GaussianNoise-24"><a href="#GaussianNoise-24"><span class="linenos"> 24</span></a><span class="sd">        mean_F = np.array([0., 0.])</span>
+</span><span id="GaussianNoise-25"><a href="#GaussianNoise-25"><span class="linenos"> 25</span></a><span class="sd">        cov_F = .2 * np.eye(2)</span>
+</span><span id="GaussianNoise-26"><a href="#GaussianNoise-26"><span class="linenos"> 26</span></a><span class="sd">        noisy_problem = nmoo.GaussianNoise(problem, mean_F, cov_F)</span>
+</span><span id="GaussianNoise-27"><a href="#GaussianNoise-27"><span class="linenos"> 27</span></a>
+</span><span id="GaussianNoise-28"><a href="#GaussianNoise-28"><span class="linenos"> 28</span></a><span class="sd">    Assume that in addition, the problem has a `G` numerical component to which</span>
+</span><span id="GaussianNoise-29"><a href="#GaussianNoise-29"><span class="linenos"> 29</span></a><span class="sd">    we would also like to add noise. The following a 0-mean 1-dimensional</span>
+</span><span id="GaussianNoise-30"><a href="#GaussianNoise-30"><span class="linenos"> 30</span></a><span class="sd">    gaussian noise along the plane antidiagonal (line with -pi/4 orientation)</span>
+</span><span id="GaussianNoise-31"><a href="#GaussianNoise-31"><span class="linenos"> 31</span></a><span class="sd">    to `G`, and the same noise as above to `F`:</span>
+</span><span id="GaussianNoise-32"><a href="#GaussianNoise-32"><span class="linenos"> 32</span></a>
+</span><span id="GaussianNoise-33"><a href="#GaussianNoise-33"><span class="linenos"> 33</span></a><span class="sd">        mean_F = np.array([0., 0.])</span>
+</span><span id="GaussianNoise-34"><a href="#GaussianNoise-34"><span class="linenos"> 34</span></a><span class="sd">        cov_F = .2 * np.eye(2)</span>
+</span><span id="GaussianNoise-35"><a href="#GaussianNoise-35"><span class="linenos"> 35</span></a><span class="sd">        mean_G = np.array([0., 0.])</span>
+</span><span id="GaussianNoise-36"><a href="#GaussianNoise-36"><span class="linenos"> 36</span></a><span class="sd">        cov_G = np.array([[1., -1.], [-1., 1.]])</span>
+</span><span id="GaussianNoise-37"><a href="#GaussianNoise-37"><span class="linenos"> 37</span></a><span class="sd">        noisy_problem = nmoo.GaussianNoise(</span>
+</span><span id="GaussianNoise-38"><a href="#GaussianNoise-38"><span class="linenos"> 38</span></a><span class="sd">            problem, {</span>
+</span><span id="GaussianNoise-39"><a href="#GaussianNoise-39"><span class="linenos"> 39</span></a><span class="sd">                &quot;F&quot;: (mean_F, cov_F),</span>
+</span><span id="GaussianNoise-40"><a href="#GaussianNoise-40"><span class="linenos"> 40</span></a><span class="sd">                &quot;G&quot;: (mean_G, cov_G),</span>
+</span><span id="GaussianNoise-41"><a href="#GaussianNoise-41"><span class="linenos"> 41</span></a><span class="sd">            },</span>
+</span><span id="GaussianNoise-42"><a href="#GaussianNoise-42"><span class="linenos"> 42</span></a><span class="sd">        )</span>
+</span><span id="GaussianNoise-43"><a href="#GaussianNoise-43"><span class="linenos"> 43</span></a>
+</span><span id="GaussianNoise-44"><a href="#GaussianNoise-44"><span class="linenos"> 44</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="GaussianNoise-45"><a href="#GaussianNoise-45"><span class="linenos"> 45</span></a>
+</span><span id="GaussianNoise-46"><a href="#GaussianNoise-46"><span class="linenos"> 46</span></a>    <span class="n">_generator</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span>
+</span><span id="GaussianNoise-47"><a href="#GaussianNoise-47"><span class="linenos"> 47</span></a>    <span class="sd">&quot;&quot;&quot;Random number generator.&quot;&quot;&quot;</span>
+</span><span id="GaussianNoise-48"><a href="#GaussianNoise-48"><span class="linenos"> 48</span></a>
+</span><span id="GaussianNoise-49"><a href="#GaussianNoise-49"><span class="linenos"> 49</span></a>    <span class="n">_parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span>
+</span><span id="GaussianNoise-50"><a href="#GaussianNoise-50"><span class="linenos"> 50</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GaussianNoise-51"><a href="#GaussianNoise-51"><span class="linenos"> 51</span></a><span class="sd">    Noise parameters. Each entry is a tuple containing the noise&#39;s mean vector</span>
+</span><span id="GaussianNoise-52"><a href="#GaussianNoise-52"><span class="linenos"> 52</span></a><span class="sd">    and covariance matrix.</span>
+</span><span id="GaussianNoise-53"><a href="#GaussianNoise-53"><span class="linenos"> 53</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="GaussianNoise-54"><a href="#GaussianNoise-54"><span class="linenos"> 54</span></a>
+</span><span id="GaussianNoise-55"><a href="#GaussianNoise-55"><span class="linenos"> 55</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="GaussianNoise-56"><a href="#GaussianNoise-56"><span class="linenos"> 56</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="GaussianNoise-57"><a href="#GaussianNoise-57"><span class="linenos"> 57</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
+</span><span id="GaussianNoise-58"><a href="#GaussianNoise-58"><span class="linenos"> 58</span></a>        <span class="n">mean</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="GaussianNoise-59"><a href="#GaussianNoise-59"><span class="linenos"> 59</span></a>        <span class="n">covariance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="GaussianNoise-60"><a href="#GaussianNoise-60"><span class="linenos"> 60</span></a>        <span class="n">parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="GaussianNoise-61"><a href="#GaussianNoise-61"><span class="linenos"> 61</span></a>        <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="GaussianNoise-62"><a href="#GaussianNoise-62"><span class="linenos"> 62</span></a>        <span class="o">*</span><span class="p">,</span>
+</span><span id="GaussianNoise-63"><a href="#GaussianNoise-63"><span class="linenos"> 63</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span>
+</span><span id="GaussianNoise-64"><a href="#GaussianNoise-64"><span class="linenos"> 64</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="GaussianNoise-65"><a href="#GaussianNoise-65"><span class="linenos"> 65</span></a>    <span class="p">):</span>
+</span><span id="GaussianNoise-66"><a href="#GaussianNoise-66"><span class="linenos"> 66</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GaussianNoise-67"><a href="#GaussianNoise-67"><span class="linenos"> 67</span></a><span class="sd">        Args:</span>
+</span><span id="GaussianNoise-68"><a href="#GaussianNoise-68"><span class="linenos"> 68</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
+</span><span id="GaussianNoise-69"><a href="#GaussianNoise-69"><span class="linenos"> 69</span></a><span class="sd">                when creating history dump files. Defaults to `gaussian_noise`.</span>
+</span><span id="GaussianNoise-70"><a href="#GaussianNoise-70"><span class="linenos"> 70</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
+</span><span id="GaussianNoise-71"><a href="#GaussianNoise-71"><span class="linenos"> 71</span></a><span class="sd">            mean (optional `np.ndarray`): The mean vector of the gaussian</span>
+</span><span id="GaussianNoise-72"><a href="#GaussianNoise-72"><span class="linenos"> 72</span></a><span class="sd">                distribution. If specified, the `covariance` argument must also</span>
+</span><span id="GaussianNoise-73"><a href="#GaussianNoise-73"><span class="linenos"> 73</span></a><span class="sd">                be specified, and `parameters` must be left to its default</span>
+</span><span id="GaussianNoise-74"><a href="#GaussianNoise-74"><span class="linenos"> 74</span></a><span class="sd">                `None`.</span>
+</span><span id="GaussianNoise-75"><a href="#GaussianNoise-75"><span class="linenos"> 75</span></a><span class="sd">            covariance (optional `np.ndarray` or number): The covariance</span>
+</span><span id="GaussianNoise-76"><a href="#GaussianNoise-76"><span class="linenos"> 76</span></a><span class="sd">                matrix of the gaussian distribution. If specified, the `mean`</span>
+</span><span id="GaussianNoise-77"><a href="#GaussianNoise-77"><span class="linenos"> 77</span></a><span class="sd">                argument must also be specified, and `parameters` must be left</span>
+</span><span id="GaussianNoise-78"><a href="#GaussianNoise-78"><span class="linenos"> 78</span></a><span class="sd">                to its default `None`. For convenience, a number `v` can be</span>
+</span><span id="GaussianNoise-79"><a href="#GaussianNoise-79"><span class="linenos"> 79</span></a><span class="sd">                passed instead of a matrix, in which case the covariance matrix</span>
+</span><span id="GaussianNoise-80"><a href="#GaussianNoise-80"><span class="linenos"> 80</span></a><span class="sd">                is set to be `v * I_n`, where `n` is the dimension of the</span>
+</span><span id="GaussianNoise-81"><a href="#GaussianNoise-81"><span class="linenos"> 81</span></a><span class="sd">                `mean` vector. Note that `v` is then the variance of every</span>
+</span><span id="GaussianNoise-82"><a href="#GaussianNoise-82"><span class="linenos"> 82</span></a><span class="sd">                component of the distribution, **not the standard deviation**!</span>
+</span><span id="GaussianNoise-83"><a href="#GaussianNoise-83"><span class="linenos"> 83</span></a><span class="sd">            parameters (optional dict): Gaussian noise parameters, in the form</span>
+</span><span id="GaussianNoise-84"><a href="#GaussianNoise-84"><span class="linenos"> 84</span></a><span class="sd">                of a dict mapping the name of an objective to a numpy array</span>
+</span><span id="GaussianNoise-85"><a href="#GaussianNoise-85"><span class="linenos"> 85</span></a><span class="sd">                pair (mean, covariance matrix). The set of keys should be a</span>
+</span><span id="GaussianNoise-86"><a href="#GaussianNoise-86"><span class="linenos"> 86</span></a><span class="sd">                subset of the final `out` dictionary keys in the wrapped</span>
+</span><span id="GaussianNoise-87"><a href="#GaussianNoise-87"><span class="linenos"> 87</span></a><span class="sd">                problem&#39;s `_evaluate` method. If specified, the `mean` and</span>
+</span><span id="GaussianNoise-88"><a href="#GaussianNoise-88"><span class="linenos"> 88</span></a><span class="sd">                `covariance` arguments must be left to their default `None`.</span>
+</span><span id="GaussianNoise-89"><a href="#GaussianNoise-89"><span class="linenos"> 89</span></a><span class="sd">            seed: Seed for</span>
+</span><span id="GaussianNoise-90"><a href="#GaussianNoise-90"><span class="linenos"> 90</span></a><span class="sd">                [`numpy.random.default_rng`](https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng)</span>
+</span><span id="GaussianNoise-91"><a href="#GaussianNoise-91"><span class="linenos"> 91</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GaussianNoise-92"><a href="#GaussianNoise-92"><span class="linenos"> 92</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="GaussianNoise-93"><a href="#GaussianNoise-93"><span class="linenos"> 93</span></a>        <span class="k">if</span> <span class="n">mean</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">covariance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GaussianNoise-94"><a href="#GaussianNoise-94"><span class="linenos"> 94</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">covariance</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+</span><span id="GaussianNoise-95"><a href="#GaussianNoise-95"><span class="linenos"> 95</span></a>                <span class="n">covariance</span> <span class="o">=</span> <span class="n">covariance</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">mean</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span id="GaussianNoise-96"><a href="#GaussianNoise-96"><span class="linenos"> 96</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">covariance</span><span class="p">)}</span>
+</span><span id="GaussianNoise-97"><a href="#GaussianNoise-97"><span class="linenos"> 97</span></a>        <span class="k">elif</span> <span class="n">mean</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">covariance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parameters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GaussianNoise-98"><a href="#GaussianNoise-98"><span class="linenos"> 98</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">parameters</span>
+</span><span id="GaussianNoise-99"><a href="#GaussianNoise-99"><span class="linenos"> 99</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="GaussianNoise-100"><a href="#GaussianNoise-100"><span class="linenos">100</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="GaussianNoise-101"><a href="#GaussianNoise-101"><span class="linenos">101</span></a>                <span class="s2">&quot;Invalid noise specification. Either mean and covariance are &quot;</span>
+</span><span id="GaussianNoise-102"><a href="#GaussianNoise-102"><span class="linenos">102</span></a>                <span class="s2">&quot;both set, or a parameters dict is set.&quot;</span>
+</span><span id="GaussianNoise-103"><a href="#GaussianNoise-103"><span class="linenos">103</span></a>            <span class="p">)</span>
+</span><span id="GaussianNoise-104"><a href="#GaussianNoise-104"><span class="linenos">104</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</span><span id="GaussianNoise-105"><a href="#GaussianNoise-105"><span class="linenos">105</span></a>
+</span><span id="GaussianNoise-106"><a href="#GaussianNoise-106"><span class="linenos">106</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="GaussianNoise-107"><a href="#GaussianNoise-107"><span class="linenos">107</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GaussianNoise-108"><a href="#GaussianNoise-108"><span class="linenos">108</span></a><span class="sd">        Calls the wrapped problems&#39;s `_evaluate` method and adds a Gaussian</span>
+</span><span id="GaussianNoise-109"><a href="#GaussianNoise-109"><span class="linenos">109</span></a><span class="sd">        noise. Adds the input (`x`), the noisy output, and the noise values to</span>
+</span><span id="GaussianNoise-110"><a href="#GaussianNoise-110"><span class="linenos">110</span></a><span class="sd">        history.</span>
+</span><span id="GaussianNoise-111"><a href="#GaussianNoise-111"><span class="linenos">111</span></a>
+</span><span id="GaussianNoise-112"><a href="#GaussianNoise-112"><span class="linenos">112</span></a><span class="sd">        Example:</span>
+</span><span id="GaussianNoise-113"><a href="#GaussianNoise-113"><span class="linenos">113</span></a>
+</span><span id="GaussianNoise-114"><a href="#GaussianNoise-114"><span class="linenos">114</span></a><span class="sd">            If the wrapped problem&#39;s output dict looks like:</span>
+</span><span id="GaussianNoise-115"><a href="#GaussianNoise-115"><span class="linenos">115</span></a>
+</span><span id="GaussianNoise-116"><a href="#GaussianNoise-116"><span class="linenos">116</span></a><span class="sd">                {</span>
+</span><span id="GaussianNoise-117"><a href="#GaussianNoise-117"><span class="linenos">117</span></a><span class="sd">                    &quot;A&quot;: (n, m) np.ndarray,</span>
+</span><span id="GaussianNoise-118"><a href="#GaussianNoise-118"><span class="linenos">118</span></a><span class="sd">                    &quot;B&quot;: not an np.ndarray</span>
+</span><span id="GaussianNoise-119"><a href="#GaussianNoise-119"><span class="linenos">119</span></a><span class="sd">                }</span>
+</span><span id="GaussianNoise-120"><a href="#GaussianNoise-120"><span class="linenos">120</span></a>
+</span><span id="GaussianNoise-121"><a href="#GaussianNoise-121"><span class="linenos">121</span></a><span class="sd">            then the history will look like this:</span>
+</span><span id="GaussianNoise-122"><a href="#GaussianNoise-122"><span class="linenos">122</span></a>
+</span><span id="GaussianNoise-123"><a href="#GaussianNoise-123"><span class="linenos">123</span></a><span class="sd">                {</span>
+</span><span id="GaussianNoise-124"><a href="#GaussianNoise-124"><span class="linenos">124</span></a><span class="sd">                    &quot;A&quot;: an np.ndarray (with the noise added),</span>
+</span><span id="GaussianNoise-125"><a href="#GaussianNoise-125"><span class="linenos">125</span></a><span class="sd">                    &quot;A_noise&quot;: an np.ndarray of the same dimension</span>
+</span><span id="GaussianNoise-126"><a href="#GaussianNoise-126"><span class="linenos">126</span></a><span class="sd">                }</span>
+</span><span id="GaussianNoise-127"><a href="#GaussianNoise-127"><span class="linenos">127</span></a>
+</span><span id="GaussianNoise-128"><a href="#GaussianNoise-128"><span class="linenos">128</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GaussianNoise-129"><a href="#GaussianNoise-129"><span class="linenos">129</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="GaussianNoise-130"><a href="#GaussianNoise-130"><span class="linenos">130</span></a>        <span class="n">noises</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="GaussianNoise-131"><a href="#GaussianNoise-131"><span class="linenos">131</span></a>        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+</span><span id="GaussianNoise-132"><a href="#GaussianNoise-132"><span class="linenos">132</span></a>            <span class="k">try</span><span class="p">:</span>
+</span><span id="GaussianNoise-133"><a href="#GaussianNoise-133"><span class="linenos">133</span></a>                <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+</span><span id="GaussianNoise-134"><a href="#GaussianNoise-134"><span class="linenos">134</span></a>                <span class="n">noises</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generator</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span>
+</span><span id="GaussianNoise-135"><a href="#GaussianNoise-135"><span class="linenos">135</span></a>                    <span class="n">mean</span><span class="p">,</span>
+</span><span id="GaussianNoise-136"><a href="#GaussianNoise-136"><span class="linenos">136</span></a>                    <span class="n">cov</span><span class="p">,</span>
+</span><span id="GaussianNoise-137"><a href="#GaussianNoise-137"><span class="linenos">137</span></a>                    <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+</span><span id="GaussianNoise-138"><a href="#GaussianNoise-138"><span class="linenos">138</span></a>                <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</span><span id="GaussianNoise-139"><a href="#GaussianNoise-139"><span class="linenos">139</span></a>                <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">noises</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+</span><span id="GaussianNoise-140"><a href="#GaussianNoise-140"><span class="linenos">140</span></a>            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+</span><span id="GaussianNoise-141"><a href="#GaussianNoise-141"><span class="linenos">141</span></a>                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+</span><span id="GaussianNoise-142"><a href="#GaussianNoise-142"><span class="linenos">142</span></a>                    <span class="s2">&quot;Noise parameter key </span><span class="si">%s</span><span class="s2"> is not present in objective &quot;</span>
+</span><span id="GaussianNoise-143"><a href="#GaussianNoise-143"><span class="linenos">143</span></a>                    <span class="s2">&quot;function output keys. No noise will be applied. &quot;</span>
+</span><span id="GaussianNoise-144"><a href="#GaussianNoise-144"><span class="linenos">144</span></a>                    <span class="s2">&quot;Objective function keys: </span><span class="si">%s</span><span class="s2">. &quot;</span><span class="p">,</span>
+</span><span id="GaussianNoise-145"><a href="#GaussianNoise-145"><span class="linenos">145</span></a>                    <span class="n">k</span><span class="p">,</span>
+</span><span id="GaussianNoise-146"><a href="#GaussianNoise-146"><span class="linenos">146</span></a>                    <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
+</span><span id="GaussianNoise-147"><a href="#GaussianNoise-147"><span class="linenos">147</span></a>                <span class="p">)</span>
+</span><span id="GaussianNoise-148"><a href="#GaussianNoise-148"><span class="linenos">148</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span>
+</span><span id="GaussianNoise-149"><a href="#GaussianNoise-149"><span class="linenos">149</span></a>            <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span> <span class="o">+</span> <span class="s2">&quot;_noise&quot;</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">noises</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+</span><span id="GaussianNoise-150"><a href="#GaussianNoise-150"><span class="linenos">150</span></a>        <span class="p">)</span>
+</span><span id="GaussianNoise-151"><a href="#GaussianNoise-151"><span class="linenos">151</span></a>
+</span><span id="GaussianNoise-152"><a href="#GaussianNoise-152"><span class="linenos">152</span></a>    <span class="k">def</span> <span class="nf">reseed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GaussianNoise-153"><a href="#GaussianNoise-153"><span class="linenos">153</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_generator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</span><span id="GaussianNoise-154"><a href="#GaussianNoise-154"><span class="linenos">154</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="GaussianNoise-155"><a href="#GaussianNoise-155"><span class="linenos">155</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>A Gaussian noisy problem.</p>
+            <div class="docstring"><p>A wrapper that adds a (multivariate) gaussian noise to a problem.</p>
+
+<p>Assume that the output of the wrapped problem as an <code>F</code> numerical component
+(as they almost always do). The following creates a new problem by adding a
+<code>N(0, .2)</code> noise on all components of <code>F</code> (without any covariance):</p>
+
+<pre><code>mean_F = np.array([0., 0.])
+cov_F = .2 * np.eye(2)
+noisy_problem = nmoo.GaussianNoise(problem, mean_F, cov_F)
+</code></pre>
+
+<p>Assume that in addition, the problem has a <code>G</code> numerical component to which
+we would also like to add noise. The following a 0-mean 1-dimensional
+gaussian noise along the plane antidiagonal (line with -pi/4 orientation)
+to <code>G</code>, and the same noise as above to <code>F</code>:</p>
+
+<pre><code>mean_F = np.array([0., 0.])
+cov_F = .2 * np.eye(2)
+mean_G = np.array([0., 0.])
+cov_G = np.array([[1., -1.], [-1., 1.]])
+noisy_problem = nmoo.GaussianNoise(
+    problem, {
+        "F": (mean_F, cov_F),
+        "G": (mean_G, cov_G),
+    },
+)
+</code></pre>
 </div>
 
 
@@ -324,115 +428,118 @@
                                         <input id="GaussianNoise.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">GaussianNoise</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">problem</span><span class="p">:</span> <span class="n">pymoo</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">Problem</span>,</span><span class="param">	<span class="n">parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;gaussian_noise&#39;</span></span>)</span>
+        <span class="name">GaussianNoise</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">problem</span><span class="p">:</span> <span class="n">pymoo</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">Problem</span>,</span><span class="param">	<span class="n">mean</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">covariance</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">parameters</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">seed</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;gaussian_noise&#39;</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span></span>)</span>
 
                 <label class="view-source-button" for="GaussianNoise.__init__-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#GaussianNoise.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="GaussianNoise.__init__-30"><a href="#GaussianNoise.__init__-30"><span class="linenos">30</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="GaussianNoise.__init__-31"><a href="#GaussianNoise.__init__-31"><span class="linenos">31</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="GaussianNoise.__init__-32"><a href="#GaussianNoise.__init__-32"><span class="linenos">32</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
-</span><span id="GaussianNoise.__init__-33"><a href="#GaussianNoise.__init__-33"><span class="linenos">33</span></a>        <span class="n">parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span>
-</span><span id="GaussianNoise.__init__-34"><a href="#GaussianNoise.__init__-34"><span class="linenos">34</span></a>        <span class="o">*</span><span class="p">,</span>
-</span><span id="GaussianNoise.__init__-35"><a href="#GaussianNoise.__init__-35"><span class="linenos">35</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span>
-</span><span id="GaussianNoise.__init__-36"><a href="#GaussianNoise.__init__-36"><span class="linenos">36</span></a>    <span class="p">):</span>
-</span><span id="GaussianNoise.__init__-37"><a href="#GaussianNoise.__init__-37"><span class="linenos">37</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="GaussianNoise.__init__-38"><a href="#GaussianNoise.__init__-38"><span class="linenos">38</span></a><span class="sd">        Constructor.</span>
-</span><span id="GaussianNoise.__init__-39"><a href="#GaussianNoise.__init__-39"><span class="linenos">39</span></a>
-</span><span id="GaussianNoise.__init__-40"><a href="#GaussianNoise.__init__-40"><span class="linenos">40</span></a><span class="sd">        Args:</span>
-</span><span id="GaussianNoise.__init__-41"><a href="#GaussianNoise.__init__-41"><span class="linenos">41</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
-</span><span id="GaussianNoise.__init__-42"><a href="#GaussianNoise.__init__-42"><span class="linenos">42</span></a><span class="sd">                when creating history dump files. Defaults to</span>
-</span><span id="GaussianNoise.__init__-43"><a href="#GaussianNoise.__init__-43"><span class="linenos">43</span></a><span class="sd">                `gaussian_noise`.</span>
-</span><span id="GaussianNoise.__init__-44"><a href="#GaussianNoise.__init__-44"><span class="linenos">44</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
-</span><span id="GaussianNoise.__init__-45"><a href="#GaussianNoise.__init__-45"><span class="linenos">45</span></a><span class="sd">            parameters (dict): Gaussian noise parameters, in the form of a dict</span>
-</span><span id="GaussianNoise.__init__-46"><a href="#GaussianNoise.__init__-46"><span class="linenos">46</span></a><span class="sd">                mapping the name of an objective to a numpy array pair</span>
-</span><span id="GaussianNoise.__init__-47"><a href="#GaussianNoise.__init__-47"><span class="linenos">47</span></a><span class="sd">                (mean, covariance matrix). The set of keys should be a subset</span>
-</span><span id="GaussianNoise.__init__-48"><a href="#GaussianNoise.__init__-48"><span class="linenos">48</span></a><span class="sd">                of the final `out` dictionary keys in the wrapped problem&#39;s</span>
-</span><span id="GaussianNoise.__init__-49"><a href="#GaussianNoise.__init__-49"><span class="linenos">49</span></a><span class="sd">                `_evaluate` method.</span>
-</span><span id="GaussianNoise.__init__-50"><a href="#GaussianNoise.__init__-50"><span class="linenos">50</span></a>
-</span><span id="GaussianNoise.__init__-51"><a href="#GaussianNoise.__init__-51"><span class="linenos">51</span></a><span class="sd">        Example:</span>
-</span><span id="GaussianNoise.__init__-52"><a href="#GaussianNoise.__init__-52"><span class="linenos">52</span></a><span class="sd">            Assume that the output of the wrapped problem has an `F` and a `G`</span>
-</span><span id="GaussianNoise.__init__-53"><a href="#GaussianNoise.__init__-53"><span class="linenos">53</span></a><span class="sd">            numerical component, both of wich are 2-dimensional. The following</span>
-</span><span id="GaussianNoise.__init__-54"><a href="#GaussianNoise.__init__-54"><span class="linenos">54</span></a><span class="sd">            creates a new problem by adding a `N(0, .2)` noise on all</span>
-</span><span id="GaussianNoise.__init__-55"><a href="#GaussianNoise.__init__-55"><span class="linenos">55</span></a><span class="sd">            components of `F` (without any covariance), and a 0-mean</span>
-</span><span id="GaussianNoise.__init__-56"><a href="#GaussianNoise.__init__-56"><span class="linenos">56</span></a><span class="sd">            1-dimensional gaussian noise along the plane antidiagonal (line</span>
-</span><span id="GaussianNoise.__init__-57"><a href="#GaussianNoise.__init__-57"><span class="linenos">57</span></a><span class="sd">            with -pi/4 orientation):</span>
-</span><span id="GaussianNoise.__init__-58"><a href="#GaussianNoise.__init__-58"><span class="linenos">58</span></a>
-</span><span id="GaussianNoise.__init__-59"><a href="#GaussianNoise.__init__-59"><span class="linenos">59</span></a><span class="sd">                mean_F = np.array([0., 0.])</span>
-</span><span id="GaussianNoise.__init__-60"><a href="#GaussianNoise.__init__-60"><span class="linenos">60</span></a><span class="sd">                cov_F = .2 * np.eye(2)</span>
-</span><span id="GaussianNoise.__init__-61"><a href="#GaussianNoise.__init__-61"><span class="linenos">61</span></a><span class="sd">                mean_G = np.array([0., 0.])</span>
-</span><span id="GaussianNoise.__init__-62"><a href="#GaussianNoise.__init__-62"><span class="linenos">62</span></a><span class="sd">                cov_G = np.array([</span>
-</span><span id="GaussianNoise.__init__-63"><a href="#GaussianNoise.__init__-63"><span class="linenos">63</span></a><span class="sd">                    [1., -1.],</span>
-</span><span id="GaussianNoise.__init__-64"><a href="#GaussianNoise.__init__-64"><span class="linenos">64</span></a><span class="sd">                    [-1., 1.],</span>
-</span><span id="GaussianNoise.__init__-65"><a href="#GaussianNoise.__init__-65"><span class="linenos">65</span></a><span class="sd">                ])</span>
-</span><span id="GaussianNoise.__init__-66"><a href="#GaussianNoise.__init__-66"><span class="linenos">66</span></a><span class="sd">                noisy_problem = nmoo.GaussianNoise(</span>
-</span><span id="GaussianNoise.__init__-67"><a href="#GaussianNoise.__init__-67"><span class="linenos">67</span></a><span class="sd">                    problem,</span>
-</span><span id="GaussianNoise.__init__-68"><a href="#GaussianNoise.__init__-68"><span class="linenos">68</span></a><span class="sd">                    {</span>
-</span><span id="GaussianNoise.__init__-69"><a href="#GaussianNoise.__init__-69"><span class="linenos">69</span></a><span class="sd">                        &quot;F&quot;: (mean_F, cov_F),</span>
-</span><span id="GaussianNoise.__init__-70"><a href="#GaussianNoise.__init__-70"><span class="linenos">70</span></a><span class="sd">                        &quot;G&quot;: (mean_G, cov_G),</span>
-</span><span id="GaussianNoise.__init__-71"><a href="#GaussianNoise.__init__-71"><span class="linenos">71</span></a><span class="sd">                    },</span>
-</span><span id="GaussianNoise.__init__-72"><a href="#GaussianNoise.__init__-72"><span class="linenos">72</span></a><span class="sd">                )</span>
-</span><span id="GaussianNoise.__init__-73"><a href="#GaussianNoise.__init__-73"><span class="linenos">73</span></a>
-</span><span id="GaussianNoise.__init__-74"><a href="#GaussianNoise.__init__-74"><span class="linenos">74</span></a><span class="sd">        See also:</span>
-</span><span id="GaussianNoise.__init__-75"><a href="#GaussianNoise.__init__-75"><span class="linenos">75</span></a><span class="sd">            `pymoo documentation</span>
-</span><span id="GaussianNoise.__init__-76"><a href="#GaussianNoise.__init__-76"><span class="linenos">76</span></a><span class="sd">            &lt;https://pymoo.org/getting_started.html#By-Class&gt;`_</span>
-</span><span id="GaussianNoise.__init__-77"><a href="#GaussianNoise.__init__-77"><span class="linenos">77</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GaussianNoise.__init__-78"><a href="#GaussianNoise.__init__-78"><span class="linenos">78</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-</span><span id="GaussianNoise.__init__-79"><a href="#GaussianNoise.__init__-79"><span class="linenos">79</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">parameters</span>
-</span><span id="GaussianNoise.__init__-80"><a href="#GaussianNoise.__init__-80"><span class="linenos">80</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_generator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GaussianNoise.__init__-55"><a href="#GaussianNoise.__init__-55"><span class="linenos"> 55</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="GaussianNoise.__init__-56"><a href="#GaussianNoise.__init__-56"><span class="linenos"> 56</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="GaussianNoise.__init__-57"><a href="#GaussianNoise.__init__-57"><span class="linenos"> 57</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
+</span><span id="GaussianNoise.__init__-58"><a href="#GaussianNoise.__init__-58"><span class="linenos"> 58</span></a>        <span class="n">mean</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="GaussianNoise.__init__-59"><a href="#GaussianNoise.__init__-59"><span class="linenos"> 59</span></a>        <span class="n">covariance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="GaussianNoise.__init__-60"><a href="#GaussianNoise.__init__-60"><span class="linenos"> 60</span></a>        <span class="n">parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="GaussianNoise.__init__-61"><a href="#GaussianNoise.__init__-61"><span class="linenos"> 61</span></a>        <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="GaussianNoise.__init__-62"><a href="#GaussianNoise.__init__-62"><span class="linenos"> 62</span></a>        <span class="o">*</span><span class="p">,</span>
+</span><span id="GaussianNoise.__init__-63"><a href="#GaussianNoise.__init__-63"><span class="linenos"> 63</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span>
+</span><span id="GaussianNoise.__init__-64"><a href="#GaussianNoise.__init__-64"><span class="linenos"> 64</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="GaussianNoise.__init__-65"><a href="#GaussianNoise.__init__-65"><span class="linenos"> 65</span></a>    <span class="p">):</span>
+</span><span id="GaussianNoise.__init__-66"><a href="#GaussianNoise.__init__-66"><span class="linenos"> 66</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="GaussianNoise.__init__-67"><a href="#GaussianNoise.__init__-67"><span class="linenos"> 67</span></a><span class="sd">        Args:</span>
+</span><span id="GaussianNoise.__init__-68"><a href="#GaussianNoise.__init__-68"><span class="linenos"> 68</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
+</span><span id="GaussianNoise.__init__-69"><a href="#GaussianNoise.__init__-69"><span class="linenos"> 69</span></a><span class="sd">                when creating history dump files. Defaults to `gaussian_noise`.</span>
+</span><span id="GaussianNoise.__init__-70"><a href="#GaussianNoise.__init__-70"><span class="linenos"> 70</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
+</span><span id="GaussianNoise.__init__-71"><a href="#GaussianNoise.__init__-71"><span class="linenos"> 71</span></a><span class="sd">            mean (optional `np.ndarray`): The mean vector of the gaussian</span>
+</span><span id="GaussianNoise.__init__-72"><a href="#GaussianNoise.__init__-72"><span class="linenos"> 72</span></a><span class="sd">                distribution. If specified, the `covariance` argument must also</span>
+</span><span id="GaussianNoise.__init__-73"><a href="#GaussianNoise.__init__-73"><span class="linenos"> 73</span></a><span class="sd">                be specified, and `parameters` must be left to its default</span>
+</span><span id="GaussianNoise.__init__-74"><a href="#GaussianNoise.__init__-74"><span class="linenos"> 74</span></a><span class="sd">                `None`.</span>
+</span><span id="GaussianNoise.__init__-75"><a href="#GaussianNoise.__init__-75"><span class="linenos"> 75</span></a><span class="sd">            covariance (optional `np.ndarray` or number): The covariance</span>
+</span><span id="GaussianNoise.__init__-76"><a href="#GaussianNoise.__init__-76"><span class="linenos"> 76</span></a><span class="sd">                matrix of the gaussian distribution. If specified, the `mean`</span>
+</span><span id="GaussianNoise.__init__-77"><a href="#GaussianNoise.__init__-77"><span class="linenos"> 77</span></a><span class="sd">                argument must also be specified, and `parameters` must be left</span>
+</span><span id="GaussianNoise.__init__-78"><a href="#GaussianNoise.__init__-78"><span class="linenos"> 78</span></a><span class="sd">                to its default `None`. For convenience, a number `v` can be</span>
+</span><span id="GaussianNoise.__init__-79"><a href="#GaussianNoise.__init__-79"><span class="linenos"> 79</span></a><span class="sd">                passed instead of a matrix, in which case the covariance matrix</span>
+</span><span id="GaussianNoise.__init__-80"><a href="#GaussianNoise.__init__-80"><span class="linenos"> 80</span></a><span class="sd">                is set to be `v * I_n`, where `n` is the dimension of the</span>
+</span><span id="GaussianNoise.__init__-81"><a href="#GaussianNoise.__init__-81"><span class="linenos"> 81</span></a><span class="sd">                `mean` vector. Note that `v` is then the variance of every</span>
+</span><span id="GaussianNoise.__init__-82"><a href="#GaussianNoise.__init__-82"><span class="linenos"> 82</span></a><span class="sd">                component of the distribution, **not the standard deviation**!</span>
+</span><span id="GaussianNoise.__init__-83"><a href="#GaussianNoise.__init__-83"><span class="linenos"> 83</span></a><span class="sd">            parameters (optional dict): Gaussian noise parameters, in the form</span>
+</span><span id="GaussianNoise.__init__-84"><a href="#GaussianNoise.__init__-84"><span class="linenos"> 84</span></a><span class="sd">                of a dict mapping the name of an objective to a numpy array</span>
+</span><span id="GaussianNoise.__init__-85"><a href="#GaussianNoise.__init__-85"><span class="linenos"> 85</span></a><span class="sd">                pair (mean, covariance matrix). The set of keys should be a</span>
+</span><span id="GaussianNoise.__init__-86"><a href="#GaussianNoise.__init__-86"><span class="linenos"> 86</span></a><span class="sd">                subset of the final `out` dictionary keys in the wrapped</span>
+</span><span id="GaussianNoise.__init__-87"><a href="#GaussianNoise.__init__-87"><span class="linenos"> 87</span></a><span class="sd">                problem&#39;s `_evaluate` method. If specified, the `mean` and</span>
+</span><span id="GaussianNoise.__init__-88"><a href="#GaussianNoise.__init__-88"><span class="linenos"> 88</span></a><span class="sd">                `covariance` arguments must be left to their default `None`.</span>
+</span><span id="GaussianNoise.__init__-89"><a href="#GaussianNoise.__init__-89"><span class="linenos"> 89</span></a><span class="sd">            seed: Seed for</span>
+</span><span id="GaussianNoise.__init__-90"><a href="#GaussianNoise.__init__-90"><span class="linenos"> 90</span></a><span class="sd">                [`numpy.random.default_rng`](https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng)</span>
+</span><span id="GaussianNoise.__init__-91"><a href="#GaussianNoise.__init__-91"><span class="linenos"> 91</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GaussianNoise.__init__-92"><a href="#GaussianNoise.__init__-92"><span class="linenos"> 92</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="GaussianNoise.__init__-93"><a href="#GaussianNoise.__init__-93"><span class="linenos"> 93</span></a>        <span class="k">if</span> <span class="n">mean</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">covariance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GaussianNoise.__init__-94"><a href="#GaussianNoise.__init__-94"><span class="linenos"> 94</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">covariance</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+</span><span id="GaussianNoise.__init__-95"><a href="#GaussianNoise.__init__-95"><span class="linenos"> 95</span></a>                <span class="n">covariance</span> <span class="o">=</span> <span class="n">covariance</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">mean</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span id="GaussianNoise.__init__-96"><a href="#GaussianNoise.__init__-96"><span class="linenos"> 96</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">covariance</span><span class="p">)}</span>
+</span><span id="GaussianNoise.__init__-97"><a href="#GaussianNoise.__init__-97"><span class="linenos"> 97</span></a>        <span class="k">elif</span> <span class="n">mean</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">covariance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parameters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GaussianNoise.__init__-98"><a href="#GaussianNoise.__init__-98"><span class="linenos"> 98</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">parameters</span>
+</span><span id="GaussianNoise.__init__-99"><a href="#GaussianNoise.__init__-99"><span class="linenos"> 99</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="GaussianNoise.__init__-100"><a href="#GaussianNoise.__init__-100"><span class="linenos">100</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="GaussianNoise.__init__-101"><a href="#GaussianNoise.__init__-101"><span class="linenos">101</span></a>                <span class="s2">&quot;Invalid noise specification. Either mean and covariance are &quot;</span>
+</span><span id="GaussianNoise.__init__-102"><a href="#GaussianNoise.__init__-102"><span class="linenos">102</span></a>                <span class="s2">&quot;both set, or a parameters dict is set.&quot;</span>
+</span><span id="GaussianNoise.__init__-103"><a href="#GaussianNoise.__init__-103"><span class="linenos">103</span></a>            <span class="p">)</span>
+</span><span id="GaussianNoise.__init__-104"><a href="#GaussianNoise.__init__-104"><span class="linenos">104</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Constructor.</p>
-
-<h6 id="args">Args</h6>
+            <div class="docstring"><h6 id="args">Args</h6>
 
 <ul>
 <li><strong>name (str):</strong>  An optional name for this problem. This will be used
-when creating history dump files. Defaults to
-<code>gaussian_noise</code>.</li>
+when creating history dump files. Defaults to <code>gaussian_noise</code>.</li>
 <li><strong>problem (<code>Problem</code>):</strong>  A non-noisy pymoo problem.</li>
-<li><strong>parameters (dict):</strong>  Gaussian noise parameters, in the form of a dict
-mapping the name of an objective to a numpy array pair
-(mean, covariance matrix). The set of keys should be a subset
-of the final <code>out</code> dictionary keys in the wrapped problem's
-<code>_evaluate</code> method.</li>
+<li><strong>mean (optional <code>np.ndarray</code>):</strong>  The mean vector of the gaussian
+distribution. If specified, the <code>covariance</code> argument must also
+be specified, and <code>parameters</code> must be left to its default
+<code>None</code>.</li>
+<li><strong>covariance (optional <code>np.ndarray</code> or number):</strong>  The covariance
+matrix of the gaussian distribution. If specified, the <code>mean</code>
+argument must also be specified, and <code>parameters</code> must be left
+to its default <code>None</code>. For convenience, a number <code>v</code> can be
+passed instead of a matrix, in which case the covariance matrix
+is set to be <code>v * I_n</code>, where <code>n</code> is the dimension of the
+<code>mean</code> vector. Note that <code>v</code> is then the variance of every
+component of the distribution, <strong>not the standard deviation</strong>!</li>
+<li><strong>parameters (optional dict):</strong>  Gaussian noise parameters, in the form
+of a dict mapping the name of an objective to a numpy array
+pair (mean, covariance matrix). The set of keys should be a
+subset of the final <code>out</code> dictionary keys in the wrapped
+problem's <code>_evaluate</code> method. If specified, the <code>mean</code> and
+<code>covariance</code> arguments must be left to their default <code>None</code>.</li>
+<li><strong>seed:</strong>  Seed for
+<a href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng"><code>numpy.random.default_rng</code></a></li>
 </ul>
+</div>
 
-<h6 id="example">Example</h6>
 
-<blockquote>
-  <p>Assume that the output of the wrapped problem has an <code>F</code> and a <code>G</code>
-  numerical component, both of wich are 2-dimensional. The following
-  creates a new problem by adding a <code>N(0, .2)</code> noise on all
-  components of <code>F</code> (without any covariance), and a 0-mean
-  1-dimensional gaussian noise along the plane antidiagonal (line
-  with -pi/4 orientation):</p>
+                            </div>
+                            <div id="GaussianNoise.reseed" class="classattr">
+                                        <input id="GaussianNoise.reseed-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">reseed</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">seed</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
 
-<pre><code>mean_F = np.array([0., 0.])
-cov_F = .2 * np.eye(2)
-mean_G = np.array([0., 0.])
-cov_G = np.array([
-    [1., -1.],
-    [-1., 1.],
-])
-noisy_problem = nmoo.GaussianNoise(
-    problem,
-    {
-        "F": (mean_F, cov_F),
-        "G": (mean_G, cov_G),
-    },
-)
-</code></pre>
-</blockquote>
+                <label class="view-source-button" for="GaussianNoise.reseed-view-source"><span>View Source</span></label>
 
-<h6 id="see-also">See also</h6>
+    </div>
+    <a class="headerlink" href="#GaussianNoise.reseed"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GaussianNoise.reseed-152"><a href="#GaussianNoise.reseed-152"><span class="linenos">152</span></a>    <span class="k">def</span> <span class="nf">reseed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GaussianNoise.reseed-153"><a href="#GaussianNoise.reseed-153"><span class="linenos">153</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_generator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</span><span id="GaussianNoise.reseed-154"><a href="#GaussianNoise.reseed-154"><span class="linenos">154</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="GaussianNoise.reseed-155"><a href="#GaussianNoise.reseed-155"><span class="linenos">155</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</span></pre></div>
 
-<blockquote>
-  <p><a href="https://pymoo.org/getting_started.html#By-Class">pymoo documentation
-  </a></p>
-</blockquote>
+
+            <div class="docstring"><p>Recursively resets the internal random state of the problem. See the
+<a href="https://numpy.org/doc/stable/reference/random/generator.html?highlight=default_rng#numpy.random.default_rng">numpy
+documentation</a>
+for details about acceptable seeds.</p>
 </div>
 
 
@@ -446,8 +553,8 @@ noisy_problem = nmoo.GaussianNoise(
                 <dd id="GaussianNoise.all_layers" class="function"><a href="../wrapped_problem.html#WrappedProblem.all_layers">all_layers</a></dd>
                 <dd id="GaussianNoise.dump_all_histories" class="function"><a href="../wrapped_problem.html#WrappedProblem.dump_all_histories">dump_all_histories</a></dd>
                 <dd id="GaussianNoise.dump_history" class="function"><a href="../wrapped_problem.html#WrappedProblem.dump_history">dump_history</a></dd>
-                <dd id="GaussianNoise.start_new_run" class="function"><a href="../wrapped_problem.html#WrappedProblem.start_new_run">start_new_run</a></dd>
                 <dd id="GaussianNoise.ground_problem" class="function"><a href="../wrapped_problem.html#WrappedProblem.ground_problem">ground_problem</a></dd>
+                <dd id="GaussianNoise.start_new_run" class="function"><a href="../wrapped_problem.html#WrappedProblem.start_new_run">start_new_run</a></dd>
 
             </div>
             <div><dt>pymoo.core.problem.Problem</dt>
