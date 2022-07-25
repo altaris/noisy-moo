@@ -22,6 +22,7 @@ __docformat__ = "google"
 
 import logging
 from typing import Dict, Iterable, List, Optional, Union
+from itertools import product
 
 import numpy as np
 from pymoo.core.algorithm import Algorithm
@@ -219,12 +220,20 @@ class ARDEMO(Algorithm):
         self._demo_scaling_factor = demo_scaling_factor
         self._max_population_size = max_population_size
 
-    def _evaluate_individual(self, individual: _Individual) -> None:
-        """Evaluates and updates an individual."""
+    def _evaluate_individual(
+        self, individual: _Individual, generation: Optional[int] = None
+    ) -> None:
+        """
+        Evaluates and updates an individual. The current generation number can
+        be overridden to pretend this evaluation was done at some other point
+        in time.
+        """
         self.evaluator.eval(
             self.problem, individual, skip_already_evaluated=False
         )
-        individual.update(self.n_gen)
+        if generation is None:
+            generation = self.n_gen
+        individual.update(generation)
 
     def _pareto_population_at_gen(self, generation: int) -> List[_Individual]:
         """
@@ -247,15 +256,18 @@ class ARDEMO(Algorithm):
         )
 
     def _reevaluate_individual_with_fewest_resamples(
-        self, population: List[_Individual]
+        self, population: List[_Individual], generation: Optional[int] = None
     ) -> None:
         """
         Randomly choose an individual in the given population that has the
-        fewest number of resamples, and reevaluates it.
+        fewest number of resamples, and reevaluates it. Returns the individual
+        in question. As in `_evaluate_individual`, the current generation
+        number can be overridden to pretend this evaluation was done at some
+        other point in time.
         """
         counts = np.array([p.n_eval() for p in population])
         index = self._rng.choice(np.where(counts == counts.min())[0])
-        self._evaluate_individual(population[index])
+        self._evaluate_individual(population[index], generation=generation)
 
     def _resampling_elite(self) -> None:
         """
@@ -287,7 +299,23 @@ class ARDEMO(Algorithm):
         uses the $\\varepsilon +$ indicator. Corresponds to algorithm 2 in
         Fieldsend's paper.
         """
-        raise NotImplementedError()
+        # Generation m+1, 2m+1, 3m+1, etc. where
+        # m = self._convergence_time_window
+        if self.n_gen > 1 and self.n_gen % self._convergence_time_window == 1:
+            p1 = self._pareto_population_at_gen(self.n_gen)
+            p2 = self._pareto_population_at_gen(
+                self.n_gen - self._convergence_time_window
+            )
+            a1 = extended_epsilon_plus_indicator(p1, p2)
+            a2 = extended_epsilon_plus_indicator(p2, p1)
+            if a1 > a2:
+                self._resample_number += 1
+        for i in range(1, self._resample_number + 1):
+            j = self.n_gen + i - 1
+            self._reevaluate_individual_with_fewest_resamples(
+                self._pareto_population_at_gen(j),
+                generation=j,
+            )
 
     def _truncate_population(self) -> None:
         """
@@ -352,7 +380,9 @@ class ARDEMO(Algorithm):
         )
         dX = a.X + self._demo_scaling_factor * (b.X - c.X)
         nX = mask * dX + (1 - mask) * p.X
-        individual = _Individual(self.n_gen, X=nX)
+        # n_gen is only updated in Algorithm.advance, which is called AFTER
+        # _infill !
+        individual = _Individual(self.n_gen + 1, X=nX)
         self.pop = Population.merge(self.pop, individual)
         return individual
 
@@ -368,9 +398,27 @@ class ARDEMO(Algorithm):
         samples = FloatRandomSampling().do(
             self.problem, n_samples=self._max_population_size
         )
-        population = [_Individual(self.n_gen, X=p.X) for p in samples]
+        population = [_Individual(1, X=p.X) for p in samples]
         return Population.create(*population)
 
     def _setup(self, problem, **kwargs):
         """Called before an algorithm starts running on a problem"""
         self._rng = np.random.default_rng(kwargs.get("seed"))
+        self._resample_number = 1
+
+
+def extended_epsilon_plus_indicator(
+    population_1: Iterable[Individual], population_2: Iterable[Individual]
+) -> float:
+    """
+    Extended $\\varepsilon+$ indicator:
+    $$
+        I (A, B) = \\max_{a, b, i} F_i (b) - F_i (a)
+    $$
+    where $A$ and $B$ are two populations, and where $F_i$ is the $i$-th
+    objective.
+    """
+    arr = map(
+        lambda t: np.max(t[1].F - t[0].F), product(population_1, population_2)
+    )
+    return max(list(arr))
