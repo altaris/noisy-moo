@@ -134,7 +134,7 @@ class GaussianNoise(WrappedProblem):
                     mean,
                     cov,
                     out[k].shape[0],
-                ).reshape(out[k].shape)
+                )
                 out[k] += noises[k]
             except KeyError:
                 logging.error(
