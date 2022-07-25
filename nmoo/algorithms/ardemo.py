@@ -91,6 +91,13 @@ class ARDEMO(Algorithm):
     with an accumulative resampling scheme to deal with noise.
     """
 
+    SUPPORTED_RESAMPLING_METHODS = [
+        "elite",
+        "fixed",
+        "min_on_conv",
+        "rate_on_conv",
+    ]
+
     pop_size: int = 100
     pop: List[_Individual]  # In reality it'll be a Population
 
@@ -109,7 +116,7 @@ class ARDEMO(Algorithm):
     _resample_number: int
     """Resample number for methods 2 (denoted by $k$ in Feidlsend's paper)."""
 
-    _resampling_method: int
+    _resampling_method: str
     """Algorithm used for resampling. See `ARDEMO.__init__`"""
 
     _rng: np.random.Generator
@@ -118,7 +125,7 @@ class ARDEMO(Algorithm):
 
     def __init__(
         self,
-        resampling_method: int = 1,
+        resampling_method: str = "fixed",
         convergence_time_window: int = 5,
         demo_crossover_probability: float = 0.3,
         demo_scaling_factor: float = 0.5,
@@ -133,14 +140,18 @@ class ARDEMO(Algorithm):
                 that [^elite] sets it to $0.9$.
             demo_scaling_factor (float): DEMO parameter, see [^demo]. Defaults
                 to $0.5$ as recommended by [^demo]
-            resampling_method (str): Algorithm number in [^elite]:
-                * `1`: resampling rate is fixed;
-                * `2`: resampling rate may increase based on a convergence
-                  assessment that uses the $\\varepsilon +$ indicator;
-                * `3`: resampling rate *of elite members* may increase based on
-                  a convergence assessment that uses the $\\varepsilon +$
-                  indicator;
-                * `4`: resample counts of elite members increases over time.
+            resampling_method (str): Resampling method
+                * `fixed`: resampling rate is fixed; corresponds to algorithm 1
+                  in [^elite];
+                * `rate_on_conv`: resampling rate may increase based on a
+                  convergence assessment that uses the $\\varepsilon +$
+                  indicator; corresponds to algorithm 2 in [^elite];
+                * `min_on_conv`: resampling rate *of elite members* may
+                  increase based on a convergence assessment that uses the
+                  $\\varepsilon +$ indicator; corresponds to algorithm 3 in
+                  [^elite];
+                * `elite`: resample counts of elite members increases over
+                  time; corresponds to algorithm 4 in [^elite].
 
         [^demo]: Robič, T., Filipič, B. (2005). DEMO: Differential Evolution
             for Multiobjective Optimization. In: Coello Coello, C.A., Hernández
@@ -156,8 +167,11 @@ class ARDEMO(Algorithm):
             https://doi.org/10.1007/978-3-319-15892-1_12
         """
         super().__init__(**kwargs)
-        if resampling_method not in [1, 2, 3, 4]:
-            raise ValueError("Invalid resampling method")
+        if resampling_method not in self.SUPPORTED_RESAMPLING_METHODS:
+            raise ValueError(
+                "Invalid resampling method. Supported methods are "
+                + ", ".join(self.SUPPORTED_RESAMPLING_METHODS)
+            )
         self._resampling_method = resampling_method
         self._rng = np.random.default_rng()
         self._sorter = NonDominatedSorting()
@@ -202,28 +216,36 @@ class ARDEMO(Algorithm):
         index = self._rng.choice(np.where(counts == counts.min())[0])
         self._evaluate_individual(population[index])
 
-    def _resampling_1(self, n_gen: int) -> None:
-        """Resampling rate is fixed"""
+    def _resampling_elite(self, n_gen: int) -> None:
+        """
+        Resample counts of elite members increases over time. Corresponds to
+        algorithm 4 in Fieldsend's paper.
+        """
+        raise NotImplementedError()
+
+    def _resampling_fixed(self, n_gen: int) -> None:
+        """
+        Resampling rate is fixed. Corresponds to algorithm 1 in Fieldsend's
+        paper.
+        """
         self._reevaluate_individual_with_fewest_resamples(
             self._pareto_population_at_gen(n_gen)
         )
 
-    def _resampling_2(self, n_gen: int) -> None:
-        """
-        Resampling rate may increase based on a convergence assessment that
-        uses the $\\varepsilon +$ indicator
-        """
-        raise NotImplementedError()
-
-    def _resampling_3(self, n_gen: int) -> None:
+    def _resampling_min_on_conv(self, n_gen: int) -> None:
         """
         Resampling rate *of elite members* may increase based on a convergence
-        assessment that uses the $\\varepsilon +$ indicator
+        assessment that uses the $\\varepsilon +$ indicator. Corresponds to
+        algorithm 3 in Fieldsend's paper.
         """
         raise NotImplementedError()
 
-    def _resampling_4(self, n_gen: int) -> None:
-        """Resample counts of elite members increases over time"""
+    def _resampling_rate_on_conv(self, n_gen: int) -> None:
+        """
+        Resampling rate may increase based on a convergence assessment that
+        uses the $\\varepsilon +$ indicator. Corresponds to algorithm 2 in
+        Fieldsend's paper.
+        """
         raise NotImplementedError()
 
     def _truncate_population(self) -> None:
@@ -257,7 +279,8 @@ class ARDEMO(Algorithm):
     def _infill(self) -> _Individual:
         """
         Generate new individuals for the next generation. Uses 3-way mating
-        (kinky) and binary crosseover. The new individual is not evaluated.
+        (kinky) and binary crosseover. The new individual is added to the
+        algorithm's population but is not evaluated.
         """
         # TODO: Do a, b, c need to be distinct?
         p, a, b, c = self._rng.choice(self.pop, 4, replace=False)
