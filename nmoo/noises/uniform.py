@@ -131,9 +131,13 @@ class UniformNoise(WrappedProblem):
         noises: Dict[str, np.ndarray] = {}
         for k, v in self._parameters.items():
             try:
-                noises[k] = np.array(
-                    [self._generator.uniform(*b) for b in v]
-                ).reshape(out[k].shape)
+                noises[k] = np.stack(
+                    [
+                        self._generator.uniform(*b, size=out[k].shape[0])
+                        for b in v
+                    ],
+                    axis=-1,
+                )
                 out[k] += noises[k]
             except KeyError:
                 logging.error(
