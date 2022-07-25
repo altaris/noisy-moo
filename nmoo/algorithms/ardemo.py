@@ -21,7 +21,7 @@ Todo:
 __docformat__ = "google"
 
 import logging
-from typing import Dict, List
+from typing import Dict, Iterable, List, Optional, Union
 
 import numpy as np
 from pymoo.core.algorithm import Algorithm
@@ -39,33 +39,46 @@ class _Individual(Individual):
     maximum likelyhood estimates of the true values.
     """
 
+    _sample_generations: List[int]
+    """
+    Generation number at which samples have been taken, i.e.
+    `_sample_generations[i]` is the generation at which `_samples[*][i]` has
+    been measured.
+    """
+
     _samples: Dict[str, np.ndarray]
 
-    n_gen: int
+    generation_born: int
     """Generation at which this individual was born"""
 
-    def __init__(self, n_gen: int, *args, **kwargs) -> None:
+    def __init__(self, generation_born: int, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self._sample_generations = []
         self._samples = {}
-        self.n_gen = n_gen
+        self.generation_born = generation_born
 
-    def add_sample(self, key: str, value: np.ndarray) -> None:
+    def get_estimate(
+        self, key: str, at_generation: Optional[int] = None
+    ) -> np.ndarray:
         """
-        Adds a sample and updates the corresponding attribute. For example,
+        Return the maximum likelyhood estimate for for value of `key`, using
+        the samples that were made up to a given generation. If that generation
+        limit is left to `None`, all samples are used. In this case, using
+        direct attribute access produces the same result, e.g.
 
-            individual._add_sample("F", np.array([1, 2]))
+            ind.get_estimate("F")
+            # is equivalent to
+            ind.F
 
-        adds $(1, 2)$ as a new measurement of `F`. Then, `individual.F` is
-        updated to reflect the maximum likelyhood estimate of the true value of
-        `F`, which for now is assumed to be the mean. `value` must be a 1D
-        array."""
-        if key not in self._samples:
-            self._samples[key] = value[np.newaxis]
-        else:
-            self._samples[key] = np.append(self._samples[key], [value], axis=0)
-        self.__dict__[key] = self._samples[key].mean(axis=0)
+        (assuming `ind` has been correctly `update`d).
+        """
+        samples = self._samples[key]
+        if at_generation is not None:
+            mask = np.array(self._sample_generations) <= at_generation
+            samples = samples[mask]
+        return samples.mean(axis=0)
 
-    def update(self) -> None:
+    def update(self, current_generation: int) -> None:
         """
         Adds the current value of `F`, `G` etc. to the sample arrays, and
         reverts the value of `F`, `G` etc. to the maximum likelyhood estimate.
@@ -78,15 +91,32 @@ class _Individual(Individual):
         """
         for key in ["F", "G", "dF", "dG", "ddF", "ddG", "CV"]:
             value = self.__dict__.get(key)
-            if isinstance(value, np.ndarray):
-                self.add_sample(key, value)
+            if not isinstance(value, np.ndarray):
+                break
+            if key not in self._samples:
+                self._samples[key] = value[np.newaxis]
+            else:
+                self._samples[key] = np.append(
+                    self._samples[key], [value], axis=0
+                )
+            self.__dict__[key] = self.get_estimate(key)
+        self._sample_generations.append(current_generation)
 
-    def n_eval(self) -> int:
+    def n_eval(self, up_to_generation: Optional[int] = None) -> int:
         """
-        The number of times this individual has been sampled. In practice, this
-        is the number of samples for the `F` value.
+        The number of times this individual has been sampled up to a given
+        generation. If left to `None`, all generations are considered.
         """
-        return self._samples["F"].shape[0] if "F" in self._samples else 0
+        if up_to_generation is None:
+            return len(self._sample_generations)
+        return len(
+            list(
+                filter(
+                    lambda x: x <= up_to_generation,  # type: ignore
+                    self._sample_generations,
+                )
+            )
+        )
 
 
 # pylint: disable=too-many-instance-attributes
@@ -104,7 +134,6 @@ class ARDEMO(Algorithm):
     ]
 
     n_gen: int
-    pop_size: int = 100
     pop: List[_Individual]  # In reality it'll be a Population
 
     _convergence_time_window: int
@@ -118,6 +147,8 @@ class ARDEMO(Algorithm):
 
     _demo_scaling_factor: float
     """Differential evolution parameter"""
+
+    _max_population_size: int
 
     _resample_number: int
     """Resample number for methods 2 (denoted by $k$ in Feidlsend's paper)."""
@@ -135,6 +166,7 @@ class ARDEMO(Algorithm):
         convergence_time_window: int = 5,
         demo_crossover_probability: float = 0.3,
         demo_scaling_factor: float = 0.5,
+        max_population_size: int = 100,
         **kwargs,
     ):
         """
@@ -185,31 +217,34 @@ class ARDEMO(Algorithm):
         self._convergence_time_window = convergence_time_window
         self._demo_crossover_probability = demo_crossover_probability
         self._demo_scaling_factor = demo_scaling_factor
+        self._max_population_size = max_population_size
 
     def _evaluate_individual(self, individual: _Individual) -> None:
         """Evaluates and updates an individual."""
-        result = self.evaluator.eval(
+        self.evaluator.eval(
             self.problem, individual, skip_already_evaluated=False
         )
-        for k in ["F", "G", "dF", "dG", "ddF", "ddG", "CV"]:
-            if result.get(k) is not None:
-                individual.add_sample(k, result.get(k))
+        individual.update(self.n_gen)
 
-    def _pareto_population_at_gen(self, n_gen: int) -> List[_Individual]:
+    def _pareto_population_at_gen(self, generation: int) -> List[_Individual]:
         """
         Returns the Pareto (aka elite) individuals among all individual born at
         or before the given timestep.
         """
-        population = self._population_at_gen(n_gen)
-        ranks = self._sorter.do(np.array([p.F for p in population]))
+        population = self._population_at_gen(generation)
+        ranks = self._sorter.do(
+            np.array([p.get_estimate("F", generation) for p in population])
+        )
         return [p for i, p in enumerate(population) if i in ranks[0]]
 
-    def _population_at_gen(self, n_gen: int) -> List[_Individual]:
+    def _population_at_gen(self, generation: int) -> List[_Individual]:
         """
         Returns the population of all individual born at or before the given
         timestep.
         """
-        return list(filter(lambda p: p.n_gen <= n_gen, self.pop))
+        return list(
+            filter(lambda p: p.generation_born <= generation, self.pop)
+        )
 
     def _reevaluate_individual_with_fewest_resamples(
         self, population: List[_Individual]
@@ -256,22 +291,35 @@ class ARDEMO(Algorithm):
 
     def _truncate_population(self) -> None:
         """
-        Keeps the `self.pop_size` first individuals as sorted by non-dominated
+        Keeps the `self._max_population_size` first individuals as sorted by non-dominated
         sorting.
         """
-        if len(self.pop) <= self.pop_size:
+        if len(self.pop) <= self._max_population_size:
             return
         ranks = self._sorter.do(np.array([p.F for p in self.pop]))
         ranks = np.concatenate(ranks)
-        ranks = ranks[: self.pop_size]
+        ranks = ranks[: self._max_population_size]
         self.pop = self.pop[ranks]
 
     # pymoo overrides =========================================================
 
-    def _advance(self, infills=None, **kwargs):
+    def _advance(
+        self,
+        infills: Optional[Union[_Individual, Iterable[_Individual]]] = None,
+        **kwargs,
+    ):
         """
         Called after the infills (aka new individuals) have been evaluated.
         """
+        if infills is None:
+            raise ValueError(
+                "ARDEMO's _advance needs the current iteration's infills"
+            )
+        if isinstance(infills, _Individual):
+            infills = [infills]
+        for p in infills:
+            p.update(self.n_gen)
+        self._truncate_population()
         method = {
             "fixed": self._resampling_fixed,
             "rate_on_conv": self._resampling_rate_on_conv,
@@ -284,9 +332,6 @@ class ARDEMO(Algorithm):
             )
         else:
             method()
-        for p in self.pop:
-            p.update()  # Update maximum-likelyhood estimates
-        self._truncate_population()
 
     def _finalize(self):
         """
@@ -307,13 +352,13 @@ class ARDEMO(Algorithm):
         )
         dX = a.X + self._demo_scaling_factor * (b.X - c.X)
         nX = mask * dX + (1 - mask) * p.X
-        individual = _Individual(n_gen=self.n_gen, X=nX)
-        # self._evaluate_individual(individual)
+        individual = _Individual(self.n_gen, X=nX)
         self.pop = Population.merge(self.pop, individual)
         return individual
 
     def _initialize_advance(self, infills=None, **kwargs):
         """Only called after the first generation has been evaluated"""
+        self._advance(infills)
 
     def _initialize_infill(self):
         """
@@ -321,9 +366,9 @@ class ARDEMO(Algorithm):
         generated by calling `_infill`.
         """
         samples = FloatRandomSampling().do(
-            self.problem, n_samples=self.pop_size
+            self.problem, n_samples=self._max_population_size
         )
-        population = [_Individual(n_gen=self.n_gen, X=p.X) for p in samples]
+        population = [_Individual(self.n_gen, X=p.X) for p in samples]
         return Population.create(*population)
 
     def _setup(self, problem, **kwargs):
