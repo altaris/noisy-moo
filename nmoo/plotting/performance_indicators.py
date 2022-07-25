@@ -83,9 +83,14 @@ def plot_performance_indicators(
         var_name="pi",
     )
     grid = sns.FacetGrid(df, col="pi", row=row, sharey=False)
-    grid.map_dataframe(
-        sns.lineplot, x=x, y="value", style="algorithm", hue="problem"
-    )
+    if row == "algorithm":
+        grid.map_dataframe(sns.lineplot, x=x, y="value", hue="problem")
+    elif row == "problem":
+        grid.map_dataframe(sns.lineplot, x=x, y="value", hue="algorithm")
+    else:
+        grid.map_dataframe(
+            sns.lineplot, x=x, y="value", hue="algorithm", style="problem"
+        )
     if legend:
         grid.add_legend()
     if logscale:
