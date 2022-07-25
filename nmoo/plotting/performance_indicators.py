@@ -21,6 +21,7 @@ def plot_performance_indicators(
     problems: Optional[Iterable[str]] = None,
     legend: bool = True,
     x: str = "n_gen",
+    logscale: bool = False,
 ) -> sns.FacetGrid:
     """
     Plots all performance indicators in a grid of line plots.
@@ -55,6 +56,8 @@ def plot_performance_indicators(
         problems (Optional[Iterable[str]]): List of problems to plot, defaults
             to all.
         legend (bool): Wether to display the legend. Defaults to `True`.
+        logscale (bool): Wether to have a logarithmic y scale. Defaults to
+            `False`.
         x (str): Column for the x axis. Should be among `n_gen` (the default),
             `n_eval`, or `timedelta`.
     """
@@ -85,4 +88,6 @@ def plot_performance_indicators(
     )
     if legend:
         grid.add_legend()
+    if logscale:
+        grid.set(yscale="log")
     return grid
