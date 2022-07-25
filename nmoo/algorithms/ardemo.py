@@ -20,6 +20,7 @@ Todo:
 """
 __docformat__ = "google"
 
+import logging
 from typing import Dict, List
 
 import numpy as np
@@ -40,9 +41,13 @@ class _Individual(Individual):
 
     _samples: Dict[str, np.ndarray]
 
-    def __init__(self, *args, **kwargs) -> None:
+    n_gen: int
+    """Generation at which this individual was born"""
+
+    def __init__(self, n_gen: int, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._samples = {}
+        self.n_gen = n_gen
 
     def add_sample(self, key: str, value: np.ndarray) -> None:
         """
@@ -98,6 +103,7 @@ class ARDEMO(Algorithm):
         "rate_on_conv",
     ]
 
+    n_gen: int
     pop_size: int = 100
     pop: List[_Individual]  # In reality it'll be a Population
 
@@ -183,8 +189,8 @@ class ARDEMO(Algorithm):
     def _evaluate_individual(self, individual: _Individual) -> None:
         """Evaluates and updates an individual."""
         result = self.evaluator.eval(
-            self.problem, individual.X, skip_already_evaluated=False
-        )[0]
+            self.problem, individual, skip_already_evaluated=False
+        )
         for k in ["F", "G", "dF", "dG", "ddF", "ddG", "CV"]:
             if result.get(k) is not None:
                 individual.add_sample(k, result.get(k))
@@ -212,27 +218,27 @@ class ARDEMO(Algorithm):
         Randomly choose an individual in the given population that has the
         fewest number of resamples, and reevaluates it.
         """
-        counts = np.array([p.n_eval for p in population])
+        counts = np.array([p.n_eval() for p in population])
         index = self._rng.choice(np.where(counts == counts.min())[0])
         self._evaluate_individual(population[index])
 
-    def _resampling_elite(self, n_gen: int) -> None:
+    def _resampling_elite(self) -> None:
         """
         Resample counts of elite members increases over time. Corresponds to
         algorithm 4 in Fieldsend's paper.
         """
         raise NotImplementedError()
 
-    def _resampling_fixed(self, n_gen: int) -> None:
+    def _resampling_fixed(self) -> None:
         """
         Resampling rate is fixed. Corresponds to algorithm 1 in Fieldsend's
         paper.
         """
         self._reevaluate_individual_with_fewest_resamples(
-            self._pareto_population_at_gen(n_gen)
+            self._pareto_population_at_gen(self.n_gen)
         )
 
-    def _resampling_min_on_conv(self, n_gen: int) -> None:
+    def _resampling_min_on_conv(self) -> None:
         """
         Resampling rate *of elite members* may increase based on a convergence
         assessment that uses the $\\varepsilon +$ indicator. Corresponds to
@@ -240,7 +246,7 @@ class ARDEMO(Algorithm):
         """
         raise NotImplementedError()
 
-    def _resampling_rate_on_conv(self, n_gen: int) -> None:
+    def _resampling_rate_on_conv(self) -> None:
         """
         Resampling rate may increase based on a convergence assessment that
         uses the $\\varepsilon +$ indicator. Corresponds to algorithm 2 in
@@ -266,6 +272,18 @@ class ARDEMO(Algorithm):
         """
         Called after the infills (aka new individuals) have been evaluated.
         """
+        method = {
+            "fixed": self._resampling_fixed,
+            "rate_on_conv": self._resampling_rate_on_conv,
+            "min_on_conv": self._resampling_min_on_conv,
+            "elite": self._resampling_elite,
+        }.get(self._resampling_method)
+        if method is None:
+            logging.warning(
+                "Invalid resampling method %s", self._resampling_method
+            )
+        else:
+            method()
         for p in self.pop:
             p.update()  # Update maximum-likelyhood estimates
         self._truncate_population()
@@ -305,7 +323,7 @@ class ARDEMO(Algorithm):
         samples = FloatRandomSampling().do(
             self.problem, n_samples=self.pop_size
         )
-        population = [_Individual(X=p.X) for p in samples]
+        population = [_Individual(n_gen=self.n_gen, X=p.X) for p in samples]
         return Population.create(*population)
 
     def _setup(self, problem, **kwargs):
