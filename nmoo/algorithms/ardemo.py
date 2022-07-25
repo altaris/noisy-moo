@@ -291,7 +291,31 @@ class ARDEMO(Algorithm):
         assessment that uses the $\\varepsilon +$ indicator. Corresponds to
         algorithm 3 in Fieldsend's paper.
         """
-        raise NotImplementedError()
+        # TODO: Deduplicate code
+        # Generation m+1, 2m+1, 3m+1, etc. where
+        # m = self._convergence_time_window
+        if self.n_gen > 1 and self.n_gen % self._convergence_time_window == 1:
+            p1 = self._pareto_population_at_gen(self.n_gen)
+            p2 = self._pareto_population_at_gen(
+                self.n_gen - self._convergence_time_window
+            )
+            a1 = extended_epsilon_plus_indicator(p1, p2)
+            a2 = extended_epsilon_plus_indicator(p2, p1)
+            if a1 > a2:
+                self._resample_number += 1
+        self._reevaluate_individual_with_fewest_resamples(
+            self._pareto_population_at_gen(self.n_gen)
+        )
+        i = 1
+        while True:
+            j = self.n_gen + i
+            population = self._pareto_population_at_gen(j)
+            if len(population) == 0 or (
+                min([p.n_eval(j) for p in population]) >= self._resample_number
+            ):
+                break
+            self._reevaluate_individual_with_fewest_resamples(population, j)
+            i += 1
 
     def _resampling_rate_on_conv(self) -> None:
         """
@@ -380,8 +404,8 @@ class ARDEMO(Algorithm):
         )
         dX = a.X + self._demo_scaling_factor * (b.X - c.X)
         nX = mask * dX + (1 - mask) * p.X
-        # n_gen is only updated in Algorithm.advance, which is called AFTER
-        # _infill !
+        # n_gen is only updated in Algorithm.advance, which is called AFTER
+        # _infill !
         individual = _Individual(self.n_gen + 1, X=nX)
         self.pop = Population.merge(self.pop, individual)
         return individual
