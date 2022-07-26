@@ -158,6 +158,8 @@ class ARDEMO(Algorithm):
 
     _max_population_size: int
 
+    # _nds_cache: Deque[Tuple[int, int, List[np.ndarray]]]
+
     _resample_number: int = 1
     """Resample number for methods 2 (denoted by $k$ in Feidlsend's paper)."""
 
@@ -165,8 +167,6 @@ class ARDEMO(Algorithm):
     """Algorithm used for resampling. See `ARDEMO.__init__`"""
 
     _rng: np.random.Generator
-
-    _sorter: NonDominatedSorting
 
     def __init__(
         self,
@@ -220,13 +220,11 @@ class ARDEMO(Algorithm):
             )
         self._resampling_method = resampling_method
         self._rng = np.random.default_rng()
-        self._sorter = NonDominatedSorting(
-            method="efficient_non_dominated_sort"
-        )
         self._convergence_time_window = convergence_time_window
         self._demo_crossover_probability = demo_crossover_probability
         self._demo_scaling_factor = demo_scaling_factor
         self._max_population_size = max_population_size
+        # self._nds_cache = deque(maxlen=5)
 
     def _evaluate_individual(
         self, individual: _Individual, generation: Optional[int] = None
@@ -243,15 +241,26 @@ class ARDEMO(Algorithm):
             generation = self.n_gen
         individual.update(generation)
 
+    def _non_dominated_sort(self, generation: int) -> List[np.ndarray]:
+        """Cached non-dominated sort of the current population"""
+        population = self._population_at_gen(generation)
+        # for (g, s, rs) in self._nds_cache:
+        #     if g == generation and s == len(population):
+        #         return rs
+        sorter = NonDominatedSorting(method="efficient_non_dominated_sort")
+        ranks = sorter.do(
+            np.array([p.get_estimate("F", generation) for p in population])
+        )
+        # self._nds_cache.append((generation, len(population), ranks))
+        return ranks
+
     def _pareto_population_at_gen(self, generation: int) -> List[_Individual]:
         """
         Returns the Pareto (aka elite) individuals among all individual born at
         or before the given timestep.
         """
         population = self._population_at_gen(generation)
-        ranks = self._sorter.do(
-            np.array([p.get_estimate("F", generation) for p in population])
-        )
+        ranks = self._non_dominated_sort(generation)
         return [p for i, p in enumerate(population) if i in ranks[0]]
 
     def _population_at_gen(self, generation: int) -> List[_Individual]:
@@ -381,8 +390,7 @@ class ARDEMO(Algorithm):
         """
         if len(self.pop) <= self._max_population_size:
             return
-        ranks = self._sorter.do(np.array([p.F for p in self.pop]))
-        ranks = np.concatenate(ranks)
+        ranks = np.concatenate(self._non_dominated_sort(self.n_gen))
         ranks = ranks[: self._max_population_size]
         self.pop = self.pop[ranks]
 
@@ -405,6 +413,8 @@ class ARDEMO(Algorithm):
         for p in infills:
             p.update(self.n_gen)
         self._truncate_population()
+
+        # Caching for _resampling_elite
         arr = [
             p.n_eval(self.n_gen)
             for p in self._pareto_population_at_gen(self.n_gen)
@@ -413,6 +423,7 @@ class ARDEMO(Algorithm):
             np.mean(arr),
             len(arr),
         )
+
         method = {
             "fixed": self._resampling_fixed,
             "rate_on_conv": self._resampling_rate_on_conv,
