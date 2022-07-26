@@ -21,7 +21,7 @@ Todo:
 __docformat__ = "google"
 
 import logging
-from typing import Dict, Iterable, List, Optional, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 from itertools import product
 
 import numpy as np
@@ -143,6 +143,13 @@ class ARDEMO(Algorithm):
     paper)
     """
 
+    _elite_resampling: Dict[int, Tuple[int, int]] = {}
+    """
+    At key `t`, contains the average number of resamplings of Pareto
+    individuals at generation `t`, and the size of the Pareto population at
+    generation `t`. Used as caching for `_resampling_elite`.
+    """
+
     _demo_crossover_probability: float
     """Differential evolution parameter"""
 
@@ -151,7 +158,7 @@ class ARDEMO(Algorithm):
 
     _max_population_size: int
 
-    _resample_number: int
+    _resample_number: int = 1
     """Resample number for methods 2 (denoted by $k$ in Feidlsend's paper)."""
 
     _resampling_method: str
@@ -213,8 +220,9 @@ class ARDEMO(Algorithm):
             )
         self._resampling_method = resampling_method
         self._rng = np.random.default_rng()
-        self._sorter = NonDominatedSorting()
-        self._resample_number = 1
+        self._sorter = NonDominatedSorting(
+            method="efficient_non_dominated_sort"
+        )
         self._convergence_time_window = convergence_time_window
         self._demo_crossover_probability = demo_crossover_probability
         self._demo_scaling_factor = demo_scaling_factor
@@ -274,7 +282,34 @@ class ARDEMO(Algorithm):
         Resample counts of elite members increases over time. Corresponds to
         algorithm 4 in Fieldsend's paper.
         """
-        raise NotImplementedError()
+
+        def _mean_n_eval_pareto() -> float:
+            """
+            Average number of times an individual in the current Pareto
+            population has been evaluated. This is called
+            `mean_num_resamp(A_t)` in Fieldsend's paper.
+            """
+            return np.mean(
+                [
+                    p.n_eval(self.n_gen)
+                    for p in self._pareto_population_at_gen(self.n_gen)
+                ]
+            )
+
+        self._reevaluate_individual_with_fewest_resamples(
+            self._pareto_population_at_gen(self.n_gen)
+        )
+        alpha = sum(
+            [m * s for (m, s) in self._elite_resampling.values()]
+        ) / sum([s for (_, s) in self._elite_resampling.values()])
+        i = 1
+        while _mean_n_eval_pareto() <= alpha:
+            print(self.n_gen, i, _mean_n_eval_pareto(), alpha)
+            j = self.n_gen + i - 1
+            self._reevaluate_individual_with_fewest_resamples(
+                self._pareto_population_at_gen(j), j
+            )
+            i += 1
 
     def _resampling_fixed(self) -> None:
         """
@@ -310,9 +345,7 @@ class ARDEMO(Algorithm):
         while True:
             j = self.n_gen + i
             population = self._pareto_population_at_gen(j)
-            if len(population) == 0 or (
-                min([p.n_eval(j) for p in population]) >= self._resample_number
-            ):
+            if min([p.n_eval(j) for p in population]) >= self._resample_number:
                 break
             self._reevaluate_individual_with_fewest_resamples(population, j)
             i += 1
@@ -372,6 +405,14 @@ class ARDEMO(Algorithm):
         for p in infills:
             p.update(self.n_gen)
         self._truncate_population()
+        arr = [
+            p.n_eval(self.n_gen)
+            for p in self._pareto_population_at_gen(self.n_gen)
+        ]
+        self._elite_resampling[self.n_gen] = (
+            np.mean(arr),
+            len(arr),
+        )
         method = {
             "fixed": self._resampling_fixed,
             "rate_on_conv": self._resampling_rate_on_conv,
@@ -428,6 +469,7 @@ class ARDEMO(Algorithm):
     def _setup(self, problem, **kwargs):
         """Called before an algorithm starts running on a problem"""
         self._rng = np.random.default_rng(kwargs.get("seed"))
+        self._elite_resampling = {}
         self._resample_number = 1
 
 
