@@ -143,13 +143,6 @@ class ARDEMO(Algorithm):
     paper)
     """
 
-    _elite_resampling: Dict[int, Tuple[int, int]] = {}
-    """
-    At key `t`, contains the average number of resamplings of Pareto
-    individuals at generation `t`, and the size of the Pareto population at
-    generation `t`. Used as caching for `_resampling_elite`.
-    """
-
     _demo_crossover_probability: float
     """Differential evolution parameter"""
 
@@ -159,6 +152,13 @@ class ARDEMO(Algorithm):
     _max_population_size: int
 
     # _nds_cache: Deque[Tuple[int, int, List[np.ndarray]]]
+
+    _resampling_elite_cache: Dict[int, Tuple[int, int]] = {}
+    """
+    At key `t`, contains the average number of resamplings of Pareto
+    individuals at generation `t`, and the size of the Pareto population at
+    generation `t`. Used as caching for `_resampling_elite`.
+    """
 
     _resample_number: int = 1
     """Resample number for methods 2 (denoted by $k$ in Feidlsend's paper)."""
@@ -309,16 +309,12 @@ class ARDEMO(Algorithm):
             self._pareto_population_at_gen(self.n_gen)
         )
         alpha = sum(
-            [m * s for (m, s) in self._elite_resampling.values()]
-        ) / sum([s for (_, s) in self._elite_resampling.values()])
-        i = 1
+            [m * s for (m, s) in self._resampling_elite_cache.values()]
+        ) / sum([s for (_, s) in self._resampling_elite_cache.values()])
         while _mean_n_eval_pareto() <= alpha:
-            print(self.n_gen, i, _mean_n_eval_pareto(), alpha)
-            j = self.n_gen + i - 1
             self._reevaluate_individual_with_fewest_resamples(
-                self._pareto_population_at_gen(j), j
+                self._pareto_population_at_gen(self.n_gen)
             )
-            i += 1
 
     def _resampling_fixed(self) -> None:
         """
@@ -419,7 +415,7 @@ class ARDEMO(Algorithm):
             p.n_eval(self.n_gen)
             for p in self._pareto_population_at_gen(self.n_gen)
         ]
-        self._elite_resampling[self.n_gen] = (
+        self._resampling_elite_cache[self.n_gen] = (
             np.mean(arr),
             len(arr),
         )
@@ -480,7 +476,7 @@ class ARDEMO(Algorithm):
     def _setup(self, problem, **kwargs):
         """Called before an algorithm starts running on a problem"""
         self._rng = np.random.default_rng(kwargs.get("seed"))
-        self._elite_resampling = {}
+        self._resampling_elite_cache = {}
         self._resample_number = 1
 
 
