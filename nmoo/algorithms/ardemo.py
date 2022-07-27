@@ -31,6 +31,11 @@ from pymoo.core.population import Population
 from pymoo.operators.sampling.rnd import FloatRandomSampling
 from pymoo.util.nds.non_dominated_sorting import NonDominatedSorting
 
+class TerminationCriterionMet(Exception):
+    """
+    Raised by `ARDEMO._evaluate_individual` if the termination criterion has
+    been met.
+    """
 
 class _Individual(Individual):
     """
@@ -226,20 +231,14 @@ class ARDEMO(Algorithm):
         self._max_population_size = max_population_size
         # self._nds_cache = deque(maxlen=5)
 
-    def _evaluate_individual(
-        self, individual: _Individual, generation: Optional[int] = None
-    ) -> None:
-        """
-        Evaluates and updates an individual. The current generation number can
-        be overridden to pretend this evaluation was done at some other point
-        in time.
-        """
+    def _evaluate_individual(self, individual: _Individual) -> None:
+        """Evaluates and updates an individual."""
+        if self.termination.has_terminated(self):
+            raise TerminationCriterionMet()
         self.evaluator.eval(
             self.problem, individual, skip_already_evaluated=False
         )
-        if generation is None:
-            generation = self.n_gen
-        individual.update(generation)
+        individual.update(self.n_gen)
 
     def _non_dominated_sort(self, generation: int) -> List[np.ndarray]:
         """Cached non-dominated sort of the current population"""
@@ -254,11 +253,16 @@ class ARDEMO(Algorithm):
         # self._nds_cache.append((generation, len(population), ranks))
         return ranks
 
-    def _pareto_population_at_gen(self, generation: int) -> List[_Individual]:
+    def _pareto_population(
+        self, generation: Optional[int] = None
+    ) -> List[_Individual]:
         """
         Returns the Pareto (aka elite) individuals among all individual born at
-        or before the given timestep.
+        or before the given generation. By default, the current generation is
+        used.
         """
+        if generation is None:
+            generation = self.n_gen
         population = self._population_at_gen(generation)
         ranks = self._non_dominated_sort(generation)
         return [p for i, p in enumerate(population) if i in ranks[0]]
@@ -273,18 +277,16 @@ class ARDEMO(Algorithm):
         )
 
     def _reevaluate_individual_with_fewest_resamples(
-        self, population: List[_Individual], generation: Optional[int] = None
+        self, population: List[_Individual]
     ) -> None:
         """
         Randomly choose an individual in the given population that has the
         fewest number of resamples, and reevaluates it. Returns the individual
-        in question. As in `_evaluate_individual`, the current generation
-        number can be overridden to pretend this evaluation was done at some
-        other point in time.
+        in question.
         """
         counts = np.array([p.n_eval() for p in population])
         index = self._rng.choice(np.where(counts == counts.min())[0])
-        self._evaluate_individual(population[index], generation=generation)
+        self._evaluate_individual(population[index])
 
     def _resampling_elite(self) -> None:
         """
@@ -299,21 +301,18 @@ class ARDEMO(Algorithm):
             `mean_num_resamp(A_t)` in Fieldsend's paper.
             """
             return np.mean(
-                [
-                    p.n_eval(self.n_gen)
-                    for p in self._pareto_population_at_gen(self.n_gen)
-                ]
+                [p.n_eval(self.n_gen) for p in self._pareto_population()]
             )
 
         self._reevaluate_individual_with_fewest_resamples(
-            self._pareto_population_at_gen(self.n_gen)
+            self._pareto_population()
         )
         alpha = sum(
             [m * s for (m, s) in self._resampling_elite_cache.values()]
         ) / sum([s for (_, s) in self._resampling_elite_cache.values()])
         while _mean_n_eval_pareto() <= alpha:
             self._reevaluate_individual_with_fewest_resamples(
-                self._pareto_population_at_gen(self.n_gen)
+                self._pareto_population()
             )
 
     def _resampling_fixed(self) -> None:
@@ -322,7 +321,7 @@ class ARDEMO(Algorithm):
         paper.
         """
         self._reevaluate_individual_with_fewest_resamples(
-            self._pareto_population_at_gen(self.n_gen)
+            self._pareto_population()
         )
 
     def _resampling_min_on_conv(self) -> None:
@@ -335,8 +334,8 @@ class ARDEMO(Algorithm):
         # Generation m+1, 2m+1, 3m+1, etc. where
         # m = self._convergence_time_window
         if self.n_gen > 1 and self.n_gen % self._convergence_time_window == 1:
-            p1 = self._pareto_population_at_gen(self.n_gen)
-            p2 = self._pareto_population_at_gen(
+            p1 = self._pareto_population()
+            p2 = self._pareto_population(
                 self.n_gen - self._convergence_time_window
             )
             a1 = extended_epsilon_plus_indicator(p1, p2)
@@ -344,16 +343,13 @@ class ARDEMO(Algorithm):
             if a1 > a2:
                 self._resample_number += 1
         self._reevaluate_individual_with_fewest_resamples(
-            self._pareto_population_at_gen(self.n_gen)
+            self._pareto_population()
         )
-        i = 1
         while True:
-            j = self.n_gen + i
-            population = self._pareto_population_at_gen(j)
-            if min([p.n_eval(j) for p in population]) >= self._resample_number:
+            population = self._pareto_population()
+            if min([p.n_eval() for p in population]) >= self._resample_number:
                 break
-            self._reevaluate_individual_with_fewest_resamples(population, j)
-            i += 1
+            self._reevaluate_individual_with_fewest_resamples(population)
 
     def _resampling_rate_on_conv(self) -> None:
         """
@@ -364,19 +360,17 @@ class ARDEMO(Algorithm):
         # Generation m+1, 2m+1, 3m+1, etc. where
         # m = self._convergence_time_window
         if self.n_gen > 1 and self.n_gen % self._convergence_time_window == 1:
-            p1 = self._pareto_population_at_gen(self.n_gen)
-            p2 = self._pareto_population_at_gen(
+            p1 = self._pareto_population()
+            p2 = self._pareto_population(
                 self.n_gen - self._convergence_time_window
             )
             a1 = extended_epsilon_plus_indicator(p1, p2)
             a2 = extended_epsilon_plus_indicator(p2, p1)
             if a1 > a2:
                 self._resample_number += 1
-        for i in range(1, self._resample_number + 1):
-            j = self.n_gen + i - 1
+        for _ in range(self._resample_number):
             self._reevaluate_individual_with_fewest_resamples(
-                self._pareto_population_at_gen(j),
-                generation=j,
+                self._pareto_population(),
             )
 
     def _truncate_population(self) -> None:
@@ -411,10 +405,7 @@ class ARDEMO(Algorithm):
         self._truncate_population()
 
         # Caching for _resampling_elite
-        arr = [
-            p.n_eval(self.n_gen)
-            for p in self._pareto_population_at_gen(self.n_gen)
-        ]
+        arr = [p.n_eval(self.n_gen) for p in self._pareto_population()]
         self._resampling_elite_cache[self.n_gen] = (
             np.mean(arr),
             len(arr),
@@ -430,8 +421,11 @@ class ARDEMO(Algorithm):
             logging.warning(
                 "Invalid resampling method %s", self._resampling_method
             )
-        else:
+            return
+        try:
             method()
+        except TerminationCriterionMet:
+            return
 
     def _finalize(self):
         """
