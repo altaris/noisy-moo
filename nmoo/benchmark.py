@@ -291,15 +291,14 @@ class Benchmark:
     def _compute_global_pareto_population(self, pair: PAPair) -> None:
         """
         Computes the global Pareto population of a given problem-algorithm
-        pair. See `compute_global_pareto_populations`.
+        pair. See `compute_global_pareto_populations`. Assumes that the global
+        Pareto population has not already been calculated, i.e. that
+        `<output_dir_path>/<problem>.<algorithm>.gpp.npz` does not exist.
         """
+        logging.debug("Computing global Pareto population for pair [%s]", pair)
         gpp_path = (
             self._output_dir_path / pair.global_pareto_population_filename()
         )
-        if gpp_path.is_file():
-            # Global Pareto population has already been calculated
-            return
-        logging.debug("Computing global Pareto population for pair [%s]", pair)
         populations: Dict[str, List[np.ndarray]] = {}
         for n_run in range(1, self._n_runs + 1):
             triple = PARTriple(
@@ -344,22 +343,30 @@ class Benchmark:
         """
         Computes a performance indicators for a given problem-algorithm-(run
         number) triple and stores it under
-        `<problem_name>.<algorithm_name>.<n_run>.pi-<pi_name>.csv`
+        `<problem_name>.<algorithm_name>.<n_run>.pi-<pi_name>.csv`. Assumes
+        that the this performance indicator has not already been calculated,
+        i.e. that that file does not exist.
+
+        Warning:
+            This fails if either the top layer history or the pareto population
+            artefact (`<problem_name>.<algorithm_name>.<n_run>.pp.npz`) could
+            not be loaded as numpy arrays.
         """
         pi_path = self._output_dir_path / triple.pi_filename(pi_name)
-        if pi_path.is_file():
-            # PI has already been calculated
-            return
-
-        # Load top layer history and the pareto history
-        try:
+        try:  # Load top layer history and the pareto history
             history = np.load(
                 self._output_dir_path / triple.top_layer_history_filename()
             )
             pareto_history = np.load(
                 self._output_dir_path / triple.pareto_population_filename()
             )
-        except FileNotFoundError:
+        except FileNotFoundError as e:
+            logging.error(
+                "Could not compute performance indicator %s for triple %s: %s",
+                pi_name,
+                triple,
+                e,
+            )
             return
 
         logging.debug("Computing PI '%s' for triple [%s]", pi_name, triple)
@@ -618,15 +625,20 @@ class Benchmark:
     ) -> None:
         """
         The global Pareto population of a problem-algorithm pair is the merged
-        population of all pareto populations across all runs of that pair. THis
+        population of all pareto populations across all runs of that pair. This
         function calculates global Pareto population of all pairs and dumps it
-        to `output_dir_path/<problem>.<algorithm>.gpp.npz`.
+        to `<output_dir_path>/<problem>.<algorithm>.gpp.npz`. If that file
+        exists for a given problem-algorithm pair, then the global Pareto
+        population (of that pair) is not recalculated.
         """
         logging.info("Computing global Pareto populations")
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         executor(
             delayed(Benchmark._compute_global_pareto_population)(self, p)
             for p in self.all_pa_pairs()
+            if not (
+                self._output_dir_path / p.global_pareto_population_filename()
+            ).is_file()
         )
 
     def compute_performance_indicators(
@@ -636,6 +648,8 @@ class Benchmark:
         Computes all performance indicators and saves the corresponding
         dataframes in
         `output_path/<problem_name>.<algorithm_name>.<n_run>.pi-<pi_name>.csv`.
+        If that file exists for a given problem-algorithm-(run
+        number)-(performance indicator) tuple, then it is not recalculated.
         """
         logging.info("Computing performance indicators")
         everything = product(
@@ -645,6 +659,7 @@ class Benchmark:
         executor(
             delayed(Benchmark._compute_performance_indicator)(self, t, pi)
             for t, pi in everything
+            if not (self._output_dir_path / t.pi_filename(pi)).is_file()
         )
 
     def consolidate(self) -> None:
