@@ -31,11 +31,15 @@ from pymoo.core.population import Population
 from pymoo.operators.sampling.rnd import FloatRandomSampling
 from pymoo.util.nds.non_dominated_sorting import NonDominatedSorting
 
+from nmoo.wrapped_problem import WrappedProblem
+
+
 class TerminationCriterionMet(Exception):
     """
     Raised by `ARDEMO._evaluate_individual` if the termination criterion has
     been met.
     """
+
 
 class _Individual(Individual):
     """
@@ -239,6 +243,13 @@ class ARDEMO(Algorithm):
             self.problem, individual, skip_already_evaluated=False
         )
         individual.update(self.n_gen)
+        # Little hack so that WrappedProblem's see this evaluation as part of
+        # the same batch as the infills of this generation
+        problem = self.problem
+        while isinstance(problem, WrappedProblem):
+            problem._current_history_batch = self.n_gen
+            problem._history["_batch"][-1] = self.n_gen
+            problem = problem._problem
 
     def _non_dominated_sort(self, generation: int) -> List[np.ndarray]:
         """Cached non-dominated sort of the current population"""
