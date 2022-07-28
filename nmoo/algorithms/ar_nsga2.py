@@ -1,22 +1,6 @@
 """
-DEMO (Differential Evolution for Multiobjective Optimization, `DE/rand/1/bin`
-variant) [^demo] with an accumulative resampling scheme to deal with noise,
-following [^elite].
-
-Todo:
-    I'm sure pymoo already offers some of the functionalities that are used in
-    this module. If only they documented their code...
-
-[^demo]: Robič, T., Filipič, B. (2005). DEMO: Differential Evolution for
-    Multiobjective Optimization. In: Coello Coello, C.A., Hernández Aguirre,
-    A., Zitzler, E. (eds) Evolutionary Multi-Criterion Optimization. EMO 2005.
-    Lecture Notes in Computer Science, vol 3410. Springer, Berlin, Heidelberg.
-    https://doi.org/10.1007/978-3-540-31880-4_36
-[^elite]: Fieldsend, J.E. (2015). Elite Accumulative Sampling Strategies for
-    Noisy Multi-objective Optimisation. In: Gaspar-Cunha, A., Henggeler
-    Antunes, C., Coello, C. (eds) Evolutionary Multi-Criterion Optimization.
-    EMO 2015. Lecture Notes in Computer Science(), vol 9019. Springer, Cham.
-    https://doi.org/10.1007/978-3-319-15892-1_12
+Accumulative resampling algorithm wrapper for noisy single/multi-objective
+problems.
 """
 __docformat__ = "google"
 
@@ -25,10 +9,9 @@ from typing import Dict, Iterable, List, Optional, Tuple, Union
 from itertools import product
 
 import numpy as np
-from pymoo.core.algorithm import Algorithm
+from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.core.individual import Individual
 from pymoo.core.population import Population
-from pymoo.operators.sampling.rnd import FloatRandomSampling
 from pymoo.util.nds.non_dominated_sorting import NonDominatedSorting
 
 from nmoo.wrapped_problem import WrappedProblem
@@ -130,10 +113,16 @@ class _Individual(Individual):
 
 
 # pylint: disable=too-many-instance-attributes
-class ARDEMO(Algorithm):
+class ARNSGA2(NSGA2):
     """
-    DEMO (differential evolution for MOO problems, `DE/rand/1/bin` variant)
-    with an accumulative resampling scheme to deal with noise.
+    Accumulative resampling algorithm wrapper for noisy single/multi-objective
+    problems. The accumulative resampling methods are from [^elite].
+
+    [^elite]: Fieldsend, J.E. (2015). Elite Accumulative Sampling Strategies
+        for Noisy Multi-objective Optimisation. In: Gaspar-Cunha, A., Henggeler
+        Antunes, C., Coello, C. (eds) Evolutionary Multi-Criterion
+        Optimization. EMO 2015. Lecture Notes in Computer Science(), vol 9019.
+        Springer, Cham. https://doi.org/10.1007/978-3-319-15892-1_12
     """
 
     SUPPORTED_RESAMPLING_METHODS = [
@@ -143,8 +132,9 @@ class ARDEMO(Algorithm):
         "rate_on_conv",
     ]
 
+    # pymoo inherited properties
+    pop: Iterable[_Individual]
     n_gen: int
-    pop: List[_Individual]  # In reality it'll be a Population
 
     _convergence_time_window: int
     """
@@ -157,8 +147,6 @@ class ARDEMO(Algorithm):
 
     _demo_scaling_factor: float
     """Differential evolution parameter"""
-
-    _max_population_size: int
 
     # _nds_cache: Deque[Tuple[int, int, List[np.ndarray]]]
 
@@ -181,20 +169,13 @@ class ARDEMO(Algorithm):
         self,
         resampling_method: str = "fixed",
         convergence_time_window: int = 5,
-        demo_crossover_probability: float = 0.3,
-        demo_scaling_factor: float = 0.5,
-        max_population_size: int = 100,
         **kwargs,
     ):
         """
         Args:
+            algorithm: Single/multi-objective optimization algorithm.
             convergence_time_window (int): Convergence time window for method 2
                 and 3, (denoted by $m$ in [^elite])
-            demo_crossover_probability (float): DEMO parameter, see [^demo].
-                Defaults to $0.3$ as recommended by [^demo], section 4. Note
-                that [^elite] sets it to $0.9$.
-            demo_scaling_factor (float): DEMO parameter, see [^demo]. Defaults
-                to $0.5$ as recommended by [^demo]
             resampling_method (str): Resampling method
                 * `fixed`: resampling rate is fixed; corresponds to algorithm 1
                   in [^elite];
@@ -208,12 +189,6 @@ class ARDEMO(Algorithm):
                 * `elite`: resample counts of elite members increases over
                   time; corresponds to algorithm 4 in [^elite].
 
-        [^demo]: Robič, T., Filipič, B. (2005). DEMO: Differential Evolution
-            for Multiobjective Optimization. In: Coello Coello, C.A., Hernández
-            Aguirre, A., Zitzler, E. (eds) Evolutionary Multi-Criterion
-            Optimization. EMO 2005. Lecture Notes in Computer Science, vol
-            3410. Springer, Berlin, Heidelberg.
-            https://doi.org/10.1007/978-3-540-31880-4_36
         [^elite]: Fieldsend, J.E. (2015). Elite Accumulative Sampling
             Strategies for Noisy Multi-objective Optimisation. In:
             Gaspar-Cunha, A., Henggeler Antunes, C., Coello, C. (eds)
@@ -230,10 +205,30 @@ class ARDEMO(Algorithm):
         self._resampling_method = resampling_method
         self._rng = np.random.default_rng()
         self._convergence_time_window = convergence_time_window
-        self._demo_crossover_probability = demo_crossover_probability
-        self._demo_scaling_factor = demo_scaling_factor
-        self._max_population_size = max_population_size
         # self._nds_cache = deque(maxlen=5)
+
+    def _do_resampling(self) -> None:
+        """
+        Dispatches to `_resampling_elite`, `_resampling_fixed`,
+        `_resampling_min_on_conv` or `_resampling_rate_on_conv` depending on
+        the value of `_resampling_method`. Also catches
+        `TerminationCriterionMet` exceptions.
+        """
+        method = {
+            "fixed": self._resampling_fixed,
+            "rate_on_conv": self._resampling_rate_on_conv,
+            "min_on_conv": self._resampling_min_on_conv,
+            "elite": self._resampling_elite,
+        }.get(self._resampling_method)
+        if method is None:
+            logging.warning(
+                "Invalid resampling method %s", self._resampling_method
+            )
+            return
+        try:
+            method()
+        except TerminationCriterionMet:
+            return
 
     def _evaluate_individual(self, individual: _Individual) -> None:
         """Evaluates and updates an individual."""
@@ -315,9 +310,13 @@ class ARDEMO(Algorithm):
                 [p.n_eval(self.n_gen) for p in self._pareto_population()]
             )
 
-        self._reevaluate_individual_with_fewest_resamples(
-            self._pareto_population()
+        pareto_population = self._pareto_population()
+        arr = [p.n_eval(self.n_gen) for p in pareto_population]
+        self._resampling_elite_cache[self.n_gen] = (
+            np.mean(arr),
+            len(arr),
         )
+        self._reevaluate_individual_with_fewest_resamples(pareto_population)
         alpha = sum(
             [m * s for (m, s) in self._resampling_elite_cache.values()]
         ) / sum([s for (_, s) in self._resampling_elite_cache.values()])
@@ -384,26 +383,12 @@ class ARDEMO(Algorithm):
                 self._pareto_population(),
             )
 
-    def _truncate_population(self) -> None:
+    def _update_infills(
+        self, infills: Optional[Union[_Individual, Iterable[_Individual]]]
+    ) -> None:
         """
-        Keeps the `self._max_population_size` first individuals as sorted by non-dominated
-        sorting.
-        """
-        if len(self.pop) <= self._max_population_size:
-            return
-        ranks = np.concatenate(self._non_dominated_sort(self.n_gen))
-        ranks = ranks[: self._max_population_size]
-        self.pop = self.pop[ranks]
-
-    # pymoo overrides =========================================================
-
-    def _advance(
-        self,
-        infills: Optional[Union[_Individual, Iterable[_Individual]]] = None,
-        **kwargs,
-    ):
-        """
-        Called after the infills (aka new individuals) have been evaluated.
+        Takes evaluated infills of type `_Individual` and `_Individual.update`s
+        them.
         """
         if infills is None:
             raise ValueError(
@@ -413,73 +398,47 @@ class ARDEMO(Algorithm):
             infills = [infills]
         for p in infills:
             p.update(self.n_gen)
-        self._truncate_population()
 
-        # Caching for _resampling_elite
-        arr = [p.n_eval(self.n_gen) for p in self._pareto_population()]
-        self._resampling_elite_cache[self.n_gen] = (
-            np.mean(arr),
-            len(arr),
-        )
+    # pymoo overrides =========================================================
 
-        method = {
-            "fixed": self._resampling_fixed,
-            "rate_on_conv": self._resampling_rate_on_conv,
-            "min_on_conv": self._resampling_min_on_conv,
-            "elite": self._resampling_elite,
-        }.get(self._resampling_method)
-        if method is None:
-            logging.warning(
-                "Invalid resampling method %s", self._resampling_method
-            )
-            return
-        try:
-            method()
-        except TerminationCriterionMet:
-            return
-
-    def _finalize(self):
+    def _advance(
+        self,
+        infills: Optional[Union[_Individual, Iterable[_Individual]]] = None,
+        **kwargs,
+    ) -> None:
         """
-        Called in `Algorithm.advance` once the termination criterion has been
-        met
+        Called after the infills (aka new individuals) have been evaluated.
         """
+        self._update_infills(infills)
+        super()._advance(infills, **kwargs)
+        self._do_resampling()
 
-    def _infill(self) -> _Individual:
+    def _infill(self) -> Population:
         """
         Generate new individuals for the next generation. Uses 3-way mating
         (kinky) and binary crosseover. The new individual is added to the
         algorithm's population but is not evaluated.
         """
-        # TODO: Do a, b, c need to be distinct?
-        p, a, b, c = self._rng.choice(self.pop, 4, replace=False)
-        mask = self._rng.binomial(
-            1, self._demo_crossover_probability, a.X.shape[0]
-        )
-        dX = a.X + self._demo_scaling_factor * (b.X - c.X)
-        nX = mask * dX + (1 - mask) * p.X
-        # n_gen is only updated in Algorithm.advance, which is called AFTER
-        # _infill !
-        individual = _Individual(self.n_gen + 1, X=nX)
-        self.pop = Population.merge(self.pop, individual)
-        return individual
+        population = super()._infill()
+        return Population.create(*[_Individual(1, X=p.X) for p in population])
 
-    def _initialize_advance(self, infills=None, **kwargs):
+    def _initialize_advance(self, infills=None, **kwargs) -> None:
         """Only called after the first generation has been evaluated"""
-        self._advance(infills)
+        self._update_infills(infills)
+        super()._initialize_advance(infills, **kwargs)
+        self._do_resampling()
 
-    def _initialize_infill(self):
+    def _initialize_infill(self) -> Population:
         """
         Only called to get the first generation. Subsequent generations are
         generated by calling `_infill`.
         """
-        samples = FloatRandomSampling().do(
-            self.problem, n_samples=self._max_population_size
-        )
-        population = [_Individual(1, X=p.X) for p in samples]
-        return Population.create(*population)
+        population = super()._initialize_infill()
+        return Population.create(*[_Individual(1, X=p.X) for p in population])
 
-    def _setup(self, problem, **kwargs):
+    def _setup(self, problem, **kwargs) -> None:
         """Called before an algorithm starts running on a problem"""
+        super()._setup(problem, **kwargs)
         self._rng = np.random.default_rng(kwargs.get("seed"))
         self._resampling_elite_cache = {}
         self._resample_number = 1

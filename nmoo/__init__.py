@@ -5,7 +5,7 @@
 
 from pkg_resources import DistributionNotFound, get_distribution
 
-from .algorithms import ARDEMO
+from .algorithms import ARNSGA2
 from .benchmark import Benchmark
 from .callbacks import TimerCallback
 from .denoisers import KNNAvg, ResampleAverage
