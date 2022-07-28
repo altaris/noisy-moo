@@ -226,7 +226,8 @@ class ARNSGA2(NSGA2):
             )
             return
         try:
-            method()
+            for _ in range(self.n_offsprings):
+                method()
         except TerminationCriterionMet:
             return
 
