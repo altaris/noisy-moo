@@ -148,8 +148,6 @@ class ARNSGA2(NSGA2):
     _demo_scaling_factor: float
     """Differential evolution parameter"""
 
-    # _nds_cache: Deque[Tuple[int, int, List[np.ndarray]]]
-
     _resampling_elite_cache: Dict[int, Tuple[int, int]] = {}
     """
     At key `t`, contains the average number of resamplings of Pareto
@@ -205,7 +203,6 @@ class ARNSGA2(NSGA2):
         self._resampling_method = resampling_method
         self._rng = np.random.default_rng()
         self._convergence_time_window = convergence_time_window
-        # self._nds_cache = deque(maxlen=5)
 
     def _do_resampling(self) -> None:
         """
@@ -248,16 +245,22 @@ class ARNSGA2(NSGA2):
             problem = problem._problem
 
     def _non_dominated_sort(self, generation: int) -> List[np.ndarray]:
-        """Cached non-dominated sort of the current population"""
+        """
+        Non-dominated sort ranks of the population at a given generation
+        """
         population = self._population_at_gen(generation)
-        # for (g, s, rs) in self._nds_cache:
-        #     if g == generation and s == len(population):
-        #         return rs
+        if len(population) == 0:
+            return []
         sorter = NonDominatedSorting(method="efficient_non_dominated_sort")
         ranks = sorter.do(
-            np.array([p.get_estimate("F", generation) for p in population])
+            np.array(
+                [
+                    p.get_estimate("F", generation)
+                    for p in population
+                    if p.generation_born <= generation
+                ]
+            )
         )
-        # self._nds_cache.append((generation, len(population), ranks))
         return ranks
 
     def _pareto_population(
@@ -349,10 +352,13 @@ class ARNSGA2(NSGA2):
             p2 = self._pareto_population(
                 self.n_gen - self._convergence_time_window
             )
-            a1 = extended_epsilon_plus_indicator(p1, p2)
-            a2 = extended_epsilon_plus_indicator(p2, p1)
-            if a1 > a2:
-                self._resample_number += 1
+            # It could be that no one from n_gen - _convergence_time_window is
+            # still alive...
+            if len(p2) != 0:
+                a1 = extended_epsilon_plus_indicator(p1, p2)
+                a2 = extended_epsilon_plus_indicator(p2, p1)
+                if a1 > a2:
+                    self._resample_number += 1
         self._reevaluate_individual_with_fewest_resamples(
             self._pareto_population()
         )
@@ -375,10 +381,13 @@ class ARNSGA2(NSGA2):
             p2 = self._pareto_population(
                 self.n_gen - self._convergence_time_window
             )
-            a1 = extended_epsilon_plus_indicator(p1, p2)
-            a2 = extended_epsilon_plus_indicator(p2, p1)
-            if a1 > a2:
-                self._resample_number += 1
+            # It could be that no one from n_gen - _convergence_time_window is
+            # still alive...
+            if len(p2) != 0:
+                a1 = extended_epsilon_plus_indicator(p1, p2)
+                a2 = extended_epsilon_plus_indicator(p2, p1)
+                if a1 > a2:
+                    self._resample_number += 1
         for _ in range(self._resample_number):
             self._reevaluate_individual_with_fewest_resamples(
                 self._pareto_population(),
@@ -393,7 +402,7 @@ class ARNSGA2(NSGA2):
         """
         if infills is None:
             raise ValueError(
-                "ARDEMO's _advance needs the current iteration's infills"
+                "ARNSGA2's _advance needs the current iteration's infills"
             )
         if isinstance(infills, _Individual):
             infills = [infills]
@@ -421,7 +430,11 @@ class ARNSGA2(NSGA2):
         algorithm's population but is not evaluated.
         """
         population = super()._infill()
-        return Population.create(*[_Individual(1, X=p.X) for p in population])
+        # When this method is called, self.n_gen has not yet been incremented
+        # by Algorithm.advance !
+        return Population.create(
+            *[_Individual(self.n_gen + 1, X=p.X) for p in population]
+        )
 
     def _initialize_advance(self, infills=None, **kwargs) -> None:
         """Only called after the first generation has been evaluated"""
