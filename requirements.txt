@@ -1,4 +1,5 @@
 click
+gradient-free-optimizers
 joblib
 numpy
 pandas
