@@ -10,7 +10,7 @@ import sys
 from importlib import import_module
 from itertools import product
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 import click
 
@@ -21,6 +21,20 @@ except ModuleNotFoundError:
     import nmoo
 
 sys.path.append(os.getcwd())
+
+ALL_JOBLIB_KEYS = [
+    "n_jobs",
+    "backend",
+    "verbose",
+    "timeout",
+    "pre_dispatch",
+    "batch_size",
+    "temp_folder",
+    "max_nbytes",
+    "mmap_mode",
+    "prefer",
+    "require",
+]
 
 
 def _apply_overrides(
@@ -51,6 +65,44 @@ def _apply_overrides(
             "Overridden algorithm list to %s",
             list(benchmark._algorithms.keys()),
         )
+
+
+def _get_joblib_kwargs(keyvals: List[str]):
+    """
+    Processes a list of the form `['key1=val1', ...]` into a dict that can be
+    passed to `joblib.Parallel`.
+    """
+    kwargs: Dict[str, Any] = {}
+    for keyval in keyvals:
+        spl = keyval.split("=", maxsplit=2)
+        if len(spl) != 2:
+            logging.fatal("Invalid joblib kwarg: '%s'", keyval)
+            sys.exit(1)
+        key: str = spl[0]
+        val: Any = spl[1]
+        if key not in ALL_JOBLIB_KEYS:
+            logging.fatal("Unknown joblib key: '%s'", key)
+            sys.exit(1)
+        if key == "n_jobs":
+            logging.warning(
+                "Overriding key 'n_jobs'. Use option '--n_jobs' or "
+                "--n-post-processing-jobs' instead"
+            )
+        elif key == "verbose":
+            logging.warning(
+                "Overriding key 'verbose'. Use option '--verbose' instead"
+            )
+        if val.lower() in ["", "none"]:
+            val = None
+        else:
+            try:
+                val = float(val)
+                if val == int(val):
+                    val = int(val)
+            except ValueError:
+                pass
+        kwargs[key] = val
+    return kwargs
 
 
 def _include_exclude(
@@ -219,6 +271,15 @@ def consolidate(
     type=click.STRING,
 )
 @click.option(
+    "--joblib-kwarg",
+    help=(
+        "A kwarg of the form 'key=value' to pass to joblib.Parallel.run (for "
+        "both the benchmarking and post-processing phases)"
+    ),
+    multiple=True,
+    type=click.STRING,
+)
+@click.option(
     "--n-jobs",
     default=-1,
     help="Number of benchmark jobs.",
@@ -293,6 +354,7 @@ def run(
     exclude_algorithms: str,
     output_dir: Optional[Path],
     restart_on_crash: bool,
+    joblib_kwarg: List[str],
 ) -> None:
     """
     Runs a benchmark.
@@ -318,6 +380,7 @@ def run(
                 n_jobs=n_jobs,
                 n_post_processing_jobs=n_post_processing_jobs,
                 verbose=verbose,
+                joblib_kwargs=_get_joblib_kwargs(joblib_kwarg),
             )
         except KeyboardInterrupt:
             restart = False
