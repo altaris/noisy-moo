@@ -1,5 +1,94 @@
 """
-A benchmarking utility
+A benchmarking utility. Refer to
+https://github.com/altaris/noisy-moo/blob/main/example.ipynb to get started, or
+to https://github.com/altaris/noisy-moo/blob/main/example.py for a more
+complete example.
+
+## Artefact specification
+
+Consider the following benchmark factory
+```py
+def make_benchmark():
+    zdt1 = nmoo.WrappedProblem(ZDT1())
+    noisy_zdt1 = nmoo.GaussianNoise(zdt1, np.zeros(2), 1)
+    knnavg_zdt1 = nmoo.KNNAvg(noisy_zdt1, max_distance=1.0)
+    return nmoo.Benchmark(
+        problems={"knnavg": {"problem": knnavg_zdt1}},
+        algorithms={"nsga2": {"algorithm": NSGA2()}},
+        n_runs=3,
+        output_dir_path="./out",
+    )
+```
+which simply runs `NSGA2` against a KNN-Averaging-denoised problem, 3 times.
+The output directory is set to `./out`. After running the benchmark with e.g.
+```sh
+python3 -m nmoo run example2:make_benchmark
+```
+the `./out` directory is populated with the following files:
+
+* `benchmark.csv` the main result file. It has one row per (algorithm, problem,
+  run number, generation). The columns are: `n_gen`, `n_eval`, `timedelta`,
+  `algorithm`, `problem`, `n_run`, `perf_igd`. Here is a sample
+
+        n_gen,n_eval,timedelta,algorithm,problem,n_run,perf_igd
+        1,100,0 days 00:00:00.046010,nsga2,knnavg,1,2.7023936601855274
+        2,200,0 days 00:00:00.110027,nsga2,knnavg,1,2.9920028540271617
+        3,300,0 days 00:00:00.170194,nsga2,knnavg,1,2.808592743167947
+        4,400,0 days 00:00:00.234336,nsga2,knnavg,1,2.7716447570482603
+        5,500,0 days 00:00:00.300136,nsga2,knnavg,1,2.76605547730596
+        6,600,0 days 00:00:00.367092,nsga2,knnavg,1,2.016998447316908
+        7,700,0 days 00:00:00.432571,nsga2,knnavg,1,2.025674566580406
+        8,800,0 days 00:00:00.501700,nsga2,knnavg,1,1.7875644431157067
+        9,900,0 days 00:00:00.571355,nsga2,knnavg,1,2.5705921276809542
+
+* `<problem>.<algorithm>.<run number>.csv`: same as `benchmark.csv` but only
+  for a given (algorithm, problem, run number) triple.
+
+* `<problem>.<algorithm>.<run number>.pi-<perf. indicator>.csv`: performance
+  indicator file. Contains one row per generation. The columns are `perf_<perf.
+  indicator name>`, `algorithm`, `problem`, `n_gen`, `n_run`. Here is a sample
+  from `knnavg.nsga2.1.pi-igd.csv`:
+
+        ,perf_igd,algorithm,problem,n_gen,n_run
+        0,2.7023936601855274,nsga2,knnavg,1,1
+        1,2.9920028540271617,nsga2,knnavg,2,1
+        2,2.808592743167947,nsga2,knnavg,3,1
+        3,2.7716447570482603,nsga2,knnavg,4,1
+        4,2.76605547730596,nsga2,knnavg,5,1
+        5,2.0169984473169076,nsga2,knnavg,6,1
+        6,2.025674566580406,nsga2,knnavg,7,1
+        7,1.7875644431157067,nsga2,knnavg,8,1
+        8,2.5705921276809542,nsga2,knnavg,9,1
+        9,2.245542743713137,nsga2,knnavg,10,1
+
+* `<problem>.<algorithm>.<run number>.<layer number>-<layer name>.npz`: NPZ
+  archive containing the history of all calls to a given layer of a given
+  problem. In the example above, problem `knnavg_zda1` has three layers:
+  `knn_avg` (layer 1, the outermost one), `gaussian_noise` (layer 2), and
+  `wrapped_problem` (layer 3, the innermost one). Recall that you can set the
+  name of a layer using the `name` argument in `WrappedProblem.__init__`. The
+  keys are `X`, `F`, `_batch`, `_run`. It may also contain keys `G`, `dF`,
+  `dG`, `ddF`, `ddG`, `CV`, `feasible` depending on the ground pymoo problem.
+  The arrays at each keys have the same length (`shape[0]`), which is the
+  number of individuals that have been evaluated throughout that run. In our
+  example above, `out/knnavg.nsga2.1.1-knn_avg.npz` has keys `X`, `F`,
+  `_batch`, `_run`, and the arrays have shape `(19600, 30)`, `(19600, 2)`,
+  `(19600,)`, `(19600,)`, respectively. 30 is the number of variables of ZDT1,
+  while 2 is the number of objectives.
+
+* `<problem>.<algorithm>.<run number>.pp.npz`: Pareto population of a given
+  (algorithm, problem, run number) triple. The keys are `X`, `F`, `G`, `dF`,
+  `dG`, `ddF`, `ddG`, `CV`, `feasible`, `_batch`, and all arrays have the same
+  length (`shape[0]`). Row `i` corresponds to an individual that was
+  Pareto-ideal at generation `_batch[i]`.
+
+* `<problem>.<algorithm>.gpp.npz`: *Global Pareto population* of a given
+  problem-algorithm pair. It is the Pareto population of the population of all
+  individuals designed across all runs and all generations of a given
+  problem-algorithm pair. It is used to compute certain performance indicators
+  in the absence of a baseline Pareto front. The keys are `X`, `F`, `G`, `dF`,
+  `dG`, `ddF`, `ddG`, `CV`, `feasible`, `_batch`.
+
 """
 __docformat__ = "google"
 
