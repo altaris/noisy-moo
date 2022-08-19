@@ -380,7 +380,7 @@ def run(
                 n_jobs=n_jobs,
                 n_post_processing_jobs=n_post_processing_jobs,
                 verbose=verbose,
-                joblib_kwargs=_get_joblib_kwargs(joblib_kwarg),
+                **_get_joblib_kwargs(joblib_kwarg),
             )
         except KeyboardInterrupt:
             restart = False
