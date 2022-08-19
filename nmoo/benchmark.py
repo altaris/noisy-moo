@@ -1,3 +1,5 @@
+# pylint: disable=too-many-lines
+
 """
 A benchmarking utility. Refer to
 https://github.com/altaris/noisy-moo/blob/main/example.ipynb to get started, or
@@ -153,6 +155,14 @@ class PARTriple(PAPair):
         """Returns `<problem_name>.<algorithm_name>.<n_run>`."""
         return f"{self.problem_name}.{self.algorithm_name}.{self.n_run}"
 
+    def innermost_layer_history_filename(self) -> str:
+        """Returns the filename of the innermost layer history."""
+        prefix = self.filename_prefix()
+        problem = self.problem_description["problem"]
+        inner = problem.innermost_wrapper()
+        name, depth = inner._name, problem.depth()
+        return f"{prefix}.{depth}-{name}.npz"
+
     def pareto_population_filename(self) -> str:
         """Returns `<problem_name>.<algorithm_name>.<n_run>.pp.npz`."""
         return self.filename_prefix() + ".pp.npz"
@@ -186,6 +196,11 @@ class Benchmark:
         "df",
         "gd",
         "gd+",
+        "ggd",
+        "ggd+",
+        "ghv",
+        "gigd",
+        "gigd+",
         "hv",
         "igd",
         "igd+",
@@ -255,14 +270,14 @@ class Benchmark:
         dictionary with the following structure:
 
             problems = {
-                <problem_name>: <problem_description>,
-                <problem_name>: <problem_description>,
+                <problem_name>: <problem_description>, <problem_name>:
+                <problem_description>,
             }
 
         where `<problem_name>` is a user-defined string (but stay reasonable
         since it may be used in filenames), and `<problem_description>` is a
-        dictionary with the following keys:
-        * `df_n_evals` (int, optional): see the explanation of the `df`
+        dictionary with the following keys: * `df_n_evals` (int, optional): see
+        the explanation of the `df`
             performance indicator below; defaults to `1`;
         * `evaluator` (optional): an algorithm evaluator object that will be
             applied to every algorithm that run on this problem; if an
@@ -279,14 +294,14 @@ class Benchmark:
         The set of algorithms to be used is specified similarly::
 
             algorithms = {
-                <algorithm_name>: <algorithm_description>,
-                <algorithm_name>: <algorithm_description>,
+                <algorithm_name>: <algorithm_description>, <algorithm_name>:
+                <algorithm_description>,
             }
 
         where `<algorithm_name>` is a user-defined string (but stay reasonable
         since it may be used in filenames), and `<algorithm_description>` is a
-        dictionary with the following keys:
-        * `algorithm`: a pymoo `Algorithm` object; note that it is deepcopied
+        dictionary with the following keys: * `algorithm`: a pymoo `Algorithm`
+        object; note that it is deepcopied
             for every run of `minimize`;
         * `display` (optional): a custom `pymoo.util.display.Display` object
             for customization purposes;
@@ -315,31 +330,55 @@ class Benchmark:
             performance_indicators (Optional[List[str]]): List of perfomance
                 indicators to be calculated and included in the result
                 dataframe (see `Benchmark.final_results`). Supported indicators
-                are
-                * `df`: ΔF metric, see the documentation of
-                    `nmoo.indicators.delta_f.DeltaF`;
-                * `gd`: [generational distance](https://pymoo.org/misc/indicators.html#Generational-Distance-(GD)),
-                    requires `pareto_front` to be set in the problem
-                    description dictionaries, otherwise the value of this
-                    indicator will be `NaN`;
-                * `gd+`: [generational distance plus](https://pymoo.org/misc/indicators.html#Generational-Distance-Plus-(GD+)),
-                    requires `pareto_front` to be set in the problem
-                    description dictionaries, otherwise the value of this
-                    indicator will be `NaN`;
-                * `hv`: [hypervolume](https://pymoo.org/misc/indicators.html#Hypervolume),
-                    requires `hv_ref_point` to be set in the problem
-                    discription dictionaries, otherwise the value of this
-                    indicator will be `NaN`;
-                * `igd`: [inverted generational distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-(IGD)),
-                    requires `pareto_front` to be set in the problem
-                    description dictionaries, otherwise the value of this
-                    indicator will be `NaN`;
-                * `igd+`: [inverted generational distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-Plus-(IGD+)),
-                    requires `pareto_front` to be set in the problem
-                    description dictionaries, otherwise the value of this
-                    indicator will be `NaN`;
+                are * `df`: ΔF metric, see the documentation of
+                `nmoo.indicators.delta_f.DeltaF`;
+                * `gd`: [generational
+                  distance](https://pymoo.org/misc/indicators.html#Generational-Distance-(GD)),
+                  requires `pareto_front` to be set in the problem
+                  description dictionaries, otherwise the value of this
+                  indicator will be `NaN`;
+                * `gd+`: [generational distance
+                  plus](https://pymoo.org/misc/indicators.html#Generational-Distance-Plus-(GD+)),
+                  requires `pareto_front` to be set in the problem
+                  description dictionaries, otherwise the value of this
+                  indicator will be `NaN`;
+                * `hv`:
+                  [hypervolume](https://pymoo.org/misc/indicators.html#Hypervolume),
+                  requires `hv_ref_point` to be set in the problem
+                  discription dictionaries, otherwise the value of this
+                  indicator will be `NaN`;
+                * `igd`: [inverted generational
+                  distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-(IGD)),
+                  requires `pareto_front` to be set in the problem
+                  description dictionaries, otherwise the value of this
+                  indicator will be `NaN`;
+                * `igd+`: [inverted generational distance
+                  plus](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-Plus-(IGD+)),
+                  requires `pareto_front` to be set in the problem
+                  description dictionaries, otherwise the value of this
+                  indicator will be `NaN`;
                 * `ps`: population size, or equivalently, the size of the
-                    current Pareto front.
+                  current Pareto front;
+                * `ggd`: ground generational distance, where the ground
+                  problem's predicted objective values are used instead of
+                  the outer problem's; requires `pareto_front` to be set in
+                  the problem description dictionaries, otherwise the value
+                  of this indicator will be `NaN`;
+                * `ggd+`: ground generational distance plus; requires
+                  `pareto_front` to be set in the problem description
+                  dictionaries, otherwise the value of this indicator will be
+                  `NaN`;
+                * `ghv`: ground hypervolume; requires `hv_ref_point` to be set
+                  in the problem discription dictionaries, otherwise the value
+                  of this indicator will be `NaN`;
+                * `gigd`: ground inverted generational distance; requires
+                  `pareto_front` to be set in the problem description
+                  dictionaries, otherwise the value of this indicator will be
+                  `NaN`;
+                * `gigd+`: ground inverted generational distance plus; requires
+                  `pareto_front` to be set in the problem description
+                  dictionaries, otherwise the value of this indicator will be
+                  `NaN`.
 
                 In the result dataframe, the corresponding columns will be
                 named `perf_<name of indicator>`, e.g. `perf_igd`. If left
@@ -426,6 +465,7 @@ class Benchmark:
         )
 
     # pylint: disable=too-many-locals
+    # pylint: disable=too-many-statements
     def _compute_performance_indicator(
         self, triple: PARTriple, pi_name: str
     ) -> None:
@@ -449,6 +489,10 @@ class Benchmark:
             pareto_history = np.load(
                 self._output_dir_path / triple.pareto_population_filename()
             )
+            ground_history = np.load(
+                self._output_dir_path
+                / triple.innermost_layer_history_filename()
+            )
         except FileNotFoundError as e:
             logging.error(
                 "Could not compute performance indicator %s for triple %s: %s",
@@ -467,12 +511,15 @@ class Benchmark:
         for i in range(1, history["_batch"].max() + 1):
             hidx = history["_batch"] == i
             pidx = pareto_history["_batch"] == i
+            gidx = ground_history["_batch"] == i
             states.append(
                 (
                     history["X"][hidx],
                     history["F"][hidx],
                     pareto_history["X"][pidx],
                     pareto_history["F"][pidx],
+                    ground_history["X"][gidx],
+                    ground_history["F"][gidx],
                 )
             )
         history.close()
@@ -480,15 +527,32 @@ class Benchmark:
 
         df = pd.DataFrame()
         f: Callable[
-            [np.ndarray, np.ndarray, np.ndarray, np.ndarray], float
+            [
+                np.ndarray,
+                np.ndarray,
+                np.ndarray,
+                np.ndarray,
+                np.ndarray,
+                np.ndarray,
+            ],
+            float,
         ] = lambda *_: np.nan
 
         if pi_name == "df":
             problem = triple.problem_description["problem"]
             n_evals = triple.problem_description.get("df_n_evals", 1)
             delta_f = DeltaF(problem, n_evals)
-            f = lambda X, F, pX, pF: delta_f.do(F, X)
-        elif pi_name in ["gd", "gd+", "igd", "igd+"]:
+            f = lambda X, F, pX, pF, gX, gF: delta_f.do(F, X)
+        elif pi_name in [
+            "gd",
+            "gd+",
+            "igd",
+            "igd+",
+            "ggd",
+            "ggd+",
+            "gigd",
+            "gigd+",
+        ]:
             try:
                 if "pareto_front" in triple.problem_description:
                     pf = triple.problem_description.get("pareto_front")
@@ -500,8 +564,13 @@ class Benchmark:
                     data = np.load(path)
                     pf = data["F"]
                     data.close()
-                ind = get_performance_indicator(pi_name, pf)
-                f = lambda X, F, pX, pF: ind.do(F)
+                if pi_name in ["gd", "gd+", "igd", "igd+"]:
+                    ind = get_performance_indicator(pi_name, pf)
+                    f = lambda X, F, pX, pF, gX, gF: ind.do(F)
+                else:
+                    # Omit "g" prefix =)
+                    ind = get_performance_indicator(pi_name[1:], pf)
+                    f = lambda X, F, pX, pF, gX, gF: ind.do(gF)
             except FileNotFoundError:
                 logging.warning(
                     "Global Pareto population file %s not found", path
@@ -510,9 +579,9 @@ class Benchmark:
             hv = get_performance_indicator(
                 "hv", ref_point=triple.problem_description["hv_ref_point"]
             )
-            f = lambda X, F, pX, pF: hv.do(F)
+            f = lambda X, F, pX, pF, gX, gF: hv.do(F)
         elif pi_name == "ps":
-            f = lambda X, F, pX, pF: pX.shape[0]
+            f = lambda X, F, pX, pF, gX, gF: pX.shape[0]
 
         df["perf_" + pi_name] = [f(*s) for s in states]
 

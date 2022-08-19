@@ -150,6 +150,26 @@ class WrappedProblem(Problem):
             else []
         )
 
+    def depth(self) -> int:
+        """
+        Returns the number of `WrappedProblem` that separate this
+        `WrappedProblem` to the ground problem (see `ground_problem`). For
+        example:
+
+            x = WrappedProblem(
+                WrappedProblem(
+                    WrappedProblem(
+                        ZDT1(...)
+                    )
+                )
+            )
+            x.depth()  # Returns 3
+
+        """
+        if isinstance(self._problem, WrappedProblem):
+            return 1 + self._problem.depth()
+        return 1
+
     def dump_all_histories(
         self,
         dir_path: Union[Path, str],
@@ -207,9 +227,17 @@ class WrappedProblem(Problem):
         Recursively goes down the problem wrappers until an actual
         `pymoo.Problem` is found, and returns it.
         """
+        return self.innermost_wrapper()._problem
+
+    def innermost_wrapper(self) -> "WrappedProblem":
+        """
+        Recursively goes down the problem wrappers until a `WrappedProblem`
+        that wraps an actual `pymoo.Problem` is found, and returns it (the
+        wrapper).
+        """
         if isinstance(self._problem, WrappedProblem):
-            return self._problem.ground_problem()
-        return self._problem
+            return self._problem.innermost_wrapper()
+        return self
 
     def reseed(self, seed: Any) -> None:
         """
