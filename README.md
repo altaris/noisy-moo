@@ -31,7 +31,8 @@ pip install nmoo
 
 See
 [example.ipynb](https://github.com/altaris/noisy-moo/blob/main/example.ipynb)
-for a quick example.
+for a quick example. [![Launch Google Colab
+notebook](https://img.shields.io/badge/launch-colab-blue)](https://colab.research.google.com/github/altaris/noisy-moo/blob/main/example.ipynb)
 
 ### For larger benchmarks
 
