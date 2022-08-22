@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 
 import numpy as np
 from pymoo.core.problem import Problem
-from gradient_free_optimizers import SimulatedAnnealingOptimizer
+from gradient_free_optimizers import ParticleSwarmOptimizer
 from scipy.special import erfinv
 
 from nmoo.wrapped_problem import WrappedProblem
@@ -204,7 +204,7 @@ class GPSS(WrappedProblem):
             )
             for i in range(self._xi.shape[0])
         }
-        optimizer = SimulatedAnnealingOptimizer(search_space)
+        optimizer = ParticleSwarmOptimizer(search_space)
         optimizer.search(
             _objective_function,
             n_iter=self._xi_map_search_n_iter,
