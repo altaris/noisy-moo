@@ -34,7 +34,8 @@ class Lambda(WrappedProblem):
         Args:
             name (str): An optional name for this problem. This will be used
                 when creating history dump files. Defaults to `lambda`.
-            problem (:obj:`Problem`): A non-noisy pymoo problem.
+            problem (pymoo `Problem`): A non-noisy pymoo problem (or
+                `nmoo.wrapped_problem.WrappedProblem`).
             parameters (dict): Functions to apply, in the form of a dict
                 mapping the name of an objective to a callable object. The set
                 of keys should be a subset of the final `out` dictionary keys

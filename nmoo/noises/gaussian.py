@@ -66,7 +66,8 @@ class GaussianNoise(WrappedProblem):
         Args:
             name (str): An optional name for this problem. This will be used
                 when creating history dump files. Defaults to `gaussian_noise`.
-            problem (:obj:`Problem`): A non-noisy pymoo problem.
+            problem (pymoo `Problem`): A non-noisy pymoo problem (or
+                `nmoo.wrapped_problem.WrappedProblem`).
             mean (optional `np.ndarray`): The mean vector of the gaussian
                 distribution. If specified, the `covariance` argument must also
                 be specified, and `parameters` must be left to its default

@@ -1,32 +1,49 @@
 # pylint: disable=too-many-lines
 
 """
-A benchmarking utility. Refer to
-https://github.com/altaris/noisy-moo/blob/main/example.ipynb to get started, or
-to https://github.com/altaris/noisy-moo/blob/main/example.py for a more
-complete example.
+A benchmarking utility. The following is perhaps the one of simplest benchmark
+one could make
+```py
+from pymoo.problems.multi import ZDT1
+from pymoo.algorithms.moo.nsga2 import NSGA2
+from nmoo import Benchmark, GaussianNoise, KNNAvg, WrappedProblem
+
+zdt1 = WrappedProblem(ZDT1())
+noisy_zdt1 = GaussianNoise(zdt1, np.zeros(2), 1)
+knnavg_zdt1 = KNNAvg(noisy_zdt1, max_distance=1.0)
+
+benchmark = Benchmark(
+    problems={
+        "knnavg": {
+            "problem": knnavg_zdt1
+        }
+    },
+    algorithms={
+        "nsga2": {
+            "algorithm": NSGA2()
+        }
+    },
+    n_runs=3,
+    output_dir_path="./out",
+)
+```
+which simply runs vanilla `NSGA2` against a KNN-Averaging-denoised
+Gaussian-noised synthetic
+[ZDT1](https://pymoo.org/problems/multi/zdt.html#ZDT1) against NSGA2[^nsga2], 3
+times. The benchmark can be executed with
+```
+benchmark.run()
+```
+and the `./out` directory will be populated with various artefact, see below.
+
+Refer to https://github.com/altaris/noisy-moo/blob/main/example.ipynb to get
+started, or to https://github.com/altaris/noisy-moo/blob/main/example.py for a
+more complete example.
 
 ## Artefact specification
 
-Consider the following benchmark factory
-```py
-def make_benchmark():
-    zdt1 = nmoo.WrappedProblem(ZDT1())
-    noisy_zdt1 = nmoo.GaussianNoise(zdt1, np.zeros(2), 1)
-    knnavg_zdt1 = nmoo.KNNAvg(noisy_zdt1, max_distance=1.0)
-    return nmoo.Benchmark(
-        problems={"knnavg": {"problem": knnavg_zdt1}},
-        algorithms={"nsga2": {"algorithm": NSGA2()}},
-        n_runs=3,
-        output_dir_path="./out",
-    )
-```
-which simply runs `NSGA2` against a KNN-Averaging-denoised problem, 3 times.
-The output directory is set to `./out`. After running the benchmark with e.g.
-```sh
-python3 -m nmoo run example2:make_benchmark
-```
-the `./out` directory is populated with the following files:
+After the benchmark above is run, the `./out` directory is populated with the
+following artefacts:
 
 * `benchmark.csv` the main result file. It has one row per (algorithm, problem,
   run number, generation). The columns are: `n_gen`, `n_eval`, `timedelta`,
@@ -90,6 +107,13 @@ the `./out` directory is populated with the following files:
   problem-algorithm pair. It is used to compute certain performance indicators
   in the absence of a baseline Pareto front. The keys are `X`, `F`, `G`, `dF`,
   `dG`, `ddF`, `ddG`, `CV`, `feasible`, `_batch`.
+
+
+[^nsga2]: Deb, K., Agrawal, S., Pratap, A., Meyarivan, T. (2000). A Fast
+    Elitist Non-dominated Sorting Genetic Algorithm for Multi-objective
+    Optimization: NSGA-II. In: , et al. Parallel Problem Solving from Nature
+    PPSN VI. PPSN 2000. Lecture Notes in Computer Science, vol 1917. Springer,
+    Berlin, Heidelberg. https://doi.org/10.1007/3-540-45356-3_83
 
 """
 __docformat__ = "google"
@@ -270,8 +294,8 @@ class Benchmark:
         dictionary with the following structure:
 
             problems = {
-                <problem_name>: <problem_description>, <problem_name>:
-                <problem_description>,
+                <problem_name>: <problem_description>,
+                <problem_name>: <problem_description>,
             }
 
         where `<problem_name>` is a user-defined string (but stay reasonable
@@ -294,8 +318,8 @@ class Benchmark:
         The set of algorithms to be used is specified similarly::
 
             algorithms = {
-                <algorithm_name>: <algorithm_description>, <algorithm_name>:
-                <algorithm_description>,
+                <algorithm_name>: <algorithm_description>,
+                <algorithm_name>: <algorithm_description>,
             }
 
         where `<algorithm_name>` is a user-defined string (but stay reasonable
@@ -330,8 +354,9 @@ class Benchmark:
             performance_indicators (Optional[List[str]]): List of perfomance
                 indicators to be calculated and included in the result
                 dataframe (see `Benchmark.final_results`). Supported indicators
-                are * `df`: ΔF metric, see the documentation of
-                `nmoo.indicators.delta_f.DeltaF`;
+                are
+                * `df`: ΔF metric, see the documentation of
+                  `nmoo.indicators.delta_f.DeltaF`;
                 * `gd`: [generational
                   distance](https://pymoo.org/misc/indicators.html#Generational-Distance-(GD)),
                   requires `pareto_front` to be set in the problem
