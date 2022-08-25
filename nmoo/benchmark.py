@@ -612,9 +612,9 @@ class Benchmark:
                 "hv", ref_point=triple.problem_description["hv_ref_point"]
             )
             f = (
-                lambda X, F, pX, pF, gX, gF: hv.do(F)
+                (lambda X, F, pX, pF, gX, gF: hv.do(F))
                 if pi_name == "hv"
-                else lambda X, F, pX, pF, gX, gF: hv.do(gF)
+                else (lambda X, F, pX, pF, gX, gF: hv.do(gF))
             )
         elif pi_name == "ps":
             f = lambda X, F, pX, pF, gX, gF: pX.shape[0]
