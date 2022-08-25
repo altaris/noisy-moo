@@ -489,6 +489,7 @@ class Benchmark:
             **{k: v[mask] for k, v in consolidated.items()},
         )
 
+    # pylint: disable=too-many-branches
     # pylint: disable=too-many-locals
     # pylint: disable=too-many-statements
     def _compute_performance_indicator(
@@ -505,6 +506,9 @@ class Benchmark:
             This fails if either the top layer history or the pareto population
             artefact (`<problem_name>.<algorithm_name>.<n_run>.pp.npz`) could
             not be loaded as numpy arrays.
+
+        Todo:
+            Refactor and simplify
         """
         pi_path = self._output_dir_path / triple.pi_filename(pi_name)
         try:  # Load top layer history and the pareto history
@@ -593,20 +597,33 @@ class Benchmark:
                     ind = get_performance_indicator(pi_name, pf)
                     f = lambda X, F, pX, pF, gX, gF: ind.do(F)
                 else:
-                    # Omit "g" prefix =)
+                    # Omit "g" prefix =)
                     ind = get_performance_indicator(pi_name[1:], pf)
                     f = lambda X, F, pX, pF, gX, gF: ind.do(gF)
             except FileNotFoundError:
                 logging.warning(
                     "Global Pareto population file %s not found", path
                 )
-        elif pi_name == "hv" and "hv_ref_point" in triple.problem_description:
+        elif (
+            pi_name in ["hv", "ghv"]
+            and "hv_ref_point" in triple.problem_description
+        ):
             hv = get_performance_indicator(
                 "hv", ref_point=triple.problem_description["hv_ref_point"]
             )
-            f = lambda X, F, pX, pF, gX, gF: hv.do(F)
+            f = (
+                lambda X, F, pX, pF, gX, gF: hv.do(F)
+                if pi_name == "hv"
+                else lambda X, F, pX, pF, gX, gF: hv.do(gF)
+            )
         elif pi_name == "ps":
             f = lambda X, F, pX, pF, gX, gF: pX.shape[0]
+        else:
+            logging.warning(
+                "Unprocessable performance indicator '%s'. This could be "
+                "because required data is missing.",
+                pi_name,
+            )
 
         df["perf_" + pi_name] = [f(*s) for s in states]
 
