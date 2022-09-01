@@ -230,7 +230,7 @@ class ARNSGA2(NSGA2):
 
     def _evaluate_individual(self, individual: _Individual) -> None:
         """Evaluates and updates an individual."""
-        if self.termination.has_terminated(self):
+        if self.n_gen >= 2 and self.termination.has_terminated(self):
             raise TerminationCriterionMet()
         self.evaluator.eval(
             self.problem, individual, skip_already_evaluated=False
