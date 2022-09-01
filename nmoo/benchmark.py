@@ -136,6 +136,13 @@ from nmoo.callbacks import TimerCallback
 from nmoo.indicators.delta_f import DeltaF
 from nmoo.utils.population import pareto_frontier_mask, population_list_to_dict
 
+_PIC = Callable[[Dict[str, np.ndarray]], Optional[float]]
+"""
+Performance Indicator Callable. Type of a function that takes a state (dict of
+`np.ndarray` with keys e.g. `F`, `X`, `pF`, etc.) and returns the value of a
+performance indicator. See `Benchmark._compute_performance_indicator`.
+"""
+
 
 @dataclass
 class PAPair:
@@ -489,9 +496,6 @@ class Benchmark:
             **{k: v[mask] for k, v in consolidated.items()},
         )
 
-    # pylint: disable=too-many-branches
-    # pylint: disable=too-many-locals
-    # pylint: disable=too-many-statements
     def _compute_performance_indicator(
         self, triple: PARTriple, pi_name: str
     ) -> None:
@@ -506,118 +510,37 @@ class Benchmark:
             This fails if either the top layer history or the pareto population
             artefact (`<problem_name>.<algorithm_name>.<n_run>.pp.npz`) could
             not be loaded as numpy arrays.
-
-        Todo:
-            Refactor and simplify
         """
-        pi_path = self._output_dir_path / triple.pi_filename(pi_name)
-        try:  # Load top layer history and the pareto history
-            history = np.load(
-                self._output_dir_path / triple.top_layer_history_filename()
-            )
-            pareto_history = np.load(
-                self._output_dir_path / triple.pareto_population_filename()
-            )
-            ground_history = np.load(
-                self._output_dir_path
-                / triple.innermost_layer_history_filename()
-            )
-        except FileNotFoundError as e:
-            logging.error(
-                "Could not compute performance indicator %s for triple %s: %s",
-                pi_name,
-                triple,
-                e,
-            )
-            return
-
         logging.debug("Computing PI '%s' for triple [%s]", pi_name, triple)
 
-        # Break down histories. Each element of this list is a tuple
-        # containing the population's `X` and `F`, and the pareto
-        # population's `X` and `F` at a given generation (or `_batch`).
-        states = []
-        for i in range(1, history["_batch"].max() + 1):
-            hidx = history["_batch"] == i
-            pidx = pareto_history["_batch"] == i
-            gidx = ground_history["_batch"] == i
-            states.append(
-                (
-                    history["X"][hidx],
-                    history["F"][hidx],
-                    pareto_history["X"][pidx],
-                    pareto_history["F"][pidx],
-                    ground_history["X"][gidx],
-                    ground_history["F"][gidx],
-                )
-            )
-        history.close()
-        pareto_history.close()
-
-        df = pd.DataFrame()
-        f: Callable[
-            [
-                np.ndarray,
-                np.ndarray,
-                np.ndarray,
-                np.ndarray,
-                np.ndarray,
-                np.ndarray,
-            ],
-            float,
-        ] = lambda *_: np.nan
+        pic: _PIC = lambda _: np.nan
+        # On which history is the PIC going to be called? By default, it is on
+        # the top layer history.
+        history_filename = triple.top_layer_history_filename()
 
         if pi_name == "df":
             problem = triple.problem_description["problem"]
             n_evals = triple.problem_description.get("df_n_evals", 1)
             delta_f = DeltaF(problem, n_evals)
-            f = lambda X, F, pX, pF, gX, gF: delta_f.do(F, X)
-        elif pi_name in [
-            "gd",
-            "gd+",
-            "igd",
-            "igd+",
-            "ggd",
-            "ggd+",
-            "gigd",
-            "gigd+",
-        ]:
-            try:
-                if "pareto_front" in triple.problem_description:
-                    pf = triple.problem_description.get("pareto_front")
-                else:
-                    path = (
-                        self._output_dir_path
-                        / triple.global_pareto_population_filename()
-                    )
-                    data = np.load(path)
-                    pf = data["F"]
-                    data.close()
-                if pi_name in ["gd", "gd+", "igd", "igd+"]:
-                    ind = get_performance_indicator(pi_name, pf)
-                    f = lambda X, F, pX, pF, gX, gF: ind.do(F)
-                else:
-                    # Omit "g" prefix =)
-                    ind = get_performance_indicator(pi_name[1:], pf)
-                    f = lambda X, F, pX, pF, gX, gF: ind.do(gF)
-            except FileNotFoundError:
-                logging.warning(
-                    "Global Pareto population file %s not found", path
-                )
+            pic = lambda s: delta_f.do(s["F"], s["X"])
+        elif pi_name in ["gd", "gd+", "igd", "igd+"]:
+            pic = self._get_pic_gd_type(triple, pi_name)
+        elif pi_name in ["ggd", "ggd+", "gigd", "gigd+"]:
+            # Remove leading "g" =)
+            pic = self._get_pic_gd_type(triple, pi_name[1:])
+            history_filename = triple.innermost_layer_history_filename()
         elif (
             pi_name in ["hv", "ghv"]
             and "hv_ref_point" in triple.problem_description
         ):
-            hv = get_performance_indicator(
-                "hv", ref_point=triple.problem_description["hv_ref_point"]
-            )
-            f = (
-                (lambda X, F, pX, pF, gX, gF: hv.do(F))
-                if pi_name == "hv"
-                else (lambda X, F, pX, pF, gX, gF: hv.do(gF))
-            )
-        elif pi_name == "ps":
-            f = lambda X, F, pX, pF, gX, gF: pX.shape[0]
+            ref_point = triple.problem_description["hv_ref_point"]
+            pi = get_performance_indicator("hv", ref_point=ref_point)
+            pic = lambda s: pi.do(s["F"])
+            if pi_name == "ghv":
+                history_filename = triple.innermost_layer_history_filename()
+        elif pi_name == "ps":  # Does not really warrant its own factory...
+            pic = lambda s: s["X"].shape[0]
+            history_filename = triple.pareto_population_filename()
         else:
             logging.warning(
                 "Unprocessable performance indicator '%s'. This could be "
@@ -625,8 +548,15 @@ class Benchmark:
                 pi_name,
             )
 
-        df["perf_" + pi_name] = [f(*s) for s in states]
+        states: List[Dict[str, np.ndarray]] = []
+        history = np.load(self._output_dir_path / history_filename)
+        for i in range(1, history["_batch"].max() + 1):
+            idx = history["_batch"] == i
+            states.append({"X": history["X"][idx], "F": history["F"][idx]})
+        history.close()
 
+        df = pd.DataFrame()
+        df["perf_" + pi_name] = list(map(pic, states))
         df["algorithm"] = triple.algorithm_name
         df["problem"] = triple.problem_name
         df["n_gen"] = range(1, len(states) + 1)
@@ -638,7 +568,28 @@ class Benchmark:
                 / triple.denoised_top_layer_history_filename()
             )
 
-        df.to_csv(pi_path)
+        df.to_csv(self._output_dir_path / triple.pi_filename(pi_name))
+
+    def _get_pic_gd_type(self, triple: PARTriple, pi_name: str) -> _PIC:
+        """
+        Returns the `_PIC` corresponding to the either the `gd`, `gd+`, `igd`,
+        or `igd+` performance indicator. As a reminder, a `_PIC`, or
+        Performance Indicator Callable, is a function that takes a dict of
+        `np.ndarray` and returns an optional `float`. In this case, the dict
+        must have the key `F`.
+        """
+        if "pareto_front" in triple.problem_description:
+            pf = triple.problem_description.get("pareto_front")
+        else:
+            path = (
+                self._output_dir_path
+                / triple.global_pareto_population_filename()
+            )
+            data = np.load(path)
+            pf = data["F"]
+            data.close()
+        pi = get_performance_indicator(pi_name, pf)
+        return lambda s: pi.do(s["F"])
 
     def _par_triple_done(self, triple: PARTriple) -> bool:
         """
