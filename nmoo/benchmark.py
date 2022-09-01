@@ -108,7 +108,6 @@ following artefacts:
   in the absence of a baseline Pareto front. The keys are `X`, `F`, `G`, `dF`,
   `dG`, `ddF`, `ddG`, `CV`, `feasible`, `_batch`.
 
-
 [^nsga2]: Deb, K., Agrawal, S., Pratap, A., Meyarivan, T. (2000). A Fast
     Elitist Non-dominated Sorting Genetic Algorithm for Multi-objective
     Optimization: NSGA-II. In: , et al. Parallel Problem Solving from Nature
@@ -135,6 +134,7 @@ from pymoo.optimize import minimize
 from nmoo.callbacks import TimerCallback
 from nmoo.indicators.delta_f import DeltaF
 from nmoo.utils.population import pareto_frontier_mask, population_list_to_dict
+from nmoo.denoisers import ResampleAverage
 
 _PIC = Callable[[Dict[str, np.ndarray]], Optional[float]]
 """
@@ -236,6 +236,11 @@ class Benchmark:
         "igd",
         "igd+",
         "ps",
+        "rggd",
+        "rggd+",
+        "rghv",
+        "rgigd",
+        "rgigd+",
     ]
 
     _algorithms: Dict[str, dict]
@@ -363,39 +368,40 @@ class Benchmark:
                 dataframe (see `Benchmark.final_results`). Supported indicators
                 are
                 * `df`: ΔF metric, see the documentation of
-                  `nmoo.indicators.delta_f.DeltaF`;
+                  `nmoo.indicators.delta_f.DeltaF`; `df_n_eval` should be set
+                  in the problem description, but it default to 1 if not;
                 * `gd`: [generational
                   distance](https://pymoo.org/misc/indicators.html#Generational-Distance-(GD)),
-                  requires `pareto_front` to be set in the problem
-                  description dictionaries, otherwise the value of this
-                  indicator will be `NaN`;
+                  requires `pareto_front` to be set in the problem description
+                  dictionaries, otherwise the value of this indicator will be
+                  `NaN`;
                 * `gd+`: [generational distance
                   plus](https://pymoo.org/misc/indicators.html#Generational-Distance-Plus-(GD+)),
-                  requires `pareto_front` to be set in the problem
-                  description dictionaries, otherwise the value of this
-                  indicator will be `NaN`;
+                  requires `pareto_front` to be set in the problem description
+                  dictionaries, otherwise the value of this indicator will be
+                  `NaN`;
                 * `hv`:
                   [hypervolume](https://pymoo.org/misc/indicators.html#Hypervolume),
-                  requires `hv_ref_point` to be set in the problem
-                  discription dictionaries, otherwise the value of this
-                  indicator will be `NaN`;
+                  requires `hv_ref_point` to be set in the problem discription
+                  dictionaries, otherwise the value of this indicator will be
+                  `NaN`;
                 * `igd`: [inverted generational
                   distance](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-(IGD)),
-                  requires `pareto_front` to be set in the problem
-                  description dictionaries, otherwise the value of this
-                  indicator will be `NaN`;
+                  requires `pareto_front` to be set in the problem description
+                  dictionaries, otherwise the value of this indicator will be
+                  `NaN`;
                 * `igd+`: [inverted generational distance
                   plus](https://pymoo.org/misc/indicators.html#Inverted-Generational-Distance-Plus-(IGD+)),
-                  requires `pareto_front` to be set in the problem
-                  description dictionaries, otherwise the value of this
-                  indicator will be `NaN`;
+                  requires `pareto_front` to be set in the problem description
+                  dictionaries, otherwise the value of this indicator will be
+                  `NaN`;
                 * `ps`: population size, or equivalently, the size of the
                   current Pareto front;
                 * `ggd`: ground generational distance, where the ground
-                  problem's predicted objective values are used instead of
-                  the outer problem's; requires `pareto_front` to be set in
-                  the problem description dictionaries, otherwise the value
-                  of this indicator will be `NaN`;
+                  problem's predicted objective values are used instead of the
+                  outer problem's; requires `pareto_front` to be set in the
+                  problem description dictionaries, otherwise the value of this
+                  indicator will be `NaN`;
                 * `ggd+`: ground generational distance plus; requires
                   `pareto_front` to be set in the problem description
                   dictionaries, otherwise the value of this indicator will be
@@ -411,10 +417,40 @@ class Benchmark:
                   `pareto_front` to be set in the problem description
                   dictionaries, otherwise the value of this indicator will be
                   `NaN`.
+                * `rggd`: resampled ground generational distance, where the
+                  ground problem's predicted objective values (resampled and
+                  averaged a given number of times) are used instead of the
+                  outer problem's; requires `pareto_front` to be set in the
+                  problem description dictionaries, otherwise the value of this
+                  indicator will be `NaN`; `rg_n_eval` should also be set in
+                  the problem description, but defaults to 1 if not;
+                * `rggd+`: resampled ground generational distance plus;
+                  requires `pareto_front` to be set in the problem description
+                  dictionaries, otherwise the value of this indicator will be
+                  `NaN`; `rg_n_eval` should also be set in the problem
+                  description, but defaults to 1 if not; `rg_n_eval` should
+                  also be set in the problem description, but defaults to 1 if
+                  not;
+                * `rghv`: resampled ground hypervolume; requires `hv_ref_point`
+                  to be set in the problem discription dictionaries, otherwise
+                  the value of this indicator will be `NaN`; `rg_n_eval` should
+                  also be set in the problem description, but defaults to 1 if
+                  not;
+                * `rgigd`: resampled ground inverted generational distance;
+                  requires `pareto_front` to be set in the problem description
+                  dictionaries, otherwise the value of this indicator will be
+                  `NaN`; `rg_n_eval` should also be set in the problem
+                  description, but defaults to 1 if not;
+                * `rgigd+`: resampled ground inverted generational distance
+                  plus; requires `pareto_front` to be set in the problem
+                  description dictionaries, otherwise the value of this
+                  indicator will be `NaN`; `rg_n_eval` should also be set in
+                  the problem description, but defaults to 1 if not.
 
                 In the result dataframe, the corresponding columns will be
                 named `perf_<name of indicator>`, e.g. `perf_igd`. If left
                 unspecified, defaults to `["igd"]`.
+
             seeds (Optional[List[Optional[int]]]): List of seeds to use. The
                 first seed will be used for the first run of every
                 algorithm-problem pair, etc.
@@ -496,6 +532,7 @@ class Benchmark:
             **{k: v[mask] for k, v in consolidated.items()},
         )
 
+    # pylint: disable=too-many-branches
     def _compute_performance_indicator(
         self, triple: PARTriple, pi_name: str
     ) -> None:
@@ -510,14 +547,13 @@ class Benchmark:
             This fails if either the top layer history or the pareto population
             artefact (`<problem_name>.<algorithm_name>.<n_run>.pp.npz`) could
             not be loaded as numpy arrays.
+
+        Todo:
+            Refactor (again)
         """
         logging.debug("Computing PI '%s' for triple [%s]", pi_name, triple)
 
         pic: _PIC = lambda _: np.nan
-        # On which history is the PIC going to be called? By default, it is on
-        # the top layer history.
-        history_filename = triple.top_layer_history_filename()
-
         if pi_name == "df":
             problem = triple.problem_description["problem"]
             n_evals = triple.problem_description.get("df_n_evals", 1)
@@ -526,21 +562,18 @@ class Benchmark:
         elif pi_name in ["gd", "gd+", "igd", "igd+"]:
             pic = self._get_pic_gd_type(triple, pi_name)
         elif pi_name in ["ggd", "ggd+", "gigd", "gigd+"]:
-            # Remove leading "g" =)
             pic = self._get_pic_gd_type(triple, pi_name[1:])
-            history_filename = triple.innermost_layer_history_filename()
+        elif pi_name in ["rggd", "rggd+", "rgigd", "rgigd+"]:
+            pic = self._get_pic_gd_type(triple, pi_name[2:])
         elif (
-            pi_name in ["hv", "ghv"]
+            pi_name in ["hv", "ghv", "rghv"]
             and "hv_ref_point" in triple.problem_description
         ):
             ref_point = triple.problem_description["hv_ref_point"]
             pi = get_performance_indicator("hv", ref_point=ref_point)
             pic = lambda s: pi.do(s["F"])
-            if pi_name == "ghv":
-                history_filename = triple.innermost_layer_history_filename()
-        elif pi_name == "ps":  # Does not really warrant its own factory...
+        elif pi_name == "ps":
             pic = lambda s: s["X"].shape[0]
-            history_filename = triple.pareto_population_filename()
         else:
             logging.warning(
                 "Unprocessable performance indicator '%s'. This could be "
@@ -548,27 +581,41 @@ class Benchmark:
                 pi_name,
             )
 
+        # On which history is the PIC going to be called? By default, it is on
+        # the top layer history.
+        if pi_name in ["ps"]:
+            history = np.load(
+                self._output_dir_path / triple.pareto_population_filename()
+            )
+        elif pi_name in ["ggd", "ggd+", "ghv", "gigd", "gigd+"]:
+            history = np.load(
+                self._output_dir_path
+                / triple.innermost_layer_history_filename()
+            )
+        elif pi_name in ["rggd", "rggd+", "rghv", "rgigd", "rgigd+"]:
+            history = self._get_rg_history(triple)
+        else:
+            history = np.load(
+                self._output_dir_path / triple.top_layer_history_filename()
+            )
+
         states: List[Dict[str, np.ndarray]] = []
-        history = np.load(self._output_dir_path / history_filename)
         for i in range(1, history["_batch"].max() + 1):
             idx = history["_batch"] == i
             states.append({"X": history["X"][idx], "F": history["F"][idx]})
-        history.close()
-
         df = pd.DataFrame()
         df["perf_" + pi_name] = list(map(pic, states))
         df["algorithm"] = triple.algorithm_name
         df["problem"] = triple.problem_name
         df["n_gen"] = range(1, len(states) + 1)
         df["n_run"] = triple.n_run
+        df.to_csv(self._output_dir_path / triple.pi_filename(pi_name))
 
         if pi_name == "df":
             delta_f.dump_history(
                 self._output_dir_path
                 / triple.denoised_top_layer_history_filename()
             )
-
-        df.to_csv(self._output_dir_path / triple.pi_filename(pi_name))
 
     def _get_pic_gd_type(self, triple: PARTriple, pi_name: str) -> _PIC:
         """
@@ -590,6 +637,26 @@ class Benchmark:
             data.close()
         pi = get_performance_indicator(pi_name, pf)
         return lambda s: pi.do(s["F"])
+
+    def _get_rg_history(self, triple: PARTriple) -> Dict[str, np.ndarray]:
+        """
+        Returns the `X` and `F` history of the ground problem of the triple,
+        but where `F` has been resampled a given number of times (`rg_n_evals`
+        parameter in the problem's description). This involves wrapping the
+        ground problem in a `nmoo.denoisers.ResampleAverage` and evaluating the
+        history's `X` array.
+        """
+        history = dict(
+            np.load(
+                self._output_dir_path / triple.top_layer_history_filename()
+            )
+        )
+        rgp = ResampleAverage(
+            triple.problem_description["problem"].ground_problem(),
+            triple.problem_description.get("rg_n_eval", 1),
+        )
+        history["F"] = rgp.evaluate(history["X"], return_values_of="F")
+        return history
 
     def _par_triple_done(self, triple: PARTriple) -> bool:
         """
