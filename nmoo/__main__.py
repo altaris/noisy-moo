@@ -14,31 +14,11 @@ from typing import Any, Dict, List, Optional
 
 import click
 
-try:
-    import nmoo
-except ModuleNotFoundError:
-    sys.path.append(str(Path(__file__).absolute().parent.parent))
-    import nmoo
-
 sys.path.append(os.getcwd())
-
-ALL_JOBLIB_KEYS = [
-    "n_jobs",
-    "backend",
-    "verbose",
-    "timeout",
-    "pre_dispatch",
-    "batch_size",
-    "temp_folder",
-    "max_nbytes",
-    "mmap_mode",
-    "prefer",
-    "require",
-]
 
 
 def _apply_overrides(
-    benchmark: nmoo.benchmark.Benchmark,
+    benchmark,
     n_runs: Optional[int] = None,
     only_problems: str = "",
     exclude_problems: str = "$",
@@ -72,6 +52,19 @@ def _get_joblib_kwargs(keyvals: List[str]):
     Processes a list of the form `['key1=val1', ...]` into a dict that can be
     passed to `joblib.Parallel`.
     """
+    ALL_JOBLIB_KEYS = [
+        "n_jobs",
+        "backend",
+        "verbose",
+        "timeout",
+        "pre_dispatch",
+        "batch_size",
+        "temp_folder",
+        "max_nbytes",
+        "mmap_mode",
+        "prefer",
+        "require",
+    ]
     kwargs: Dict[str, Any] = {}
     for keyval in keyvals:
         spl = keyval.split("=", maxsplit=2)
@@ -122,17 +115,23 @@ def _include_exclude(
     return len(dictionary) != len(keys)
 
 
-def _get_benchmark(path: str) -> nmoo.benchmark.Benchmark:
+def _get_benchmark(path: str):
     """
     From a function "path" of the form `module[.submodule...]:function`,
     imports `module[.submodule...]` and returns `function`.
     """
+    # pylint: disable=import-outside-toplevel
+    try:
+        import nmoo
+    except ModuleNotFoundError:
+        sys.path.append(str(Path(__file__).absolute().parent.parent))
+        import nmoo
     try:
         module_name, function_name = path.split(":")
         module = import_module(module_name)
         factory = getattr(module, function_name)
         benchmark = factory()
-        assert isinstance(benchmark, nmoo.benchmark.Benchmark)
+        assert isinstance(benchmark, nmoo.Benchmark)
         return benchmark
     except AssertionError:
         logging.fatal("Factory '%s' did not return a Benchmark object.", path)
@@ -149,6 +148,7 @@ def _get_benchmark(path: str) -> nmoo.benchmark.Benchmark:
 
 @click.group()
 @click.option(
+    "-l",
     "--logging-level",
     help=(
         "Logging level, among 'debug', 'info', 'warning', 'error', and "
@@ -177,6 +177,7 @@ def main(logging_level: str) -> None:
     type=click.STRING,
 )
 @click.option(
+    "-ea",
     "--exclude-algorithms",
     default="$",
     help=(
@@ -187,6 +188,7 @@ def main(logging_level: str) -> None:
     type=click.STRING,
 )
 @click.option(
+    "-ep",
     "--exclude-problems",
     default="$",
     help=(
@@ -202,6 +204,7 @@ def main(logging_level: str) -> None:
     type=click.INT,
 )
 @click.option(
+    "-oa",
     "--only-algorithms",
     default="",
     help=(
@@ -212,6 +215,7 @@ def main(logging_level: str) -> None:
     type=click.STRING,
 )
 @click.option(
+    "-op",
     "--only-problems",
     default="",
     help=(
@@ -221,6 +225,19 @@ def main(logging_level: str) -> None:
     ),
     type=click.STRING,
 )
+@click.option(
+    "-o",
+    "--output-dir",
+    help="Overrides the benchmark's output directory.",
+    type=click.Path(
+        exists=False,
+        file_okay=False,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        path_type=Path,
+    ),
+)
 def consolidate(
     benchmark: str,
     n_runs: Optional[int],
@@ -228,6 +245,7 @@ def consolidate(
     exclude_problems: str,
     only_algorithms: str,
     exclude_algorithms: str,
+    output_dir: Optional[Path],
 ):
     """
     Consolidates the benchmark with the data calculated so far into
@@ -241,6 +259,7 @@ def consolidate(
         exclude_problems=exclude_problems,
         only_algorithms=only_algorithms,
         exclude_algorithms=exclude_algorithms,
+        output_dir=output_dir,
     )
     b.consolidate()
 
@@ -251,6 +270,7 @@ def consolidate(
     type=click.STRING,
 )
 @click.option(
+    "-ea",
     "--exclude-algorithms",
     default="$",
     help=(
@@ -261,6 +281,7 @@ def consolidate(
     type=click.STRING,
 )
 @click.option(
+    "-ep",
     "--exclude-problems",
     default="$",
     help=(
@@ -297,6 +318,7 @@ def consolidate(
     type=click.INT,
 )
 @click.option(
+    "-oa",
     "--only-algorithms",
     default="",
     help=(
@@ -307,6 +329,7 @@ def consolidate(
     type=click.STRING,
 )
 @click.option(
+    "-op",
     "--only-problems",
     default="",
     help=(
@@ -317,6 +340,7 @@ def consolidate(
     type=click.STRING,
 )
 @click.option(
+    "-o",
     "--output-dir",
     help="Overrides the benchmark's output directory.",
     type=click.Path(
@@ -361,7 +385,7 @@ def run(
 
     Imports and executes a BENCHMARK, which is a string of the form
     'module[.submodule...]:function'. The 'function' returns the actual
-    Benchmark object, and should be callable without any argument.
+    "Benchmark" object, and should be callable without any argument.
     """
     b = _get_benchmark(benchmark)
     _apply_overrides(
@@ -400,6 +424,7 @@ def run(
     type=click.STRING,
 )
 @click.option(
+    "-ea",
     "--exclude-algorithms",
     default="$",
     help=(
@@ -410,6 +435,7 @@ def run(
     type=click.STRING,
 )
 @click.option(
+    "-ep",
     "--exclude-problems",
     default="$",
     help=(
@@ -425,6 +451,7 @@ def run(
     type=click.INT,
 )
 @click.option(
+    "-oa",
     "--only-algorithms",
     default="",
     help=(
@@ -435,6 +462,7 @@ def run(
     type=click.STRING,
 )
 @click.option(
+    "-op",
     "--only-problems",
     default="",
     help=(
@@ -445,6 +473,7 @@ def run(
     type=click.STRING,
 )
 @click.option(
+    "-o",
     "--output-dir",
     help="Overrides the benchmark's output directory.",
     type=click.Path(
@@ -512,6 +541,7 @@ def tally(
     type=click.STRING,
 )
 @click.option(
+    "-o",
     "--output-dir",
     help="Overrides the benchmark's output directory.",
     type=click.Path(
