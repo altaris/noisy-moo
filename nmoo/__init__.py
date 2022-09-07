@@ -8,7 +8,7 @@ from pkg_resources import get_distribution, DistributionNotFound
 from .wrapped_problem import WrappedProblem
 from .benchmark import Benchmark
 from .callbacks import TimerCallback
-from .denoisers import KNNAvg, ResampleAverage
+from .denoisers import GPSS, KNNAvg, ResampleAverage
 from .evaluators import PenalizedEvaluator
 from .noises import GaussianNoise, UniformNoise
 from .plotting import generate_delta_F_plots, plot_performance_indicators
