@@ -112,12 +112,12 @@
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">        Constructor.</span>
 </span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>
 </span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">        Args:</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">            problem (:obj:`Problem`): Noisy pymoo problem.</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">            n_evaluations (int): Number of times to evaluate the problem on</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">                each solution. Defaults to 5.</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">                when creating history dump files. Defaults to</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">                `resample_avg`.</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">            problem (pymoo `Problem`): Noisy pymoo problem (or</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">                `nmoo.wrapped_problem.WrappedProblem`).</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">            n_evaluations (int): Number of times to evaluate the problem on</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">                each solution. Defaults to 5.</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">                when creating history dump files. Defaults to `resample_avg`.</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>
@@ -173,12 +173,12 @@
 </span><span id="ResampleAverage-32"><a href="#ResampleAverage-32"><span class="linenos">32</span></a><span class="sd">        Constructor.</span>
 </span><span id="ResampleAverage-33"><a href="#ResampleAverage-33"><span class="linenos">33</span></a>
 </span><span id="ResampleAverage-34"><a href="#ResampleAverage-34"><span class="linenos">34</span></a><span class="sd">        Args:</span>
-</span><span id="ResampleAverage-35"><a href="#ResampleAverage-35"><span class="linenos">35</span></a><span class="sd">            problem (:obj:`Problem`): Noisy pymoo problem.</span>
-</span><span id="ResampleAverage-36"><a href="#ResampleAverage-36"><span class="linenos">36</span></a><span class="sd">            n_evaluations (int): Number of times to evaluate the problem on</span>
-</span><span id="ResampleAverage-37"><a href="#ResampleAverage-37"><span class="linenos">37</span></a><span class="sd">                each solution. Defaults to 5.</span>
-</span><span id="ResampleAverage-38"><a href="#ResampleAverage-38"><span class="linenos">38</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
-</span><span id="ResampleAverage-39"><a href="#ResampleAverage-39"><span class="linenos">39</span></a><span class="sd">                when creating history dump files. Defaults to</span>
-</span><span id="ResampleAverage-40"><a href="#ResampleAverage-40"><span class="linenos">40</span></a><span class="sd">                `resample_avg`.</span>
+</span><span id="ResampleAverage-35"><a href="#ResampleAverage-35"><span class="linenos">35</span></a><span class="sd">            problem (pymoo `Problem`): Noisy pymoo problem (or</span>
+</span><span id="ResampleAverage-36"><a href="#ResampleAverage-36"><span class="linenos">36</span></a><span class="sd">                `nmoo.wrapped_problem.WrappedProblem`).</span>
+</span><span id="ResampleAverage-37"><a href="#ResampleAverage-37"><span class="linenos">37</span></a><span class="sd">            n_evaluations (int): Number of times to evaluate the problem on</span>
+</span><span id="ResampleAverage-38"><a href="#ResampleAverage-38"><span class="linenos">38</span></a><span class="sd">                each solution. Defaults to 5.</span>
+</span><span id="ResampleAverage-39"><a href="#ResampleAverage-39"><span class="linenos">39</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
+</span><span id="ResampleAverage-40"><a href="#ResampleAverage-40"><span class="linenos">40</span></a><span class="sd">                when creating history dump files. Defaults to `resample_avg`.</span>
 </span><span id="ResampleAverage-41"><a href="#ResampleAverage-41"><span class="linenos">41</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="ResampleAverage-42"><a href="#ResampleAverage-42"><span class="linenos">42</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="ResampleAverage-43"><a href="#ResampleAverage-43"><span class="linenos">43</span></a>
@@ -229,12 +229,12 @@ multiple times and averaging the outputs.</p>
 </span><span id="ResampleAverage.__init__-32"><a href="#ResampleAverage.__init__-32"><span class="linenos">32</span></a><span class="sd">        Constructor.</span>
 </span><span id="ResampleAverage.__init__-33"><a href="#ResampleAverage.__init__-33"><span class="linenos">33</span></a>
 </span><span id="ResampleAverage.__init__-34"><a href="#ResampleAverage.__init__-34"><span class="linenos">34</span></a><span class="sd">        Args:</span>
-</span><span id="ResampleAverage.__init__-35"><a href="#ResampleAverage.__init__-35"><span class="linenos">35</span></a><span class="sd">            problem (:obj:`Problem`): Noisy pymoo problem.</span>
-</span><span id="ResampleAverage.__init__-36"><a href="#ResampleAverage.__init__-36"><span class="linenos">36</span></a><span class="sd">            n_evaluations (int): Number of times to evaluate the problem on</span>
-</span><span id="ResampleAverage.__init__-37"><a href="#ResampleAverage.__init__-37"><span class="linenos">37</span></a><span class="sd">                each solution. Defaults to 5.</span>
-</span><span id="ResampleAverage.__init__-38"><a href="#ResampleAverage.__init__-38"><span class="linenos">38</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
-</span><span id="ResampleAverage.__init__-39"><a href="#ResampleAverage.__init__-39"><span class="linenos">39</span></a><span class="sd">                when creating history dump files. Defaults to</span>
-</span><span id="ResampleAverage.__init__-40"><a href="#ResampleAverage.__init__-40"><span class="linenos">40</span></a><span class="sd">                `resample_avg`.</span>
+</span><span id="ResampleAverage.__init__-35"><a href="#ResampleAverage.__init__-35"><span class="linenos">35</span></a><span class="sd">            problem (pymoo `Problem`): Noisy pymoo problem (or</span>
+</span><span id="ResampleAverage.__init__-36"><a href="#ResampleAverage.__init__-36"><span class="linenos">36</span></a><span class="sd">                `nmoo.wrapped_problem.WrappedProblem`).</span>
+</span><span id="ResampleAverage.__init__-37"><a href="#ResampleAverage.__init__-37"><span class="linenos">37</span></a><span class="sd">            n_evaluations (int): Number of times to evaluate the problem on</span>
+</span><span id="ResampleAverage.__init__-38"><a href="#ResampleAverage.__init__-38"><span class="linenos">38</span></a><span class="sd">                each solution. Defaults to 5.</span>
+</span><span id="ResampleAverage.__init__-39"><a href="#ResampleAverage.__init__-39"><span class="linenos">39</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
+</span><span id="ResampleAverage.__init__-40"><a href="#ResampleAverage.__init__-40"><span class="linenos">40</span></a><span class="sd">                when creating history dump files. Defaults to `resample_avg`.</span>
 </span><span id="ResampleAverage.__init__-41"><a href="#ResampleAverage.__init__-41"><span class="linenos">41</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="ResampleAverage.__init__-42"><a href="#ResampleAverage.__init__-42"><span class="linenos">42</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="ResampleAverage.__init__-43"><a href="#ResampleAverage.__init__-43"><span class="linenos">43</span></a>
@@ -249,12 +249,12 @@ multiple times and averaging the outputs.</p>
 <h6 id="args">Args</h6>
 
 <ul>
-<li><strong>problem (<code>Problem</code>):</strong>  Noisy pymoo problem.</li>
+<li><strong>problem (pymoo <code>Problem</code>):</strong>  Noisy pymoo problem (or
+<code><a href="../wrapped_problem.html#WrappedProblem">nmoo.wrapped_problem.WrappedProblem</a></code>).</li>
 <li><strong>n_evaluations (int):</strong>  Number of times to evaluate the problem on
 each solution. Defaults to 5.</li>
 <li><strong>name (str):</strong>  An optional name for this problem. This will be used
-when creating history dump files. Defaults to
-<code>resample_avg</code>.</li>
+when creating history dump files. Defaults to <code>resample_avg</code>.</li>
 </ul>
 </div>
 
@@ -267,9 +267,11 @@ when creating history dump files. Defaults to
                                 <dd id="ResampleAverage.add_to_history" class="function"><a href="../wrapped_problem.html#WrappedProblem.add_to_history">add_to_history</a></dd>
                 <dd id="ResampleAverage.add_to_history_x_out" class="function"><a href="../wrapped_problem.html#WrappedProblem.add_to_history_x_out">add_to_history_x_out</a></dd>
                 <dd id="ResampleAverage.all_layers" class="function"><a href="../wrapped_problem.html#WrappedProblem.all_layers">all_layers</a></dd>
+                <dd id="ResampleAverage.depth" class="function"><a href="../wrapped_problem.html#WrappedProblem.depth">depth</a></dd>
                 <dd id="ResampleAverage.dump_all_histories" class="function"><a href="../wrapped_problem.html#WrappedProblem.dump_all_histories">dump_all_histories</a></dd>
                 <dd id="ResampleAverage.dump_history" class="function"><a href="../wrapped_problem.html#WrappedProblem.dump_history">dump_history</a></dd>
                 <dd id="ResampleAverage.ground_problem" class="function"><a href="../wrapped_problem.html#WrappedProblem.ground_problem">ground_problem</a></dd>
+                <dd id="ResampleAverage.innermost_wrapper" class="function"><a href="../wrapped_problem.html#WrappedProblem.innermost_wrapper">innermost_wrapper</a></dd>
                 <dd id="ResampleAverage.reseed" class="function"><a href="../wrapped_problem.html#WrappedProblem.reseed">reseed</a></dd>
                 <dd id="ResampleAverage.start_new_run" class="function"><a href="../wrapped_problem.html#WrappedProblem.start_new_run">start_new_run</a></dd>
 

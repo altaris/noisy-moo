@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="pdoc 12.1.0"/>
-    <title>nmoo.delayer API documentation</title>
+    <title>nmoo.algorithms API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
     <style>/*! syntax-highlighting.css */pre{line-height:125%;}span.linenos{color:inherit; background-color:transparent; padding-left:5px; padding-right:20px;}.pdoc-code .hll{background-color:#ffffcc}.pdoc-code{background:#f8f8f8;}.pdoc-code .c{color:#3D7B7B; font-style:italic}.pdoc-code .err{border:1px solid #FF0000}.pdoc-code .k{color:#008000; font-weight:bold}.pdoc-code .o{color:#666666}.pdoc-code .ch{color:#3D7B7B; font-style:italic}.pdoc-code .cm{color:#3D7B7B; font-style:italic}.pdoc-code .cp{color:#9C6500}.pdoc-code .cpf{color:#3D7B7B; font-style:italic}.pdoc-code .c1{color:#3D7B7B; font-style:italic}.pdoc-code .cs{color:#3D7B7B; font-style:italic}.pdoc-code .gd{color:#A00000}.pdoc-code .ge{font-style:italic}.pdoc-code .gr{color:#E40000}.pdoc-code .gh{color:#000080; font-weight:bold}.pdoc-code .gi{color:#008400}.pdoc-code .go{color:#717171}.pdoc-code .gp{color:#000080; font-weight:bold}.pdoc-code .gs{font-weight:bold}.pdoc-code .gu{color:#800080; font-weight:bold}.pdoc-code .gt{color:#0044DD}.pdoc-code .kc{color:#008000; font-weight:bold}.pdoc-code .kd{color:#008000; font-weight:bold}.pdoc-code .kn{color:#008000; font-weight:bold}.pdoc-code .kp{color:#008000}.pdoc-code .kr{color:#008000; font-weight:bold}.pdoc-code .kt{color:#B00040}.pdoc-code .m{color:#666666}.pdoc-code .s{color:#BA2121}.pdoc-code .na{color:#687822}.pdoc-code .nb{color:#008000}.pdoc-code .nc{color:#0000FF; font-weight:bold}.pdoc-code .no{color:#880000}.pdoc-code .nd{color:#AA22FF}.pdoc-code .ni{color:#717171; font-weight:bold}.pdoc-code .ne{color:#CB3F38; font-weight:bold}.pdoc-code .nf{color:#0000FF}.pdoc-code .nl{color:#767600}.pdoc-code .nn{color:#0000FF; font-weight:bold}.pdoc-code .nt{color:#008000; font-weight:bold}.pdoc-code .nv{color:#19177C}.pdoc-code .ow{color:#AA22FF; font-weight:bold}.pdoc-code .w{color:#bbbbbb}.pdoc-code .mb{color:#666666}.pdoc-code .mf{color:#666666}.pdoc-code .mh{color:#666666}.pdoc-code .mi{color:#666666}.pdoc-code .mo{color:#666666}.pdoc-code .sa{color:#BA2121}.pdoc-code .sb{color:#BA2121}.pdoc-code .sc{color:#BA2121}.pdoc-code .dl{color:#BA2121}.pdoc-code .sd{color:#BA2121; font-style:italic}.pdoc-code .s2{color:#BA2121}.pdoc-code .se{color:#AA5D1F; font-weight:bold}.pdoc-code .sh{color:#BA2121}.pdoc-code .si{color:#A45A77; font-weight:bold}.pdoc-code .sx{color:#008000}.pdoc-code .sr{color:#A45A77}.pdoc-code .s1{color:#BA2121}.pdoc-code .ss{color:#19177C}.pdoc-code .bp{color:#008000}.pdoc-code .fm{color:#0000FF}.pdoc-code .vc{color:#19177C}.pdoc-code .vg{color:#19177C}.pdoc-code .vi{color:#19177C}.pdoc-code .vm{color:#19177C}.pdoc-code .il{color:#666666}</style>
@@ -44,19 +44,10 @@
                    pattern=".+" required>
 
 
-
-        <h2>API Documentation</h2>
-            <ul class="memberlist">
-            <li>
-                    <a class="class" href="#Delayer">Delayer</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#Delayer.__init__">Delayer</a>
-                        </li>
-                </ul>
-
-            </li>
-    </ul>
+        <h2>Submodules</h2>
+        <ul>
+                <li><a href="algorithms/ar_nsga2.html">ar_nsga2</a></li>
+        </ul>
 
 
 
@@ -70,203 +61,30 @@
     <main class="pdoc">
             <section class="module-info">
                     <h1 class="modulename">
-<a href="./../nmoo.html">nmoo</a><wbr>.delayer    </h1>
+<a href="./../nmoo.html">nmoo</a><wbr>.algorithms    </h1>
 
-                        <div class="docstring"><p>A problem that incurs a constant delay at each <code>_evaluate</code> call.</p>
+                        <div class="docstring"><p>Subpackage for noisy MOO algorithms.</p>
+
+<ul>
+<li><code><a href="algorithms/ar_nsga2.html#ARNSGA2">nmoo.algorithms.ar_nsga2.ARNSGA2</a></code></li>
+</ul>
 </div>
 
-                        <input id="delayer-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                        <input id="algorithms-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
-                        <label class="view-source-button" for="delayer-view-source"><span>View Source</span></label>
+                        <label class="view-source-button" for="algorithms-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">A problem that incurs a constant delay at each `_evaluate` call.</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">pymoo.core.problem</span> <span class="kn">import</span> <span class="n">Problem</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="kn">from</span> <span class="nn">.wrapped_problem</span> <span class="kn">import</span> <span class="n">WrappedProblem</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="k">class</span> <span class="nc">Delayer</span><span class="p">(</span><span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">    A problem that sleeps for a set amount of time at each `_evaluate` call,</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">    passing calling the wrapped problem&#39;s `_evaluate`.</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="n">_delay</span><span class="p">:</span> <span class="nb">float</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">    Sleep time in seconds. Floating point number may be used to indicate a more</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    precise sleep time.</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>        <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>        <span class="o">*</span><span class="p">,</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;delayer&quot;</span><span class="p">,</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="p">):</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">        Args:</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">                when creating history dump files. Defaults to `delayer`.</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="k">if</span> <span class="n">delay</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Delay must be a positive.&quot;</span><span class="p">)</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_delay</span> <span class="o">=</span> <span class="n">delay</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>        <span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delay</span><span class="p">)</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>            <span class="n">x</span><span class="p">,</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>            <span class="n">out</span><span class="p">,</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>            <span class="n">delay</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delay</span><span class="p">),</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>        <span class="p">)</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">1</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">2</span></a><span class="sd">Subpackage for noisy MOO algorithms.</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">3</span></a><span class="sd">* `nmoo.algorithms.ar_nsga2.ARNSGA2`</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">4</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">5</span></a><span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">6</span></a>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">7</span></a><span class="kn">from</span> <span class="nn">.ar_nsga2</span> <span class="kn">import</span> <span class="n">ARNSGA2</span>
 </span></pre></div>
 
 
             </section>
-                <section id="Delayer">
-                            <input id="Delayer-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr class">
-            
-    <span class="def">class</span>
-    <span class="name">Delayer</span><wbr>(<span class="base"><a href="wrapped_problem.html#WrappedProblem">nmoo.wrapped_problem.WrappedProblem</a></span>):
-
-                <label class="view-source-button" for="Delayer-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#Delayer"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Delayer-15"><a href="#Delayer-15"><span class="linenos">15</span></a><span class="k">class</span> <span class="nc">Delayer</span><span class="p">(</span><span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="Delayer-16"><a href="#Delayer-16"><span class="linenos">16</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Delayer-17"><a href="#Delayer-17"><span class="linenos">17</span></a><span class="sd">    A problem that sleeps for a set amount of time at each `_evaluate` call,</span>
-</span><span id="Delayer-18"><a href="#Delayer-18"><span class="linenos">18</span></a><span class="sd">    passing calling the wrapped problem&#39;s `_evaluate`.</span>
-</span><span id="Delayer-19"><a href="#Delayer-19"><span class="linenos">19</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="Delayer-20"><a href="#Delayer-20"><span class="linenos">20</span></a>
-</span><span id="Delayer-21"><a href="#Delayer-21"><span class="linenos">21</span></a>    <span class="n">_delay</span><span class="p">:</span> <span class="nb">float</span>
-</span><span id="Delayer-22"><a href="#Delayer-22"><span class="linenos">22</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Delayer-23"><a href="#Delayer-23"><span class="linenos">23</span></a><span class="sd">    Sleep time in seconds. Floating point number may be used to indicate a more</span>
-</span><span id="Delayer-24"><a href="#Delayer-24"><span class="linenos">24</span></a><span class="sd">    precise sleep time.</span>
-</span><span id="Delayer-25"><a href="#Delayer-25"><span class="linenos">25</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="Delayer-26"><a href="#Delayer-26"><span class="linenos">26</span></a>
-</span><span id="Delayer-27"><a href="#Delayer-27"><span class="linenos">27</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="Delayer-28"><a href="#Delayer-28"><span class="linenos">28</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="Delayer-29"><a href="#Delayer-29"><span class="linenos">29</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
-</span><span id="Delayer-30"><a href="#Delayer-30"><span class="linenos">30</span></a>        <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
-</span><span id="Delayer-31"><a href="#Delayer-31"><span class="linenos">31</span></a>        <span class="o">*</span><span class="p">,</span>
-</span><span id="Delayer-32"><a href="#Delayer-32"><span class="linenos">32</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;delayer&quot;</span><span class="p">,</span>
-</span><span id="Delayer-33"><a href="#Delayer-33"><span class="linenos">33</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-</span><span id="Delayer-34"><a href="#Delayer-34"><span class="linenos">34</span></a>    <span class="p">):</span>
-</span><span id="Delayer-35"><a href="#Delayer-35"><span class="linenos">35</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Delayer-36"><a href="#Delayer-36"><span class="linenos">36</span></a><span class="sd">        Args:</span>
-</span><span id="Delayer-37"><a href="#Delayer-37"><span class="linenos">37</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
-</span><span id="Delayer-38"><a href="#Delayer-38"><span class="linenos">38</span></a><span class="sd">                when creating history dump files. Defaults to `delayer`.</span>
-</span><span id="Delayer-39"><a href="#Delayer-39"><span class="linenos">39</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Delayer-40"><a href="#Delayer-40"><span class="linenos">40</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="Delayer-41"><a href="#Delayer-41"><span class="linenos">41</span></a>
-</span><span id="Delayer-42"><a href="#Delayer-42"><span class="linenos">42</span></a>        <span class="k">if</span> <span class="n">delay</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
-</span><span id="Delayer-43"><a href="#Delayer-43"><span class="linenos">43</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Delay must be a positive.&quot;</span><span class="p">)</span>
-</span><span id="Delayer-44"><a href="#Delayer-44"><span class="linenos">44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_delay</span> <span class="o">=</span> <span class="n">delay</span>
-</span><span id="Delayer-45"><a href="#Delayer-45"><span class="linenos">45</span></a>
-</span><span id="Delayer-46"><a href="#Delayer-46"><span class="linenos">46</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Delayer-47"><a href="#Delayer-47"><span class="linenos">47</span></a>        <span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delay</span><span class="p">)</span>
-</span><span id="Delayer-48"><a href="#Delayer-48"><span class="linenos">48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="Delayer-49"><a href="#Delayer-49"><span class="linenos">49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span>
-</span><span id="Delayer-50"><a href="#Delayer-50"><span class="linenos">50</span></a>            <span class="n">x</span><span class="p">,</span>
-</span><span id="Delayer-51"><a href="#Delayer-51"><span class="linenos">51</span></a>            <span class="n">out</span><span class="p">,</span>
-</span><span id="Delayer-52"><a href="#Delayer-52"><span class="linenos">52</span></a>            <span class="n">delay</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delay</span><span class="p">),</span>
-</span><span id="Delayer-53"><a href="#Delayer-53"><span class="linenos">53</span></a>        <span class="p">)</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>A problem that sleeps for a set amount of time at each <code>_evaluate</code> call,
-passing calling the wrapped problem's <code>_evaluate</code>.</p>
-</div>
-
-
-                            <div id="Delayer.__init__" class="classattr">
-                                        <input id="Delayer.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="name">Delayer</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">problem</span><span class="p">:</span> <span class="n">pymoo</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">Problem</span>,</span><span class="param">	<span class="n">delay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;delayer&#39;</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span></span>)</span>
-
-                <label class="view-source-button" for="Delayer.__init__-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#Delayer.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Delayer.__init__-27"><a href="#Delayer.__init__-27"><span class="linenos">27</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="Delayer.__init__-28"><a href="#Delayer.__init__-28"><span class="linenos">28</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="Delayer.__init__-29"><a href="#Delayer.__init__-29"><span class="linenos">29</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
-</span><span id="Delayer.__init__-30"><a href="#Delayer.__init__-30"><span class="linenos">30</span></a>        <span class="n">delay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
-</span><span id="Delayer.__init__-31"><a href="#Delayer.__init__-31"><span class="linenos">31</span></a>        <span class="o">*</span><span class="p">,</span>
-</span><span id="Delayer.__init__-32"><a href="#Delayer.__init__-32"><span class="linenos">32</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;delayer&quot;</span><span class="p">,</span>
-</span><span id="Delayer.__init__-33"><a href="#Delayer.__init__-33"><span class="linenos">33</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-</span><span id="Delayer.__init__-34"><a href="#Delayer.__init__-34"><span class="linenos">34</span></a>    <span class="p">):</span>
-</span><span id="Delayer.__init__-35"><a href="#Delayer.__init__-35"><span class="linenos">35</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Delayer.__init__-36"><a href="#Delayer.__init__-36"><span class="linenos">36</span></a><span class="sd">        Args:</span>
-</span><span id="Delayer.__init__-37"><a href="#Delayer.__init__-37"><span class="linenos">37</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
-</span><span id="Delayer.__init__-38"><a href="#Delayer.__init__-38"><span class="linenos">38</span></a><span class="sd">                when creating history dump files. Defaults to `delayer`.</span>
-</span><span id="Delayer.__init__-39"><a href="#Delayer.__init__-39"><span class="linenos">39</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Delayer.__init__-40"><a href="#Delayer.__init__-40"><span class="linenos">40</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="Delayer.__init__-41"><a href="#Delayer.__init__-41"><span class="linenos">41</span></a>
-</span><span id="Delayer.__init__-42"><a href="#Delayer.__init__-42"><span class="linenos">42</span></a>        <span class="k">if</span> <span class="n">delay</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
-</span><span id="Delayer.__init__-43"><a href="#Delayer.__init__-43"><span class="linenos">43</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Delay must be a positive.&quot;</span><span class="p">)</span>
-</span><span id="Delayer.__init__-44"><a href="#Delayer.__init__-44"><span class="linenos">44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_delay</span> <span class="o">=</span> <span class="n">delay</span>
-</span></pre></div>
-
-
-            <div class="docstring"><h6 id="args">Args</h6>
-
-<ul>
-<li><strong>name (str):</strong>  An optional name for this problem. This will be used
-when creating history dump files. Defaults to <code>delayer</code>.</li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt><a href="wrapped_problem.html#WrappedProblem">nmoo.wrapped_problem.WrappedProblem</a></dt>
-                                <dd id="Delayer.add_to_history" class="function"><a href="wrapped_problem.html#WrappedProblem.add_to_history">add_to_history</a></dd>
-                <dd id="Delayer.add_to_history_x_out" class="function"><a href="wrapped_problem.html#WrappedProblem.add_to_history_x_out">add_to_history_x_out</a></dd>
-                <dd id="Delayer.all_layers" class="function"><a href="wrapped_problem.html#WrappedProblem.all_layers">all_layers</a></dd>
-                <dd id="Delayer.depth" class="function"><a href="wrapped_problem.html#WrappedProblem.depth">depth</a></dd>
-                <dd id="Delayer.dump_all_histories" class="function"><a href="wrapped_problem.html#WrappedProblem.dump_all_histories">dump_all_histories</a></dd>
-                <dd id="Delayer.dump_history" class="function"><a href="wrapped_problem.html#WrappedProblem.dump_history">dump_history</a></dd>
-                <dd id="Delayer.ground_problem" class="function"><a href="wrapped_problem.html#WrappedProblem.ground_problem">ground_problem</a></dd>
-                <dd id="Delayer.innermost_wrapper" class="function"><a href="wrapped_problem.html#WrappedProblem.innermost_wrapper">innermost_wrapper</a></dd>
-                <dd id="Delayer.reseed" class="function"><a href="wrapped_problem.html#WrappedProblem.reseed">reseed</a></dd>
-                <dd id="Delayer.start_new_run" class="function"><a href="wrapped_problem.html#WrappedProblem.start_new_run">start_new_run</a></dd>
-
-            </div>
-            <div><dt>pymoo.core.problem.Problem</dt>
-                                <dd id="Delayer.evaluate" class="function">evaluate</dd>
-                <dd id="Delayer.do" class="function">do</dd>
-                <dd id="Delayer.nadir_point" class="function">nadir_point</dd>
-                <dd id="Delayer.ideal_point" class="function">ideal_point</dd>
-                <dd id="Delayer.pareto_front" class="function">pareto_front</dd>
-                <dd id="Delayer.pareto_set" class="function">pareto_set</dd>
-                <dd id="Delayer.has_bounds" class="function">has_bounds</dd>
-                <dd id="Delayer.has_constraints" class="function">has_constraints</dd>
-                <dd id="Delayer.bounds" class="function">bounds</dd>
-                <dd id="Delayer.name" class="function">name</dd>
-                <dd id="Delayer.calc_constraint_violation" class="function">calc_constraint_violation</dd>
-
-            </div>
-                                </dl>
-                            </div>
-                </section>
     </main>
 <script>
     function escapeHTML(html) {

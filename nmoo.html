@@ -41,10 +41,13 @@
         <h2>Contents</h2>
         <ul>
   <li><a href="#noisy-moo">noisy-moo</a></li>
-  <li><a href="#installation">Installation</a>
+  <li><a href="#installation">Installation</a></li>
+  <li><a href="#getting-started">Getting started</a>
   <ul>
-    <li><a href="#getting-started">Getting started</a></li>
+    <li><a href="#in-a-notebook">In a notebook</a></li>
+    <li><a href="#for-larger-benchmarks">For larger benchmarks</a></li>
   </ul></li>
+  <li><a href="#main-submodules-and-classes">Main submodules and classes</a></li>
   <li><a href="#contributing">Contributing</a>
   <ul>
     <li><a href="#dependencies">Dependencies</a></li>
@@ -74,6 +77,7 @@
 
         <h2>Submodules</h2>
         <ul>
+                <li><a href="nmoo/algorithms.html">algorithms</a></li>
                 <li><a href="nmoo/benchmark.html">benchmark</a></li>
                 <li><a href="nmoo/callbacks.html">callbacks</a></li>
                 <li><a href="nmoo/delayer.html">delayer</a></li>
@@ -104,8 +108,8 @@ nmoo    </h1>
                         <div class="docstring"><h1 id="noisy-moo">noisy-moo</h1>
 
 <p><img src="https://img.shields.io/badge/python-3-blue?logo=python" alt="Python 3" />
-<a href="https://choosealicense.com/licenses/mit/"><img src="https://badgen.net/badge/license/MIT/yellow" alt="MIT License" /></a>
-<a href="https://pypi.org/project/black"><img src="https://badgen.net/badge/style/black/black" alt="Code style" /></a>
+<a href="https://choosealicense.com/licenses/mit/"><img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT License" /></a>
+<a href="https://pypi.org/project/black"><img src="https://img.shields.io/badge/style-black-black" alt="Code style" /></a>
 <a href="https://codeclimate.com/github/altaris/noisy-moo/maintainability"><img src="https://api.codeclimate.com/v1/badges/aedd8e97a23534a85bc5/maintainability" alt="Maintainability" /></a>
 <a href="https://altaris.github.io/noisy-moo/nmoo.html"><img src="https://badgen.net/badge/documentation/here/blue" alt="Documentation" /></a></p>
 
@@ -125,16 +129,17 @@ and algorithm benchmarking. Initially developed to test
 <div class="pdoc-code codehilite"><pre><span></span><code>pip install nmoo
 </code></pre></div>
 
-<h2 id="getting-started">Getting started</h2>
+<h1 id="getting-started">Getting started</h1>
 
-<h3 id="in-a-notebook">In a notebook</h3>
+<h2 id="in-a-notebook">In a notebook</h2>
 
 <p>See
 <a href="https://github.com/altaris/noisy-moo/blob/main/example.ipynb">example.ipynb</a>
-for a quick example. <a href="https://colab.research.google.com/github/altaris/noisy-moo/blob/main/example.ipynb"><img src="https://img.shields.io/badge/launch-colab-blue" alt="Launch Google Colab
+for a quick example.
+<a href="https://colab.research.google.com/github/altaris/noisy-moo/blob/main/example.ipynb"><img src="https://img.shields.io/badge/launch-colab-blue?logo=googlecolab" alt="Launch Google Colab
 notebook" /></a></p>
 
-<h3 id="for-larger-benchmarks">For larger benchmarks</h3>
+<h2 id="for-larger-benchmarks">For larger benchmarks</h2>
 
 <p>For larger benchmarks, you may want to use nmoo's CLI. First, create a module,
 say <a href="https://github.com/altaris/noisy-moo/blob/main/example.py"><code>example.py</code></a>,
@@ -145,7 +150,31 @@ say <code>make_benchmark()</code>. Then, run it using</p>
 <div class="pdoc-code codehilite"><pre><span></span><code>python -m nmoo run --verbose <span class="m">10</span> example:make_benchmark
 </code></pre></div>
 
-<p>Refer to <code>python -m nmoo --help</code> for more information.</p>
+<p>Refer to</p>
+
+<div class="pdoc-code codehilite"><pre><span></span><code>python -m nmoo --help
+</code></pre></div>
+
+<p>for more information.</p>
+
+<h1 id="main-submodules-and-classes">Main submodules and classes</h1>
+
+<ul>
+<li><code><a href="nmoo/benchmark.html#Benchmark">nmoo.benchmark.Benchmark</a></code>: A <code>Benchmark</code> object represents... a benchmark
+🤔. At construction, you can specify problems and algorithms to run, how many
+times to run them, what performance indicators to compute, etc. Refer to
+<code><a href="nmoo/benchmark.html#Benchmark.__init__">nmoo.benchmark.Benchmark.__init__</a></code> for more details.</li>
+<li><code><a href="nmoo/wrapped_problem.html#WrappedProblem">nmoo.wrapped_problem.WrappedProblem</a></code>: The main idea of <code><a href="">nmoo</a></code> is to wrap
+problems in layers. Each layer should redefine <code>pymoo.Problem._evaluate</code> to
+intercept calls to the wrapped problem. It is then possible to apply/remove
+noise, keep a call history, log, etc.</li>
+<li><code><a href="nmoo/denoisers.html">nmoo.denoisers</a></code>: Sublasses of <code><a href="nmoo/wrapped_problem.html#WrappedProblem">nmoo.wrapped_problem.WrappedProblem</a></code> that
+implement denoising algorithms. In a simple scenario, a synthetic problem
+would be wrapped in a noise layer, and further wrapped in a denoising layer
+to test the performance of the latter.</li>
+<li><code><a href="nmoo/noises.html">nmoo.noises</a></code>: Sublasses of <code><a href="nmoo/wrapped_problem.html#WrappedProblem">nmoo.wrapped_problem.WrappedProblem</a></code> that apply
+noise.</li>
+</ul>
 
 <h1 id="contributing">Contributing</h1>
 
@@ -356,20 +385,21 @@ Information Science, vol 1439. Springer, Cham.
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">.. include:: ../CHANGELOG.md</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">get_distribution</span><span class="p">,</span> <span class="n">DistributionNotFound</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">DistributionNotFound</span><span class="p">,</span> <span class="n">get_distribution</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">.wrapped_problem</span> <span class="kn">import</span> <span class="n">WrappedProblem</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">.algorithms</span> <span class="kn">import</span> <span class="n">ARNSGA2</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="kn">from</span> <span class="nn">.benchmark</span> <span class="kn">import</span> <span class="n">Benchmark</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="kn">from</span> <span class="nn">.callbacks</span> <span class="kn">import</span> <span class="n">TimerCallback</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="kn">from</span> <span class="nn">.denoisers</span> <span class="kn">import</span> <span class="n">KNNAvg</span><span class="p">,</span> <span class="n">ResampleAverage</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="kn">from</span> <span class="nn">.denoisers</span> <span class="kn">import</span> <span class="n">GPSS</span><span class="p">,</span> <span class="n">KNNAvg</span><span class="p">,</span> <span class="n">ResampleAverage</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="kn">from</span> <span class="nn">.evaluators</span> <span class="kn">import</span> <span class="n">PenalizedEvaluator</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="kn">from</span> <span class="nn">.noises</span> <span class="kn">import</span> <span class="n">GaussianNoise</span><span class="p">,</span> <span class="n">UniformNoise</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="kn">from</span> <span class="nn">.plotting</span> <span class="kn">import</span> <span class="n">generate_delta_F_plots</span><span class="p">,</span> <span class="n">plot_performance_indicators</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="k">try</span><span class="p">:</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="n">__version__</span> <span class="o">=</span> <span class="n">get_distribution</span><span class="p">(</span><span class="s2">&quot;nmoo&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">version</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="k">except</span> <span class="n">DistributionNotFound</span><span class="p">:</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="kn">from</span> <span class="nn">.wrapped_problem</span> <span class="kn">import</span> <span class="n">WrappedProblem</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="k">try</span><span class="p">:</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="n">__version__</span> <span class="o">=</span> <span class="n">get_distribution</span><span class="p">(</span><span class="s2">&quot;nmoo&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">version</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="k">except</span> <span class="n">DistributionNotFound</span><span class="p">:</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span>
 </span></pre></div>
 
 

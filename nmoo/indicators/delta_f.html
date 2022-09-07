@@ -75,7 +75,8 @@
                     <h1 class="modulename">
 <a href="./../../nmoo.html">nmoo</a><wbr>.<a href="./../indicators.html">indicators</a><wbr>.delta_f    </h1>
 
-                        <div class="docstring"><p>ΔF performance indicator</p>
+                        <div class="docstring"><p>ΔF performance indicator, which measures how accurately a problem estimates the
+true objective.</p>
 </div>
 
                         <input id="delta_f-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -83,95 +84,104 @@
                         <label class="view-source-button" for="delta_f-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">ΔF performance indicator</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="kn">from</span> <span class="nn">pymoo.core.indicator</span> <span class="kn">import</span> <span class="n">Indicator</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="kn">from</span> <span class="nn">pymoo.core.problem</span> <span class="kn">import</span> <span class="n">Problem</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="kn">from</span> <span class="nn">nmoo.wrapped_problem</span> <span class="kn">import</span> <span class="n">WrappedProblem</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">ΔF performance indicator, which measures how accurately a problem estimates the</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">true objective.</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="kn">from</span> <span class="nn">pymoo.core.indicator</span> <span class="kn">import</span> <span class="n">Indicator</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="kn">from</span> <span class="nn">pymoo.core.problem</span> <span class="kn">import</span> <span class="n">Problem</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="kn">from</span> <span class="nn">nmoo.wrapped_problem</span> <span class="kn">import</span> <span class="n">WrappedProblem</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="k">class</span> <span class="nc">DeltaF</span><span class="p">(</span><span class="n">Indicator</span><span class="p">):</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">    The ΔF performance indicator. Given</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">    * a `WrappedProblem` `p`, with `g` its ground problem,</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">    * a Pareto set `F`,</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">    * and a population `X`,</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    calculates the vectorized average Euclidean distance between `F` and `Y`,</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    where `Y` is obtained by averaging `g(X)` a given number of times.</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="k">class</span> <span class="nc">DeltaF</span><span class="p">(</span><span class="n">Indicator</span><span class="p">):</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">    The ΔF performance indicator. Given</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">    * a `nmoo.wrapped_problem.WrappedProblem` with `g` its ground problem,</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">    * a Pareto set `F`,</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">    * and a population `X`,</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    calculates the vectorized average Euclidean distance between `F` and `Y`,</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">    where `Y` is obtained by averaging `g(X)` a given number of times.</span>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">_ground_problem</span><span class="p">:</span> <span class="n">Problem</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="sd">&quot;&quot;&quot;The ground problem.&quot;&quot;&quot;</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="n">_history</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">    Contains all `X` values submitted to this indicator, and all denoised `F`</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">    values.</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">    You can use this PI in a benchmark as</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">    ```py</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="sd">    Benchmark(</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">        ...</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">        performance_indicators=[..., &quot;df&quot;, ...]</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">    )</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">    ```</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="n">_n_evals</span><span class="p">:</span> <span class="nb">int</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">    Number of evaluations of the ground problem that will be averaged in order</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">    to approximate the ground Pareto front.</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">WrappedProblem</span><span class="p">,</span> <span class="n">n_evals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">zero_to_one</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_ground_problem</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">ground_problem</span><span class="p">()</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>        <span class="k">if</span> <span class="n">n_evals</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_evals must be &gt;= 1&quot;</span><span class="p">)</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_n_evals</span> <span class="o">=</span> <span class="n">n_evals</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="k">def</span> <span class="nf">_do</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="sd">        Calculates ΔF. See class documentation.</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>                <span class="s2">&quot;Need a second argument (namely the X array) when calling &quot;</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>                <span class="s2">&quot;DeltaF.do&quot;</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>            <span class="p">)</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>        <span class="n">X</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>        <span class="n">fs</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_evals</span><span class="p">):</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>            <span class="n">out</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_ground_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>            <span class="n">fs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">])</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>        <span class="n">af</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fs</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>            <span class="k">if</span> <span class="s2">&quot;X&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>            <span class="k">else</span> <span class="n">X</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>        <span class="p">)</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">],</span> <span class="n">af</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>            <span class="k">if</span> <span class="s2">&quot;F&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>            <span class="k">else</span> <span class="n">af</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>        <span class="p">)</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>
-</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">F</span> <span class="o">-</span> <span class="n">af</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>
-</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>
-</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a><span class="sd">        Args:</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a><span class="sd">                `True`).</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="n">_ground_problem</span><span class="p">:</span> <span class="n">Problem</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="sd">&quot;&quot;&quot;The ground problem.&quot;&quot;&quot;</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="n">_history</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">    Contains all `X` values submitted to this indicator, and all denoised `F`</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">    values.</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="n">_n_evals</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">    Number of evaluations of the ground problem that will be averaged in order</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">    to approximate the ground Pareto front.</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">WrappedProblem</span><span class="p">,</span> <span class="n">n_evals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">zero_to_one</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_ground_problem</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">ground_problem</span><span class="p">()</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>        <span class="k">if</span> <span class="n">n_evals</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_evals must be &gt;= 1&quot;</span><span class="p">)</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_n_evals</span> <span class="o">=</span> <span class="n">n_evals</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="k">def</span> <span class="nf">_do</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="sd">        Calculates ΔF. See class documentation.</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>                <span class="s2">&quot;Need a second argument (namely the X array) when calling &quot;</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>                <span class="s2">&quot;DeltaF.do&quot;</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>            <span class="p">)</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>        <span class="n">X</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>        <span class="n">fs</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_evals</span><span class="p">):</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>            <span class="n">out</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_ground_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>            <span class="n">fs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">])</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>        <span class="n">af</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fs</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>
+</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>            <span class="k">if</span> <span class="s2">&quot;X&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>            <span class="k">else</span> <span class="n">X</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>        <span class="p">)</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">],</span> <span class="n">af</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>            <span class="k">if</span> <span class="s2">&quot;F&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a>            <span class="k">else</span> <span class="n">af</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a>        <span class="p">)</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>
+</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">F</span> <span class="o">-</span> <span class="n">af</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a>
+</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>
+</span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a><span class="sd">        Args:</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos">94</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos">95</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos">96</span></a><span class="sd">                `True`).</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos">97</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos">98</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos">99</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -187,94 +197,110 @@
 
     </div>
     <a class="headerlink" href="#DeltaF"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="DeltaF-17"><a href="#DeltaF-17"><span class="linenos">17</span></a><span class="k">class</span> <span class="nc">DeltaF</span><span class="p">(</span><span class="n">Indicator</span><span class="p">):</span>
-</span><span id="DeltaF-18"><a href="#DeltaF-18"><span class="linenos">18</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DeltaF-19"><a href="#DeltaF-19"><span class="linenos">19</span></a><span class="sd">    The ΔF performance indicator. Given</span>
-</span><span id="DeltaF-20"><a href="#DeltaF-20"><span class="linenos">20</span></a><span class="sd">    * a `WrappedProblem` `p`, with `g` its ground problem,</span>
-</span><span id="DeltaF-21"><a href="#DeltaF-21"><span class="linenos">21</span></a><span class="sd">    * a Pareto set `F`,</span>
-</span><span id="DeltaF-22"><a href="#DeltaF-22"><span class="linenos">22</span></a><span class="sd">    * and a population `X`,</span>
-</span><span id="DeltaF-23"><a href="#DeltaF-23"><span class="linenos">23</span></a>
-</span><span id="DeltaF-24"><a href="#DeltaF-24"><span class="linenos">24</span></a><span class="sd">    calculates the vectorized average Euclidean distance between `F` and `Y`,</span>
-</span><span id="DeltaF-25"><a href="#DeltaF-25"><span class="linenos">25</span></a><span class="sd">    where `Y` is obtained by averaging `g(X)` a given number of times.</span>
-</span><span id="DeltaF-26"><a href="#DeltaF-26"><span class="linenos">26</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="DeltaF-27"><a href="#DeltaF-27"><span class="linenos">27</span></a>
-</span><span id="DeltaF-28"><a href="#DeltaF-28"><span class="linenos">28</span></a>    <span class="n">_ground_problem</span><span class="p">:</span> <span class="n">Problem</span>
-</span><span id="DeltaF-29"><a href="#DeltaF-29"><span class="linenos">29</span></a>    <span class="sd">&quot;&quot;&quot;The ground problem.&quot;&quot;&quot;</span>
-</span><span id="DeltaF-30"><a href="#DeltaF-30"><span class="linenos">30</span></a>
-</span><span id="DeltaF-31"><a href="#DeltaF-31"><span class="linenos">31</span></a>    <span class="n">_history</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
-</span><span id="DeltaF-32"><a href="#DeltaF-32"><span class="linenos">32</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DeltaF-33"><a href="#DeltaF-33"><span class="linenos">33</span></a><span class="sd">    Contains all `X` values submitted to this indicator, and all denoised `F`</span>
-</span><span id="DeltaF-34"><a href="#DeltaF-34"><span class="linenos">34</span></a><span class="sd">    values.</span>
-</span><span id="DeltaF-35"><a href="#DeltaF-35"><span class="linenos">35</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="DeltaF-36"><a href="#DeltaF-36"><span class="linenos">36</span></a>
-</span><span id="DeltaF-37"><a href="#DeltaF-37"><span class="linenos">37</span></a>    <span class="n">_n_evals</span><span class="p">:</span> <span class="nb">int</span>
-</span><span id="DeltaF-38"><a href="#DeltaF-38"><span class="linenos">38</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DeltaF-39"><a href="#DeltaF-39"><span class="linenos">39</span></a><span class="sd">    Number of evaluations of the ground problem that will be averaged in order</span>
-</span><span id="DeltaF-40"><a href="#DeltaF-40"><span class="linenos">40</span></a><span class="sd">    to approximate the ground Pareto front.</span>
-</span><span id="DeltaF-41"><a href="#DeltaF-41"><span class="linenos">41</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="DeltaF-42"><a href="#DeltaF-42"><span class="linenos">42</span></a>
-</span><span id="DeltaF-43"><a href="#DeltaF-43"><span class="linenos">43</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">WrappedProblem</span><span class="p">,</span> <span class="n">n_evals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="DeltaF-44"><a href="#DeltaF-44"><span class="linenos">44</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">zero_to_one</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="DeltaF-45"><a href="#DeltaF-45"><span class="linenos">45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_ground_problem</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">ground_problem</span><span class="p">()</span>
-</span><span id="DeltaF-46"><a href="#DeltaF-46"><span class="linenos">46</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="DeltaF-47"><a href="#DeltaF-47"><span class="linenos">47</span></a>        <span class="k">if</span> <span class="n">n_evals</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="DeltaF-48"><a href="#DeltaF-48"><span class="linenos">48</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_evals must be &gt;= 1&quot;</span><span class="p">)</span>
-</span><span id="DeltaF-49"><a href="#DeltaF-49"><span class="linenos">49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_n_evals</span> <span class="o">=</span> <span class="n">n_evals</span>
-</span><span id="DeltaF-50"><a href="#DeltaF-50"><span class="linenos">50</span></a>
-</span><span id="DeltaF-51"><a href="#DeltaF-51"><span class="linenos">51</span></a>    <span class="k">def</span> <span class="nf">_do</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-</span><span id="DeltaF-52"><a href="#DeltaF-52"><span class="linenos">52</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DeltaF-53"><a href="#DeltaF-53"><span class="linenos">53</span></a><span class="sd">        Calculates ΔF. See class documentation.</span>
-</span><span id="DeltaF-54"><a href="#DeltaF-54"><span class="linenos">54</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DeltaF-55"><a href="#DeltaF-55"><span class="linenos">55</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
-</span><span id="DeltaF-56"><a href="#DeltaF-56"><span class="linenos">56</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="DeltaF-57"><a href="#DeltaF-57"><span class="linenos">57</span></a>                <span class="s2">&quot;Need a second argument (namely the X array) when calling &quot;</span>
-</span><span id="DeltaF-58"><a href="#DeltaF-58"><span class="linenos">58</span></a>                <span class="s2">&quot;DeltaF.do&quot;</span>
-</span><span id="DeltaF-59"><a href="#DeltaF-59"><span class="linenos">59</span></a>            <span class="p">)</span>
-</span><span id="DeltaF-60"><a href="#DeltaF-60"><span class="linenos">60</span></a>        <span class="n">X</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="DeltaF-61"><a href="#DeltaF-61"><span class="linenos">61</span></a>        <span class="n">fs</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="DeltaF-62"><a href="#DeltaF-62"><span class="linenos">62</span></a>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_evals</span><span class="p">):</span>
-</span><span id="DeltaF-63"><a href="#DeltaF-63"><span class="linenos">63</span></a>            <span class="n">out</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="DeltaF-64"><a href="#DeltaF-64"><span class="linenos">64</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_ground_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="DeltaF-65"><a href="#DeltaF-65"><span class="linenos">65</span></a>            <span class="n">fs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">])</span>
-</span><span id="DeltaF-66"><a href="#DeltaF-66"><span class="linenos">66</span></a>        <span class="n">af</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fs</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="DeltaF-67"><a href="#DeltaF-67"><span class="linenos">67</span></a>
-</span><span id="DeltaF-68"><a href="#DeltaF-68"><span class="linenos">68</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="DeltaF-69"><a href="#DeltaF-69"><span class="linenos">69</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="DeltaF-70"><a href="#DeltaF-70"><span class="linenos">70</span></a>            <span class="k">if</span> <span class="s2">&quot;X&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
-</span><span id="DeltaF-71"><a href="#DeltaF-71"><span class="linenos">71</span></a>            <span class="k">else</span> <span class="n">X</span>
-</span><span id="DeltaF-72"><a href="#DeltaF-72"><span class="linenos">72</span></a>        <span class="p">)</span>
-</span><span id="DeltaF-73"><a href="#DeltaF-73"><span class="linenos">73</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="DeltaF-74"><a href="#DeltaF-74"><span class="linenos">74</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">],</span> <span class="n">af</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="DeltaF-75"><a href="#DeltaF-75"><span class="linenos">75</span></a>            <span class="k">if</span> <span class="s2">&quot;F&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
-</span><span id="DeltaF-76"><a href="#DeltaF-76"><span class="linenos">76</span></a>            <span class="k">else</span> <span class="n">af</span>
-</span><span id="DeltaF-77"><a href="#DeltaF-77"><span class="linenos">77</span></a>        <span class="p">)</span>
-</span><span id="DeltaF-78"><a href="#DeltaF-78"><span class="linenos">78</span></a>
-</span><span id="DeltaF-79"><a href="#DeltaF-79"><span class="linenos">79</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">F</span> <span class="o">-</span> <span class="n">af</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
-</span><span id="DeltaF-80"><a href="#DeltaF-80"><span class="linenos">80</span></a>
-</span><span id="DeltaF-81"><a href="#DeltaF-81"><span class="linenos">81</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-</span><span id="DeltaF-82"><a href="#DeltaF-82"><span class="linenos">82</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DeltaF-83"><a href="#DeltaF-83"><span class="linenos">83</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
-</span><span id="DeltaF-84"><a href="#DeltaF-84"><span class="linenos">84</span></a>
-</span><span id="DeltaF-85"><a href="#DeltaF-85"><span class="linenos">85</span></a><span class="sd">        Args:</span>
-</span><span id="DeltaF-86"><a href="#DeltaF-86"><span class="linenos">86</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
-</span><span id="DeltaF-87"><a href="#DeltaF-87"><span class="linenos">87</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
-</span><span id="DeltaF-88"><a href="#DeltaF-88"><span class="linenos">88</span></a><span class="sd">                `True`).</span>
-</span><span id="DeltaF-89"><a href="#DeltaF-89"><span class="linenos">89</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DeltaF-90"><a href="#DeltaF-90"><span class="linenos">90</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
-</span><span id="DeltaF-91"><a href="#DeltaF-91"><span class="linenos">91</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="DeltaF-18"><a href="#DeltaF-18"><span class="linenos"> 18</span></a><span class="k">class</span> <span class="nc">DeltaF</span><span class="p">(</span><span class="n">Indicator</span><span class="p">):</span>
+</span><span id="DeltaF-19"><a href="#DeltaF-19"><span class="linenos"> 19</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DeltaF-20"><a href="#DeltaF-20"><span class="linenos"> 20</span></a><span class="sd">    The ΔF performance indicator. Given</span>
+</span><span id="DeltaF-21"><a href="#DeltaF-21"><span class="linenos"> 21</span></a><span class="sd">    * a `nmoo.wrapped_problem.WrappedProblem` with `g` its ground problem,</span>
+</span><span id="DeltaF-22"><a href="#DeltaF-22"><span class="linenos"> 22</span></a><span class="sd">    * a Pareto set `F`,</span>
+</span><span id="DeltaF-23"><a href="#DeltaF-23"><span class="linenos"> 23</span></a><span class="sd">    * and a population `X`,</span>
+</span><span id="DeltaF-24"><a href="#DeltaF-24"><span class="linenos"> 24</span></a>
+</span><span id="DeltaF-25"><a href="#DeltaF-25"><span class="linenos"> 25</span></a><span class="sd">    calculates the vectorized average Euclidean distance between `F` and `Y`,</span>
+</span><span id="DeltaF-26"><a href="#DeltaF-26"><span class="linenos"> 26</span></a><span class="sd">    where `Y` is obtained by averaging `g(X)` a given number of times.</span>
+</span><span id="DeltaF-27"><a href="#DeltaF-27"><span class="linenos"> 27</span></a>
+</span><span id="DeltaF-28"><a href="#DeltaF-28"><span class="linenos"> 28</span></a><span class="sd">    You can use this PI in a benchmark as</span>
+</span><span id="DeltaF-29"><a href="#DeltaF-29"><span class="linenos"> 29</span></a><span class="sd">    ```py</span>
+</span><span id="DeltaF-30"><a href="#DeltaF-30"><span class="linenos"> 30</span></a><span class="sd">    Benchmark(</span>
+</span><span id="DeltaF-31"><a href="#DeltaF-31"><span class="linenos"> 31</span></a><span class="sd">        ...</span>
+</span><span id="DeltaF-32"><a href="#DeltaF-32"><span class="linenos"> 32</span></a><span class="sd">        performance_indicators=[..., &quot;df&quot;, ...]</span>
+</span><span id="DeltaF-33"><a href="#DeltaF-33"><span class="linenos"> 33</span></a><span class="sd">    )</span>
+</span><span id="DeltaF-34"><a href="#DeltaF-34"><span class="linenos"> 34</span></a><span class="sd">    ```</span>
+</span><span id="DeltaF-35"><a href="#DeltaF-35"><span class="linenos"> 35</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="DeltaF-36"><a href="#DeltaF-36"><span class="linenos"> 36</span></a>
+</span><span id="DeltaF-37"><a href="#DeltaF-37"><span class="linenos"> 37</span></a>    <span class="n">_ground_problem</span><span class="p">:</span> <span class="n">Problem</span>
+</span><span id="DeltaF-38"><a href="#DeltaF-38"><span class="linenos"> 38</span></a>    <span class="sd">&quot;&quot;&quot;The ground problem.&quot;&quot;&quot;</span>
+</span><span id="DeltaF-39"><a href="#DeltaF-39"><span class="linenos"> 39</span></a>
+</span><span id="DeltaF-40"><a href="#DeltaF-40"><span class="linenos"> 40</span></a>    <span class="n">_history</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+</span><span id="DeltaF-41"><a href="#DeltaF-41"><span class="linenos"> 41</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DeltaF-42"><a href="#DeltaF-42"><span class="linenos"> 42</span></a><span class="sd">    Contains all `X` values submitted to this indicator, and all denoised `F`</span>
+</span><span id="DeltaF-43"><a href="#DeltaF-43"><span class="linenos"> 43</span></a><span class="sd">    values.</span>
+</span><span id="DeltaF-44"><a href="#DeltaF-44"><span class="linenos"> 44</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="DeltaF-45"><a href="#DeltaF-45"><span class="linenos"> 45</span></a>
+</span><span id="DeltaF-46"><a href="#DeltaF-46"><span class="linenos"> 46</span></a>    <span class="n">_n_evals</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="DeltaF-47"><a href="#DeltaF-47"><span class="linenos"> 47</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DeltaF-48"><a href="#DeltaF-48"><span class="linenos"> 48</span></a><span class="sd">    Number of evaluations of the ground problem that will be averaged in order</span>
+</span><span id="DeltaF-49"><a href="#DeltaF-49"><span class="linenos"> 49</span></a><span class="sd">    to approximate the ground Pareto front.</span>
+</span><span id="DeltaF-50"><a href="#DeltaF-50"><span class="linenos"> 50</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="DeltaF-51"><a href="#DeltaF-51"><span class="linenos"> 51</span></a>
+</span><span id="DeltaF-52"><a href="#DeltaF-52"><span class="linenos"> 52</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">WrappedProblem</span><span class="p">,</span> <span class="n">n_evals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="DeltaF-53"><a href="#DeltaF-53"><span class="linenos"> 53</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">zero_to_one</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="DeltaF-54"><a href="#DeltaF-54"><span class="linenos"> 54</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_ground_problem</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">ground_problem</span><span class="p">()</span>
+</span><span id="DeltaF-55"><a href="#DeltaF-55"><span class="linenos"> 55</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="DeltaF-56"><a href="#DeltaF-56"><span class="linenos"> 56</span></a>        <span class="k">if</span> <span class="n">n_evals</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="DeltaF-57"><a href="#DeltaF-57"><span class="linenos"> 57</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_evals must be &gt;= 1&quot;</span><span class="p">)</span>
+</span><span id="DeltaF-58"><a href="#DeltaF-58"><span class="linenos"> 58</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_n_evals</span> <span class="o">=</span> <span class="n">n_evals</span>
+</span><span id="DeltaF-59"><a href="#DeltaF-59"><span class="linenos"> 59</span></a>
+</span><span id="DeltaF-60"><a href="#DeltaF-60"><span class="linenos"> 60</span></a>    <span class="k">def</span> <span class="nf">_do</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="DeltaF-61"><a href="#DeltaF-61"><span class="linenos"> 61</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DeltaF-62"><a href="#DeltaF-62"><span class="linenos"> 62</span></a><span class="sd">        Calculates ΔF. See class documentation.</span>
+</span><span id="DeltaF-63"><a href="#DeltaF-63"><span class="linenos"> 63</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DeltaF-64"><a href="#DeltaF-64"><span class="linenos"> 64</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+</span><span id="DeltaF-65"><a href="#DeltaF-65"><span class="linenos"> 65</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="DeltaF-66"><a href="#DeltaF-66"><span class="linenos"> 66</span></a>                <span class="s2">&quot;Need a second argument (namely the X array) when calling &quot;</span>
+</span><span id="DeltaF-67"><a href="#DeltaF-67"><span class="linenos"> 67</span></a>                <span class="s2">&quot;DeltaF.do&quot;</span>
+</span><span id="DeltaF-68"><a href="#DeltaF-68"><span class="linenos"> 68</span></a>            <span class="p">)</span>
+</span><span id="DeltaF-69"><a href="#DeltaF-69"><span class="linenos"> 69</span></a>        <span class="n">X</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="DeltaF-70"><a href="#DeltaF-70"><span class="linenos"> 70</span></a>        <span class="n">fs</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="DeltaF-71"><a href="#DeltaF-71"><span class="linenos"> 71</span></a>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_evals</span><span class="p">):</span>
+</span><span id="DeltaF-72"><a href="#DeltaF-72"><span class="linenos"> 72</span></a>            <span class="n">out</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="DeltaF-73"><a href="#DeltaF-73"><span class="linenos"> 73</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_ground_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="DeltaF-74"><a href="#DeltaF-74"><span class="linenos"> 74</span></a>            <span class="n">fs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">])</span>
+</span><span id="DeltaF-75"><a href="#DeltaF-75"><span class="linenos"> 75</span></a>        <span class="n">af</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fs</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="DeltaF-76"><a href="#DeltaF-76"><span class="linenos"> 76</span></a>
+</span><span id="DeltaF-77"><a href="#DeltaF-77"><span class="linenos"> 77</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="DeltaF-78"><a href="#DeltaF-78"><span class="linenos"> 78</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="DeltaF-79"><a href="#DeltaF-79"><span class="linenos"> 79</span></a>            <span class="k">if</span> <span class="s2">&quot;X&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
+</span><span id="DeltaF-80"><a href="#DeltaF-80"><span class="linenos"> 80</span></a>            <span class="k">else</span> <span class="n">X</span>
+</span><span id="DeltaF-81"><a href="#DeltaF-81"><span class="linenos"> 81</span></a>        <span class="p">)</span>
+</span><span id="DeltaF-82"><a href="#DeltaF-82"><span class="linenos"> 82</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="DeltaF-83"><a href="#DeltaF-83"><span class="linenos"> 83</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">],</span> <span class="n">af</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="DeltaF-84"><a href="#DeltaF-84"><span class="linenos"> 84</span></a>            <span class="k">if</span> <span class="s2">&quot;F&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
+</span><span id="DeltaF-85"><a href="#DeltaF-85"><span class="linenos"> 85</span></a>            <span class="k">else</span> <span class="n">af</span>
+</span><span id="DeltaF-86"><a href="#DeltaF-86"><span class="linenos"> 86</span></a>        <span class="p">)</span>
+</span><span id="DeltaF-87"><a href="#DeltaF-87"><span class="linenos"> 87</span></a>
+</span><span id="DeltaF-88"><a href="#DeltaF-88"><span class="linenos"> 88</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">F</span> <span class="o">-</span> <span class="n">af</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="DeltaF-89"><a href="#DeltaF-89"><span class="linenos"> 89</span></a>
+</span><span id="DeltaF-90"><a href="#DeltaF-90"><span class="linenos"> 90</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+</span><span id="DeltaF-91"><a href="#DeltaF-91"><span class="linenos"> 91</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DeltaF-92"><a href="#DeltaF-92"><span class="linenos"> 92</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
+</span><span id="DeltaF-93"><a href="#DeltaF-93"><span class="linenos"> 93</span></a>
+</span><span id="DeltaF-94"><a href="#DeltaF-94"><span class="linenos"> 94</span></a><span class="sd">        Args:</span>
+</span><span id="DeltaF-95"><a href="#DeltaF-95"><span class="linenos"> 95</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
+</span><span id="DeltaF-96"><a href="#DeltaF-96"><span class="linenos"> 96</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
+</span><span id="DeltaF-97"><a href="#DeltaF-97"><span class="linenos"> 97</span></a><span class="sd">                `True`).</span>
+</span><span id="DeltaF-98"><a href="#DeltaF-98"><span class="linenos"> 98</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DeltaF-99"><a href="#DeltaF-99"><span class="linenos"> 99</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
+</span><span id="DeltaF-100"><a href="#DeltaF-100"><span class="linenos">100</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>The ΔF performance indicator. Given</p>
 
 <ul>
-<li>a <code>WrappedProblem</code> <code>p</code>, with <code>g</code> its ground problem,</li>
+<li>a <code><a href="../wrapped_problem.html#WrappedProblem">nmoo.wrapped_problem.WrappedProblem</a></code> with <code>g</code> its ground problem,</li>
 <li>a Pareto set <code>F</code>,</li>
 <li>and a population <code>X</code>,</li>
 </ul>
 
 <p>calculates the vectorized average Euclidean distance between <code>F</code> and <code>Y</code>,
 where <code>Y</code> is obtained by averaging <code>g(X)</code> a given number of times.</p>
+
+<p>You can use this PI in a benchmark as</p>
+
+<div class="pdoc-code codehilite"><pre><span></span><code><span class="n">Benchmark</span><span class="p">(</span>
+    <span class="o">...</span>
+    <span class="n">performance_indicators</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="s2">&quot;df&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
 </div>
 
 
@@ -288,13 +314,13 @@ where <code>Y</code> is obtained by averaging <code>g(X)</code> a given number o
 
     </div>
     <a class="headerlink" href="#DeltaF.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="DeltaF.__init__-43"><a href="#DeltaF.__init__-43"><span class="linenos">43</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">WrappedProblem</span><span class="p">,</span> <span class="n">n_evals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="DeltaF.__init__-44"><a href="#DeltaF.__init__-44"><span class="linenos">44</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">zero_to_one</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="DeltaF.__init__-45"><a href="#DeltaF.__init__-45"><span class="linenos">45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_ground_problem</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">ground_problem</span><span class="p">()</span>
-</span><span id="DeltaF.__init__-46"><a href="#DeltaF.__init__-46"><span class="linenos">46</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="DeltaF.__init__-47"><a href="#DeltaF.__init__-47"><span class="linenos">47</span></a>        <span class="k">if</span> <span class="n">n_evals</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="DeltaF.__init__-48"><a href="#DeltaF.__init__-48"><span class="linenos">48</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_evals must be &gt;= 1&quot;</span><span class="p">)</span>
-</span><span id="DeltaF.__init__-49"><a href="#DeltaF.__init__-49"><span class="linenos">49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_n_evals</span> <span class="o">=</span> <span class="n">n_evals</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="DeltaF.__init__-52"><a href="#DeltaF.__init__-52"><span class="linenos">52</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">WrappedProblem</span><span class="p">,</span> <span class="n">n_evals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="DeltaF.__init__-53"><a href="#DeltaF.__init__-53"><span class="linenos">53</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">zero_to_one</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="DeltaF.__init__-54"><a href="#DeltaF.__init__-54"><span class="linenos">54</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_ground_problem</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">ground_problem</span><span class="p">()</span>
+</span><span id="DeltaF.__init__-55"><a href="#DeltaF.__init__-55"><span class="linenos">55</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="DeltaF.__init__-56"><a href="#DeltaF.__init__-56"><span class="linenos">56</span></a>        <span class="k">if</span> <span class="n">n_evals</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="DeltaF.__init__-57"><a href="#DeltaF.__init__-57"><span class="linenos">57</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_evals must be &gt;= 1&quot;</span><span class="p">)</span>
+</span><span id="DeltaF.__init__-58"><a href="#DeltaF.__init__-58"><span class="linenos">58</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_n_evals</span> <span class="o">=</span> <span class="n">n_evals</span>
 </span></pre></div>
 
 
@@ -312,17 +338,17 @@ where <code>Y</code> is obtained by averaging <code>g(X)</code> a given number o
 
     </div>
     <a class="headerlink" href="#DeltaF.dump_history"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="DeltaF.dump_history-81"><a href="#DeltaF.dump_history-81"><span class="linenos">81</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-</span><span id="DeltaF.dump_history-82"><a href="#DeltaF.dump_history-82"><span class="linenos">82</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="DeltaF.dump_history-83"><a href="#DeltaF.dump_history-83"><span class="linenos">83</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
-</span><span id="DeltaF.dump_history-84"><a href="#DeltaF.dump_history-84"><span class="linenos">84</span></a>
-</span><span id="DeltaF.dump_history-85"><a href="#DeltaF.dump_history-85"><span class="linenos">85</span></a><span class="sd">        Args:</span>
-</span><span id="DeltaF.dump_history-86"><a href="#DeltaF.dump_history-86"><span class="linenos">86</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
-</span><span id="DeltaF.dump_history-87"><a href="#DeltaF.dump_history-87"><span class="linenos">87</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
-</span><span id="DeltaF.dump_history-88"><a href="#DeltaF.dump_history-88"><span class="linenos">88</span></a><span class="sd">                `True`).</span>
-</span><span id="DeltaF.dump_history-89"><a href="#DeltaF.dump_history-89"><span class="linenos">89</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="DeltaF.dump_history-90"><a href="#DeltaF.dump_history-90"><span class="linenos">90</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
-</span><span id="DeltaF.dump_history-91"><a href="#DeltaF.dump_history-91"><span class="linenos">91</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="DeltaF.dump_history-90"><a href="#DeltaF.dump_history-90"><span class="linenos"> 90</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+</span><span id="DeltaF.dump_history-91"><a href="#DeltaF.dump_history-91"><span class="linenos"> 91</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="DeltaF.dump_history-92"><a href="#DeltaF.dump_history-92"><span class="linenos"> 92</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
+</span><span id="DeltaF.dump_history-93"><a href="#DeltaF.dump_history-93"><span class="linenos"> 93</span></a>
+</span><span id="DeltaF.dump_history-94"><a href="#DeltaF.dump_history-94"><span class="linenos"> 94</span></a><span class="sd">        Args:</span>
+</span><span id="DeltaF.dump_history-95"><a href="#DeltaF.dump_history-95"><span class="linenos"> 95</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
+</span><span id="DeltaF.dump_history-96"><a href="#DeltaF.dump_history-96"><span class="linenos"> 96</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
+</span><span id="DeltaF.dump_history-97"><a href="#DeltaF.dump_history-97"><span class="linenos"> 97</span></a><span class="sd">                `True`).</span>
+</span><span id="DeltaF.dump_history-98"><a href="#DeltaF.dump_history-98"><span class="linenos"> 98</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="DeltaF.dump_history-99"><a href="#DeltaF.dump_history-99"><span class="linenos"> 99</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
+</span><span id="DeltaF.dump_history-100"><a href="#DeltaF.dump_history-100"><span class="linenos">100</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
 </span></pre></div>
 
 

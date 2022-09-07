@@ -115,40 +115,41 @@
 </span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">        Args:</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
 </span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">                when creating history dump files. Defaults to `lambda`.</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">            parameters (dict): Functions to apply, in the form of a dict</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">                mapping the name of an objective to a callable object. The set</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">                of keys should be a subset of the final `out` dictionary keys</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">                in the wrapped problem&#39;s `_evaluate` method.</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">        Example:</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">            Assume that the output of the wrapped problem has an `F`</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">            numerical objective. The following multiplies its value by 2:</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">                problem2 = nmoo.Lambda(</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">                    problem,</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">                    {</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">                        &quot;F&quot;: lambda x: 2. * x,</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="sd">                    },</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="sd">                )</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_functions</span> <span class="o">=</span> <span class="n">functions</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">function</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_functions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>            <span class="k">try</span><span class="p">:</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>                <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>                    <span class="s2">&quot;Callable key </span><span class="si">%s</span><span class="s2"> is not present in objective &quot;</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>                    <span class="s2">&quot;function output keys. This objective will not be &quot;</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>                    <span class="s2">&quot;modified. Objective function keys: </span><span class="si">%s</span><span class="s2">. &quot;</span><span class="p">,</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>                    <span class="n">k</span><span class="p">,</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>                    <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>                <span class="p">)</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">            problem (pymoo `Problem`): A non-noisy pymoo problem (or</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">                `nmoo.wrapped_problem.WrappedProblem`).</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">            parameters (dict): Functions to apply, in the form of a dict</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">                mapping the name of an objective to a callable object. The set</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">                of keys should be a subset of the final `out` dictionary keys</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">                in the wrapped problem&#39;s `_evaluate` method.</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">        Example:</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">            Assume that the output of the wrapped problem has an `F`</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">            numerical objective. The following multiplies its value by 2:</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">                problem2 = nmoo.Lambda(</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">                    problem,</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">                    {</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="sd">                        &quot;F&quot;: lambda x: 2. * x,</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="sd">                    },</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">                )</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_functions</span> <span class="o">=</span> <span class="n">functions</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">function</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_functions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>            <span class="k">try</span><span class="p">:</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>                <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>                    <span class="s2">&quot;Callable key </span><span class="si">%s</span><span class="s2"> is not present in objective &quot;</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>                    <span class="s2">&quot;function output keys. This objective will not be &quot;</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>                    <span class="s2">&quot;modified. Objective function keys: </span><span class="si">%s</span><span class="s2">. &quot;</span><span class="p">,</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>                    <span class="n">k</span><span class="p">,</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>                    <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>                <span class="p">)</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -186,40 +187,41 @@
 </span><span id="Lambda-35"><a href="#Lambda-35"><span class="linenos">35</span></a><span class="sd">        Args:</span>
 </span><span id="Lambda-36"><a href="#Lambda-36"><span class="linenos">36</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
 </span><span id="Lambda-37"><a href="#Lambda-37"><span class="linenos">37</span></a><span class="sd">                when creating history dump files. Defaults to `lambda`.</span>
-</span><span id="Lambda-38"><a href="#Lambda-38"><span class="linenos">38</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
-</span><span id="Lambda-39"><a href="#Lambda-39"><span class="linenos">39</span></a><span class="sd">            parameters (dict): Functions to apply, in the form of a dict</span>
-</span><span id="Lambda-40"><a href="#Lambda-40"><span class="linenos">40</span></a><span class="sd">                mapping the name of an objective to a callable object. The set</span>
-</span><span id="Lambda-41"><a href="#Lambda-41"><span class="linenos">41</span></a><span class="sd">                of keys should be a subset of the final `out` dictionary keys</span>
-</span><span id="Lambda-42"><a href="#Lambda-42"><span class="linenos">42</span></a><span class="sd">                in the wrapped problem&#39;s `_evaluate` method.</span>
-</span><span id="Lambda-43"><a href="#Lambda-43"><span class="linenos">43</span></a>
-</span><span id="Lambda-44"><a href="#Lambda-44"><span class="linenos">44</span></a><span class="sd">        Example:</span>
-</span><span id="Lambda-45"><a href="#Lambda-45"><span class="linenos">45</span></a><span class="sd">            Assume that the output of the wrapped problem has an `F`</span>
-</span><span id="Lambda-46"><a href="#Lambda-46"><span class="linenos">46</span></a><span class="sd">            numerical objective. The following multiplies its value by 2:</span>
-</span><span id="Lambda-47"><a href="#Lambda-47"><span class="linenos">47</span></a>
-</span><span id="Lambda-48"><a href="#Lambda-48"><span class="linenos">48</span></a><span class="sd">                problem2 = nmoo.Lambda(</span>
-</span><span id="Lambda-49"><a href="#Lambda-49"><span class="linenos">49</span></a><span class="sd">                    problem,</span>
-</span><span id="Lambda-50"><a href="#Lambda-50"><span class="linenos">50</span></a><span class="sd">                    {</span>
-</span><span id="Lambda-51"><a href="#Lambda-51"><span class="linenos">51</span></a><span class="sd">                        &quot;F&quot;: lambda x: 2. * x,</span>
-</span><span id="Lambda-52"><a href="#Lambda-52"><span class="linenos">52</span></a><span class="sd">                    },</span>
-</span><span id="Lambda-53"><a href="#Lambda-53"><span class="linenos">53</span></a><span class="sd">                )</span>
-</span><span id="Lambda-54"><a href="#Lambda-54"><span class="linenos">54</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Lambda-55"><a href="#Lambda-55"><span class="linenos">55</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="Lambda-56"><a href="#Lambda-56"><span class="linenos">56</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_functions</span> <span class="o">=</span> <span class="n">functions</span>
-</span><span id="Lambda-57"><a href="#Lambda-57"><span class="linenos">57</span></a>
-</span><span id="Lambda-58"><a href="#Lambda-58"><span class="linenos">58</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Lambda-59"><a href="#Lambda-59"><span class="linenos">59</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="Lambda-60"><a href="#Lambda-60"><span class="linenos">60</span></a>        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">function</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_functions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="Lambda-61"><a href="#Lambda-61"><span class="linenos">61</span></a>            <span class="k">try</span><span class="p">:</span>
-</span><span id="Lambda-62"><a href="#Lambda-62"><span class="linenos">62</span></a>                <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-</span><span id="Lambda-63"><a href="#Lambda-63"><span class="linenos">63</span></a>            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-</span><span id="Lambda-64"><a href="#Lambda-64"><span class="linenos">64</span></a>                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-</span><span id="Lambda-65"><a href="#Lambda-65"><span class="linenos">65</span></a>                    <span class="s2">&quot;Callable key </span><span class="si">%s</span><span class="s2"> is not present in objective &quot;</span>
-</span><span id="Lambda-66"><a href="#Lambda-66"><span class="linenos">66</span></a>                    <span class="s2">&quot;function output keys. This objective will not be &quot;</span>
-</span><span id="Lambda-67"><a href="#Lambda-67"><span class="linenos">67</span></a>                    <span class="s2">&quot;modified. Objective function keys: </span><span class="si">%s</span><span class="s2">. &quot;</span><span class="p">,</span>
-</span><span id="Lambda-68"><a href="#Lambda-68"><span class="linenos">68</span></a>                    <span class="n">k</span><span class="p">,</span>
-</span><span id="Lambda-69"><a href="#Lambda-69"><span class="linenos">69</span></a>                    <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
-</span><span id="Lambda-70"><a href="#Lambda-70"><span class="linenos">70</span></a>                <span class="p">)</span>
-</span><span id="Lambda-71"><a href="#Lambda-71"><span class="linenos">71</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+</span><span id="Lambda-38"><a href="#Lambda-38"><span class="linenos">38</span></a><span class="sd">            problem (pymoo `Problem`): A non-noisy pymoo problem (or</span>
+</span><span id="Lambda-39"><a href="#Lambda-39"><span class="linenos">39</span></a><span class="sd">                `nmoo.wrapped_problem.WrappedProblem`).</span>
+</span><span id="Lambda-40"><a href="#Lambda-40"><span class="linenos">40</span></a><span class="sd">            parameters (dict): Functions to apply, in the form of a dict</span>
+</span><span id="Lambda-41"><a href="#Lambda-41"><span class="linenos">41</span></a><span class="sd">                mapping the name of an objective to a callable object. The set</span>
+</span><span id="Lambda-42"><a href="#Lambda-42"><span class="linenos">42</span></a><span class="sd">                of keys should be a subset of the final `out` dictionary keys</span>
+</span><span id="Lambda-43"><a href="#Lambda-43"><span class="linenos">43</span></a><span class="sd">                in the wrapped problem&#39;s `_evaluate` method.</span>
+</span><span id="Lambda-44"><a href="#Lambda-44"><span class="linenos">44</span></a>
+</span><span id="Lambda-45"><a href="#Lambda-45"><span class="linenos">45</span></a><span class="sd">        Example:</span>
+</span><span id="Lambda-46"><a href="#Lambda-46"><span class="linenos">46</span></a><span class="sd">            Assume that the output of the wrapped problem has an `F`</span>
+</span><span id="Lambda-47"><a href="#Lambda-47"><span class="linenos">47</span></a><span class="sd">            numerical objective. The following multiplies its value by 2:</span>
+</span><span id="Lambda-48"><a href="#Lambda-48"><span class="linenos">48</span></a>
+</span><span id="Lambda-49"><a href="#Lambda-49"><span class="linenos">49</span></a><span class="sd">                problem2 = nmoo.Lambda(</span>
+</span><span id="Lambda-50"><a href="#Lambda-50"><span class="linenos">50</span></a><span class="sd">                    problem,</span>
+</span><span id="Lambda-51"><a href="#Lambda-51"><span class="linenos">51</span></a><span class="sd">                    {</span>
+</span><span id="Lambda-52"><a href="#Lambda-52"><span class="linenos">52</span></a><span class="sd">                        &quot;F&quot;: lambda x: 2. * x,</span>
+</span><span id="Lambda-53"><a href="#Lambda-53"><span class="linenos">53</span></a><span class="sd">                    },</span>
+</span><span id="Lambda-54"><a href="#Lambda-54"><span class="linenos">54</span></a><span class="sd">                )</span>
+</span><span id="Lambda-55"><a href="#Lambda-55"><span class="linenos">55</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Lambda-56"><a href="#Lambda-56"><span class="linenos">56</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="Lambda-57"><a href="#Lambda-57"><span class="linenos">57</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_functions</span> <span class="o">=</span> <span class="n">functions</span>
+</span><span id="Lambda-58"><a href="#Lambda-58"><span class="linenos">58</span></a>
+</span><span id="Lambda-59"><a href="#Lambda-59"><span class="linenos">59</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="Lambda-60"><a href="#Lambda-60"><span class="linenos">60</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="Lambda-61"><a href="#Lambda-61"><span class="linenos">61</span></a>        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">function</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_functions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="Lambda-62"><a href="#Lambda-62"><span class="linenos">62</span></a>            <span class="k">try</span><span class="p">:</span>
+</span><span id="Lambda-63"><a href="#Lambda-63"><span class="linenos">63</span></a>                <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+</span><span id="Lambda-64"><a href="#Lambda-64"><span class="linenos">64</span></a>            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+</span><span id="Lambda-65"><a href="#Lambda-65"><span class="linenos">65</span></a>                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+</span><span id="Lambda-66"><a href="#Lambda-66"><span class="linenos">66</span></a>                    <span class="s2">&quot;Callable key </span><span class="si">%s</span><span class="s2"> is not present in objective &quot;</span>
+</span><span id="Lambda-67"><a href="#Lambda-67"><span class="linenos">67</span></a>                    <span class="s2">&quot;function output keys. This objective will not be &quot;</span>
+</span><span id="Lambda-68"><a href="#Lambda-68"><span class="linenos">68</span></a>                    <span class="s2">&quot;modified. Objective function keys: </span><span class="si">%s</span><span class="s2">. &quot;</span><span class="p">,</span>
+</span><span id="Lambda-69"><a href="#Lambda-69"><span class="linenos">69</span></a>                    <span class="n">k</span><span class="p">,</span>
+</span><span id="Lambda-70"><a href="#Lambda-70"><span class="linenos">70</span></a>                    <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
+</span><span id="Lambda-71"><a href="#Lambda-71"><span class="linenos">71</span></a>                <span class="p">)</span>
+</span><span id="Lambda-72"><a href="#Lambda-72"><span class="linenos">72</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -251,25 +253,26 @@
 </span><span id="Lambda.__init__-35"><a href="#Lambda.__init__-35"><span class="linenos">35</span></a><span class="sd">        Args:</span>
 </span><span id="Lambda.__init__-36"><a href="#Lambda.__init__-36"><span class="linenos">36</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
 </span><span id="Lambda.__init__-37"><a href="#Lambda.__init__-37"><span class="linenos">37</span></a><span class="sd">                when creating history dump files. Defaults to `lambda`.</span>
-</span><span id="Lambda.__init__-38"><a href="#Lambda.__init__-38"><span class="linenos">38</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
-</span><span id="Lambda.__init__-39"><a href="#Lambda.__init__-39"><span class="linenos">39</span></a><span class="sd">            parameters (dict): Functions to apply, in the form of a dict</span>
-</span><span id="Lambda.__init__-40"><a href="#Lambda.__init__-40"><span class="linenos">40</span></a><span class="sd">                mapping the name of an objective to a callable object. The set</span>
-</span><span id="Lambda.__init__-41"><a href="#Lambda.__init__-41"><span class="linenos">41</span></a><span class="sd">                of keys should be a subset of the final `out` dictionary keys</span>
-</span><span id="Lambda.__init__-42"><a href="#Lambda.__init__-42"><span class="linenos">42</span></a><span class="sd">                in the wrapped problem&#39;s `_evaluate` method.</span>
-</span><span id="Lambda.__init__-43"><a href="#Lambda.__init__-43"><span class="linenos">43</span></a>
-</span><span id="Lambda.__init__-44"><a href="#Lambda.__init__-44"><span class="linenos">44</span></a><span class="sd">        Example:</span>
-</span><span id="Lambda.__init__-45"><a href="#Lambda.__init__-45"><span class="linenos">45</span></a><span class="sd">            Assume that the output of the wrapped problem has an `F`</span>
-</span><span id="Lambda.__init__-46"><a href="#Lambda.__init__-46"><span class="linenos">46</span></a><span class="sd">            numerical objective. The following multiplies its value by 2:</span>
-</span><span id="Lambda.__init__-47"><a href="#Lambda.__init__-47"><span class="linenos">47</span></a>
-</span><span id="Lambda.__init__-48"><a href="#Lambda.__init__-48"><span class="linenos">48</span></a><span class="sd">                problem2 = nmoo.Lambda(</span>
-</span><span id="Lambda.__init__-49"><a href="#Lambda.__init__-49"><span class="linenos">49</span></a><span class="sd">                    problem,</span>
-</span><span id="Lambda.__init__-50"><a href="#Lambda.__init__-50"><span class="linenos">50</span></a><span class="sd">                    {</span>
-</span><span id="Lambda.__init__-51"><a href="#Lambda.__init__-51"><span class="linenos">51</span></a><span class="sd">                        &quot;F&quot;: lambda x: 2. * x,</span>
-</span><span id="Lambda.__init__-52"><a href="#Lambda.__init__-52"><span class="linenos">52</span></a><span class="sd">                    },</span>
-</span><span id="Lambda.__init__-53"><a href="#Lambda.__init__-53"><span class="linenos">53</span></a><span class="sd">                )</span>
-</span><span id="Lambda.__init__-54"><a href="#Lambda.__init__-54"><span class="linenos">54</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Lambda.__init__-55"><a href="#Lambda.__init__-55"><span class="linenos">55</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="Lambda.__init__-56"><a href="#Lambda.__init__-56"><span class="linenos">56</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_functions</span> <span class="o">=</span> <span class="n">functions</span>
+</span><span id="Lambda.__init__-38"><a href="#Lambda.__init__-38"><span class="linenos">38</span></a><span class="sd">            problem (pymoo `Problem`): A non-noisy pymoo problem (or</span>
+</span><span id="Lambda.__init__-39"><a href="#Lambda.__init__-39"><span class="linenos">39</span></a><span class="sd">                `nmoo.wrapped_problem.WrappedProblem`).</span>
+</span><span id="Lambda.__init__-40"><a href="#Lambda.__init__-40"><span class="linenos">40</span></a><span class="sd">            parameters (dict): Functions to apply, in the form of a dict</span>
+</span><span id="Lambda.__init__-41"><a href="#Lambda.__init__-41"><span class="linenos">41</span></a><span class="sd">                mapping the name of an objective to a callable object. The set</span>
+</span><span id="Lambda.__init__-42"><a href="#Lambda.__init__-42"><span class="linenos">42</span></a><span class="sd">                of keys should be a subset of the final `out` dictionary keys</span>
+</span><span id="Lambda.__init__-43"><a href="#Lambda.__init__-43"><span class="linenos">43</span></a><span class="sd">                in the wrapped problem&#39;s `_evaluate` method.</span>
+</span><span id="Lambda.__init__-44"><a href="#Lambda.__init__-44"><span class="linenos">44</span></a>
+</span><span id="Lambda.__init__-45"><a href="#Lambda.__init__-45"><span class="linenos">45</span></a><span class="sd">        Example:</span>
+</span><span id="Lambda.__init__-46"><a href="#Lambda.__init__-46"><span class="linenos">46</span></a><span class="sd">            Assume that the output of the wrapped problem has an `F`</span>
+</span><span id="Lambda.__init__-47"><a href="#Lambda.__init__-47"><span class="linenos">47</span></a><span class="sd">            numerical objective. The following multiplies its value by 2:</span>
+</span><span id="Lambda.__init__-48"><a href="#Lambda.__init__-48"><span class="linenos">48</span></a>
+</span><span id="Lambda.__init__-49"><a href="#Lambda.__init__-49"><span class="linenos">49</span></a><span class="sd">                problem2 = nmoo.Lambda(</span>
+</span><span id="Lambda.__init__-50"><a href="#Lambda.__init__-50"><span class="linenos">50</span></a><span class="sd">                    problem,</span>
+</span><span id="Lambda.__init__-51"><a href="#Lambda.__init__-51"><span class="linenos">51</span></a><span class="sd">                    {</span>
+</span><span id="Lambda.__init__-52"><a href="#Lambda.__init__-52"><span class="linenos">52</span></a><span class="sd">                        &quot;F&quot;: lambda x: 2. * x,</span>
+</span><span id="Lambda.__init__-53"><a href="#Lambda.__init__-53"><span class="linenos">53</span></a><span class="sd">                    },</span>
+</span><span id="Lambda.__init__-54"><a href="#Lambda.__init__-54"><span class="linenos">54</span></a><span class="sd">                )</span>
+</span><span id="Lambda.__init__-55"><a href="#Lambda.__init__-55"><span class="linenos">55</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Lambda.__init__-56"><a href="#Lambda.__init__-56"><span class="linenos">56</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="Lambda.__init__-57"><a href="#Lambda.__init__-57"><span class="linenos">57</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_functions</span> <span class="o">=</span> <span class="n">functions</span>
 </span></pre></div>
 
 
@@ -280,7 +283,8 @@
 <ul>
 <li><strong>name (str):</strong>  An optional name for this problem. This will be used
 when creating history dump files. Defaults to <code>lambda</code>.</li>
-<li><strong>problem (<code>Problem</code>):</strong>  A non-noisy pymoo problem.</li>
+<li><strong>problem (pymoo <code>Problem</code>):</strong>  A non-noisy pymoo problem (or
+<code><a href="wrapped_problem.html#WrappedProblem">nmoo.wrapped_problem.WrappedProblem</a></code>).</li>
 <li><strong>parameters (dict):</strong>  Functions to apply, in the form of a dict
 mapping the name of an objective to a callable object. The set
 of keys should be a subset of the final <code>out</code> dictionary keys
@@ -312,9 +316,11 @@ in the wrapped problem's <code>_evaluate</code> method.</li>
                                 <dd id="Lambda.add_to_history" class="function"><a href="wrapped_problem.html#WrappedProblem.add_to_history">add_to_history</a></dd>
                 <dd id="Lambda.add_to_history_x_out" class="function"><a href="wrapped_problem.html#WrappedProblem.add_to_history_x_out">add_to_history_x_out</a></dd>
                 <dd id="Lambda.all_layers" class="function"><a href="wrapped_problem.html#WrappedProblem.all_layers">all_layers</a></dd>
+                <dd id="Lambda.depth" class="function"><a href="wrapped_problem.html#WrappedProblem.depth">depth</a></dd>
                 <dd id="Lambda.dump_all_histories" class="function"><a href="wrapped_problem.html#WrappedProblem.dump_all_histories">dump_all_histories</a></dd>
                 <dd id="Lambda.dump_history" class="function"><a href="wrapped_problem.html#WrappedProblem.dump_history">dump_history</a></dd>
                 <dd id="Lambda.ground_problem" class="function"><a href="wrapped_problem.html#WrappedProblem.ground_problem">ground_problem</a></dd>
+                <dd id="Lambda.innermost_wrapper" class="function"><a href="wrapped_problem.html#WrappedProblem.innermost_wrapper">innermost_wrapper</a></dd>
                 <dd id="Lambda.reseed" class="function"><a href="wrapped_problem.html#WrappedProblem.reseed">reseed</a></dd>
                 <dd id="Lambda.start_new_run" class="function"><a href="wrapped_problem.html#WrappedProblem.start_new_run">start_new_run</a></dd>
 

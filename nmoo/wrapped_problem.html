@@ -63,6 +63,9 @@
                                 <a class="function" href="#WrappedProblem.all_layers">all_layers</a>
                         </li>
                         <li>
+                                <a class="function" href="#WrappedProblem.depth">depth</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#WrappedProblem.dump_all_histories">dump_all_histories</a>
                         </li>
                         <li>
@@ -70,6 +73,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#WrappedProblem.ground_problem">ground_problem</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#WrappedProblem.innermost_wrapper">innermost_wrapper</a>
                         </li>
                         <li>
                                 <a class="function" href="#WrappedProblem.reseed">reseed</a>
@@ -99,16 +105,12 @@
                         <div class="docstring"><p>Base <code><a href="../nmoo.html">nmoo</a></code> problem class. A <code><a href="#WrappedProblem">WrappedProblem</a></code> is simply a
 <a href="https://pymoo.org/problems/definition.html"><code>pymoo.core.problem.Problem</code></a> that
 contains another problem (<code><a href="../nmoo.html">nmoo</a></code> or <code>pymoo</code>) to which calls to <code>_evaluate</code> are
-deferred to. A <code><a href="#WrappedProblem">WrappedProblem</a></code> also have call history features (although it is
-the responsability of the <code>_evaluate</code> implementation to populate it).</p>
+deferred to. A <code><a href="#WrappedProblem">WrappedProblem</a></code> also have call history (although it is the
+responsability of the <code>_evaluate</code> implementation to populate it).</p>
 
-<h6 id="note">Note</h6>
-
-<blockquote>
-  <p>Since <code><a href="#WrappedProblem">WrappedProblem</a></code> directly inherits from
-  <a href="https://pymoo.org/problems/definition.html"><code>pymoo.core.problem.Problem</code></a>,
-  wrapped problems can be used seemlessly with <code>pymoo</code>.</p>
-</blockquote>
+<p>Since <code><a href="#WrappedProblem">WrappedProblem</a></code> directly inherits from
+<a href="https://pymoo.org/problems/definition.html"><code>pymoo.core.problem.Problem</code></a>,
+wrapped problems can be used seemlessly with <code>pymoo</code>.</p>
 </div>
 
                         <input id="wrapped_problem-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -119,75 +121,75 @@ the responsability of the <code>_evaluate</code> implementation to populate it).
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="sd">Base `nmoo` problem class. A `WrappedProblem` is simply a</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="sd">[`pymoo.core.problem.Problem`](https://pymoo.org/problems/definition.html) that</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="sd">contains another problem (`nmoo` or `pymoo`) to which calls to `_evaluate` are</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="sd">deferred to. A `WrappedProblem` also have call history features (although it is</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="sd">the responsability of the `_evaluate` implementation to populate it).</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="sd">deferred to. A `WrappedProblem` also have call history (although it is the</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="sd">responsability of the `_evaluate` implementation to populate it).</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="sd">Note:</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="sd">    Since `WrappedProblem` directly inherits from</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">    [`pymoo.core.problem.Problem`](https://pymoo.org/problems/definition.html),</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">    wrapped problems can be used seemlessly with `pymoo`.</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>
-</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="kn">import</span> <span class="nn">logging</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="kn">from</span> <span class="nn">pymoo.core.problem</span> <span class="kn">import</span> <span class="n">Problem</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="sd">Since `WrappedProblem` directly inherits from</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="sd">[`pymoo.core.problem.Problem`](https://pymoo.org/problems/definition.html),</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">wrapped problems can be used seemlessly with `pymoo`.</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="kn">import</span> <span class="nn">logging</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="kn">from</span> <span class="nn">pymoo.core.problem</span> <span class="kn">import</span> <span class="n">Problem</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>
 </span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>
-</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>
-</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="k">class</span> <span class="nc">WrappedProblem</span><span class="p">(</span><span class="n">Problem</span><span class="p">):</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="sd">    A simple Pymoo :obj:`Problem` wrapper that keeps a history of all calls</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="sd">    made to it.</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>    <span class="n">_current_history_batch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a><span class="sd">    The number of batches added to history.</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>
-</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>    <span class="n">_current_run</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">    Current run number. See `nmoo.utils.WrappedProblem.start_new_run`.</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>    <span class="n">_history</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">    A history is a dictionary that maps string keys (e.g. `&quot;X&quot;`) to a numpy</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="sd">    array of all values of that key (e.g. all values of `&quot;X&quot;`). All the numpy</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">    arrays should have the same length (0th shape component) but are not</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">    required to have the same type.</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">    If you subclass this class, don&#39;t forget to carefully document the meaning</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">    of the keys of what you&#39;re story in history.</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>    <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>    <span class="sd">&quot;&quot;&quot;The name of this problem.&quot;&quot;&quot;</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">_problem</span><span class="p">:</span> <span class="n">Problem</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>    <span class="sd">&quot;&quot;&quot;Wrapped pymoo problem.&quot;&quot;&quot;</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>        <span class="o">*</span><span class="p">,</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="n">copy_problem</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wrapped_problem&quot;</span><span class="p">,</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>    <span class="p">):</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">        Constructor.</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">        Args:</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">            copy_problem (bool): Wether to deepcopy the problem. If `problem`</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">                is a `WrappedProblem`, this is recommended to avoid history</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">                clashes. However, if whatever benchmark that uses this problem</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">                uses multiprocessing (as opposed to single or multithreading),</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">                this does not seem to be necessary.</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="k">class</span> <span class="nc">WrappedProblem</span><span class="p">(</span><span class="n">Problem</span><span class="p">):</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="sd">    A simple Pymoo `Problem` wrapper that keeps a history of all calls</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="sd">    made to it.</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>    <span class="n">_current_history_batch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a><span class="sd">    The number of batches added to history.</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>    <span class="n">_current_run</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="sd">    Current run number. See `nmoo.utils.WrappedProblem.start_new_run`.</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>    <span class="n">_history</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="sd">    A history is a dictionary that maps string keys (e.g. `&quot;X&quot;`) to a numpy</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">    array of all values of that key (e.g. all values of `&quot;X&quot;`). All the numpy</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="sd">    arrays should have the same length (0th shape component) but are not</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">    required to have the same type.</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="sd">    If you subclass this class, don&#39;t forget to carefully document the meaning</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">    of the keys of what you&#39;re story in history.</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>    <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>    <span class="sd">&quot;&quot;&quot;The name of this problem&quot;&quot;&quot;</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>    <span class="n">_problem</span><span class="p">:</span> <span class="n">Problem</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="sd">&quot;&quot;&quot;Wrapped pymoo problem (or `nmoo.wrapped_problem.WrappedProblem`)&quot;&quot;&quot;</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>        <span class="o">*</span><span class="p">,</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>        <span class="n">copy_problem</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wrapped_problem&quot;</span><span class="p">,</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="p">):</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">        Constructor.</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">        Args:</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">            copy_problem (bool): Wether to deepcopy the problem. If `problem`</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">                is a `WrappedProblem`, this is recommended to avoid history</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">                clashes. However, if whatever benchmark that uses this problem</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">                uses multiprocessing (as opposed to single or multithreading),</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">                this does not seem to be necessary.</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">            problem (pymoo `Problem`): A non-noisy pymoo problem (or</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">                `nmoo.wrapped_problem.WrappedProblem`).</span>
 </span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">                when creating history dump files. Defaults to</span>
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">                `wrapped_problem`.</span>
@@ -267,102 +269,130 @@ the responsability of the <code>_evaluate</code> implementation to populate it).
 </span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>            <span class="k">else</span> <span class="p">[]</span>
 </span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>        <span class="p">)</span>
 </span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>    <span class="k">def</span> <span class="nf">dump_all_histories</span><span class="p">(</span>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>        <span class="n">dir_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>        <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>        <span class="n">_idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>    <span class="p">):</span>
-</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a><span class="sd">        Dumps this problem&#39;s history, as well as all problems (more precisely,</span>
-</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a><span class="sd">        instances of `nmoo.utils.WrappedProblem`) recursively wrapped within</span>
-</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a><span class="sd">        it. This will result in one `.npz` for each problem involved.</span>
-</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>
-</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a><span class="sd">        Args:</span>
-</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a><span class="sd">            dir_path (Union[Path, str]): Output directory.</span>
-</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a><span class="sd">            name (str): The output files will be named according to the</span>
-</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a><span class="sd">                following pattern: `&lt;name&gt;.&lt;_idx&gt;-&lt;layer_name&gt;.npz`, where</span>
-</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a><span class="sd">                `_idx` is the &quot;depth&quot; of the corresponding problem (1 for the</span>
-</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a><span class="sd">                outermost, 2 for the one wrapped within it, etc.), and</span>
-</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a><span class="sd">                `layer_name` is the name of the current `WrappedProblem`</span>
-</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a><span class="sd">                instance (see `WrappedProblem.__init__`).</span>
-</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
-</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a><span class="sd">                `True`).</span>
-</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a><span class="sd">            _idx (int): Don&#39;t touch that.</span>
-</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>
-</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a><span class="sd">        See also:</span>
-</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a><span class="sd">            `nmoo.utils.WrappedProblem.dump_history`</span>
-</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dump_history</span><span class="p">(</span>
-</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>            <span class="n">Path</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">_idx</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">.npz&quot;</span><span class="p">,</span> <span class="n">compressed</span>
-</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a>        <span class="p">)</span>
-</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">dump_all_histories</span><span class="p">(</span>
-</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a>                <span class="n">dir_path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">compressed</span><span class="p">,</span> <span class="n">_idx</span> <span class="o">+</span> <span class="mi">1</span>
-</span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a>            <span class="p">)</span>
-</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a>
-</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-</span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
-</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a>
-</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a><span class="sd">        Args:</span>
-</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
-</span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
-</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="sd">                `True`).</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>    <span class="k">def</span> <span class="nf">depth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="sd">        Returns the number of `WrappedProblem` that separate this</span>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a><span class="sd">        `WrappedProblem` to the ground problem (see `ground_problem`). For</span>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a><span class="sd">        example:</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a><span class="sd">            x = WrappedProblem(</span>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a><span class="sd">                WrappedProblem(</span>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a><span class="sd">                    WrappedProblem(</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a><span class="sd">                        ZDT1(...)</span>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a><span class="sd">                    )</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a><span class="sd">                )</span>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a><span class="sd">            )</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a><span class="sd">            x.depth()  # Returns 3</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>            <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">depth</span><span class="p">()</span>
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>        <span class="k">return</span> <span class="mi">1</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>
+</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>    <span class="k">def</span> <span class="nf">dump_all_histories</span><span class="p">(</span>
+</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>        <span class="n">dir_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>        <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>        <span class="n">_idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>    <span class="p">):</span>
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a><span class="sd">        Dumps this problem&#39;s history, as well as all problems (more precisely,</span>
+</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a><span class="sd">        instances of `nmoo.utils.WrappedProblem`) recursively wrapped within</span>
+</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a><span class="sd">        it. This will result in one `.npz` for each problem involved.</span>
+</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>
+</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a><span class="sd">        Args:</span>
+</span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a><span class="sd">            dir_path (Union[Path, str]): Output directory.</span>
+</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a><span class="sd">            name (str): The output files will be named according to the</span>
+</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a><span class="sd">                following pattern: `&lt;name&gt;.&lt;_idx&gt;-&lt;layer_name&gt;.npz`, where</span>
+</span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a><span class="sd">                `_idx` is the &quot;depth&quot; of the corresponding problem (1 for the</span>
+</span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a><span class="sd">                outermost, 2 for the one wrapped within it, etc.), and</span>
+</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="sd">                `layer_name` is the name of the current `WrappedProblem`</span>
+</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a><span class="sd">                instance (see `WrappedProblem.__init__`).</span>
+</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
+</span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a><span class="sd">                `True`).</span>
+</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="sd">            _idx (int): Don&#39;t touch that.</span>
 </span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a>
 </span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="sd">        See also:</span>
-</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="sd">            `numpy.load</span>
-</span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a><span class="sd">            &lt;https://numpy.org/doc/stable/reference/generated/numpy.load.html&gt;`_</span>
-</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a>
-</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
-</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
-</span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a>
-</span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a>    <span class="k">def</span> <span class="nf">ground_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Problem</span><span class="p">:</span>
-</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a><span class="sd">        Recursively goes down the problem wrappers until an actual</span>
-</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a><span class="sd">        `pymoo.Problem` is found, and returns it.</span>
-</span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">ground_problem</span><span class="p">()</span>
-</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span>
-</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a>
-</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a>    <span class="k">def</span> <span class="nf">reseed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a><span class="sd">        Recursively resets the internal random state of the problem. See the</span>
-</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a><span class="sd">        [numpy</span>
-</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a><span class="sd">        documentation](https://numpy.org/doc/stable/reference/random/generator.html?highlight=default_rng#numpy.random.default_rng)</span>
-</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a><span class="sd">        for details about acceptable seeds.</span>
-</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>
-</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>    <span class="k">def</span> <span class="nf">start_new_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a><span class="sd">        In short, it rotates the history of the current problem, and all</span>
-</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a><span class="sd">        problems wrapped within.</span>
-</span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a>
-</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a><span class="sd">        Every entry in the history is annotated with a run number. If this</span>
-</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a><span class="sd">        problem is reused (e.g. during benchmarks), you can call this method to</span>
-</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a><span class="sd">        increase the run number for all subsequent history entries.</span>
-</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a><span class="sd">        Additionally, the `_current_history_batch` counter is reset to `0`.</span>
-</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a>
-</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a><span class="sd">        If the wrapped problem is itself a `WrappedProblem`, then this method</span>
-</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a><span class="sd">        is recursively called.</span>
-</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_run</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_history_batch</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">start_new_run</span><span class="p">()</span>
+</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="sd">            `nmoo.utils.WrappedProblem.dump_history`</span>
+</span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dump_history</span><span class="p">(</span>
+</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a>            <span class="n">Path</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">_idx</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">.npz&quot;</span><span class="p">,</span> <span class="n">compressed</span>
+</span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a>        <span class="p">)</span>
+</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">dump_all_histories</span><span class="p">(</span>
+</span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a>                <span class="n">dir_path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">compressed</span><span class="p">,</span> <span class="n">_idx</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a>            <span class="p">)</span>
+</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>
+</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+</span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
+</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a>
+</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a><span class="sd">        Args:</span>
+</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
+</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
+</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a><span class="sd">                `True`).</span>
+</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a>
+</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a><span class="sd">        See also:</span>
+</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a><span class="sd">            `numpy.load</span>
+</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a><span class="sd">            &lt;https://numpy.org/doc/stable/reference/generated/numpy.load.html&gt;`_</span>
+</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a>
+</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
+</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
+</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>
+</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>    <span class="k">def</span> <span class="nf">ground_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Problem</span><span class="p">:</span>
+</span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a><span class="sd">        Recursively goes down the problem wrappers until an actual</span>
+</span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a><span class="sd">        `pymoo.Problem` is found, and returns it.</span>
+</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">innermost_wrapper</span><span class="p">()</span><span class="o">.</span><span class="n">_problem</span>
+</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a>
+</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a>    <span class="k">def</span> <span class="nf">innermost_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WrappedProblem&quot;</span><span class="p">:</span>
+</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a><span class="sd">        Recursively goes down the problem wrappers until a `WrappedProblem`</span>
+</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a><span class="sd">        that wraps an actual `pymoo.Problem` is found, and returns it (the</span>
+</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a><span class="sd">        wrapper).</span>
+</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">innermost_wrapper</span><span class="p">()</span>
+</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a>        <span class="k">return</span> <span class="bp">self</span>
 </span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a>
-</span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a>    <span class="k">def</span> <span class="nf">reseed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-243"><a href="#L-243"><span class="linenos">243</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-244"><a href="#L-244"><span class="linenos">244</span></a><span class="sd">        Calls the wrapped problems&#39;s `_evaluate` method and appends its input</span>
-</span><span id="L-245"><a href="#L-245"><span class="linenos">245</span></a><span class="sd">        (`x`) and output (`out`) to the history.</span>
-</span><span id="L-246"><a href="#L-246"><span class="linenos">246</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+</span><span id="L-244"><a href="#L-244"><span class="linenos">244</span></a><span class="sd">        Recursively resets the internal random state of the problem. See the</span>
+</span><span id="L-245"><a href="#L-245"><span class="linenos">245</span></a><span class="sd">        [numpy</span>
+</span><span id="L-246"><a href="#L-246"><span class="linenos">246</span></a><span class="sd">        documentation](https://numpy.org/doc/stable/reference/random/generator.html?highlight=default_rng#numpy.random.default_rng)</span>
+</span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a><span class="sd">        for details about acceptable seeds.</span>
+</span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="L-250"><a href="#L-250"><span class="linenos">250</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a>
+</span><span id="L-252"><a href="#L-252"><span class="linenos">252</span></a>    <span class="k">def</span> <span class="nf">start_new_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-253"><a href="#L-253"><span class="linenos">253</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a><span class="sd">        In short, it rotates the history of the current problem, and all</span>
+</span><span id="L-255"><a href="#L-255"><span class="linenos">255</span></a><span class="sd">        problems wrapped within.</span>
+</span><span id="L-256"><a href="#L-256"><span class="linenos">256</span></a>
+</span><span id="L-257"><a href="#L-257"><span class="linenos">257</span></a><span class="sd">        Every entry in the history is annotated with a run number. If this</span>
+</span><span id="L-258"><a href="#L-258"><span class="linenos">258</span></a><span class="sd">        problem is reused (e.g. during benchmarks), you can call this method to</span>
+</span><span id="L-259"><a href="#L-259"><span class="linenos">259</span></a><span class="sd">        increase the run number for all subsequent history entries.</span>
+</span><span id="L-260"><a href="#L-260"><span class="linenos">260</span></a><span class="sd">        Additionally, the `_current_history_batch` counter is reset to `0`.</span>
+</span><span id="L-261"><a href="#L-261"><span class="linenos">261</span></a>
+</span><span id="L-262"><a href="#L-262"><span class="linenos">262</span></a><span class="sd">        If the wrapped problem is itself a `WrappedProblem`, then this method</span>
+</span><span id="L-263"><a href="#L-263"><span class="linenos">263</span></a><span class="sd">        is recursively called.</span>
+</span><span id="L-264"><a href="#L-264"><span class="linenos">264</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-265"><a href="#L-265"><span class="linenos">265</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_run</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="L-266"><a href="#L-266"><span class="linenos">266</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_history_batch</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="L-267"><a href="#L-267"><span class="linenos">267</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="L-268"><a href="#L-268"><span class="linenos">268</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">start_new_run</span><span class="p">()</span>
+</span><span id="L-269"><a href="#L-269"><span class="linenos">269</span></a>
+</span><span id="L-270"><a href="#L-270"><span class="linenos">270</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-271"><a href="#L-271"><span class="linenos">271</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-272"><a href="#L-272"><span class="linenos">272</span></a><span class="sd">        Calls the wrapped problems&#39;s `_evaluate` method and appends its input</span>
+</span><span id="L-273"><a href="#L-273"><span class="linenos">273</span></a><span class="sd">        (`x`) and output (`out`) to the history.</span>
+</span><span id="L-274"><a href="#L-274"><span class="linenos">274</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-275"><a href="#L-275"><span class="linenos">275</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-276"><a href="#L-276"><span class="linenos">276</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -378,56 +408,57 @@ the responsability of the <code>_evaluate</code> implementation to populate it).
 
     </div>
     <a class="headerlink" href="#WrappedProblem"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem-25"><a href="#WrappedProblem-25"><span class="linenos"> 25</span></a><span class="k">class</span> <span class="nc">WrappedProblem</span><span class="p">(</span><span class="n">Problem</span><span class="p">):</span>
-</span><span id="WrappedProblem-26"><a href="#WrappedProblem-26"><span class="linenos"> 26</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-27"><a href="#WrappedProblem-27"><span class="linenos"> 27</span></a><span class="sd">    A simple Pymoo :obj:`Problem` wrapper that keeps a history of all calls</span>
-</span><span id="WrappedProblem-28"><a href="#WrappedProblem-28"><span class="linenos"> 28</span></a><span class="sd">    made to it.</span>
-</span><span id="WrappedProblem-29"><a href="#WrappedProblem-29"><span class="linenos"> 29</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-30"><a href="#WrappedProblem-30"><span class="linenos"> 30</span></a>
-</span><span id="WrappedProblem-31"><a href="#WrappedProblem-31"><span class="linenos"> 31</span></a>    <span class="n">_current_history_batch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="WrappedProblem-32"><a href="#WrappedProblem-32"><span class="linenos"> 32</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-33"><a href="#WrappedProblem-33"><span class="linenos"> 33</span></a><span class="sd">    The number of batches added to history.</span>
-</span><span id="WrappedProblem-34"><a href="#WrappedProblem-34"><span class="linenos"> 34</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-35"><a href="#WrappedProblem-35"><span class="linenos"> 35</span></a>
-</span><span id="WrappedProblem-36"><a href="#WrappedProblem-36"><span class="linenos"> 36</span></a>    <span class="n">_current_run</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="WrappedProblem-37"><a href="#WrappedProblem-37"><span class="linenos"> 37</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-38"><a href="#WrappedProblem-38"><span class="linenos"> 38</span></a><span class="sd">    Current run number. See `nmoo.utils.WrappedProblem.start_new_run`.</span>
-</span><span id="WrappedProblem-39"><a href="#WrappedProblem-39"><span class="linenos"> 39</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-40"><a href="#WrappedProblem-40"><span class="linenos"> 40</span></a>
-</span><span id="WrappedProblem-41"><a href="#WrappedProblem-41"><span class="linenos"> 41</span></a>    <span class="n">_history</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
-</span><span id="WrappedProblem-42"><a href="#WrappedProblem-42"><span class="linenos"> 42</span></a>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-43"><a href="#WrappedProblem-43"><span class="linenos"> 43</span></a><span class="sd">    A history is a dictionary that maps string keys (e.g. `&quot;X&quot;`) to a numpy</span>
-</span><span id="WrappedProblem-44"><a href="#WrappedProblem-44"><span class="linenos"> 44</span></a><span class="sd">    array of all values of that key (e.g. all values of `&quot;X&quot;`). All the numpy</span>
-</span><span id="WrappedProblem-45"><a href="#WrappedProblem-45"><span class="linenos"> 45</span></a><span class="sd">    arrays should have the same length (0th shape component) but are not</span>
-</span><span id="WrappedProblem-46"><a href="#WrappedProblem-46"><span class="linenos"> 46</span></a><span class="sd">    required to have the same type.</span>
-</span><span id="WrappedProblem-47"><a href="#WrappedProblem-47"><span class="linenos"> 47</span></a>
-</span><span id="WrappedProblem-48"><a href="#WrappedProblem-48"><span class="linenos"> 48</span></a><span class="sd">    If you subclass this class, don&#39;t forget to carefully document the meaning</span>
-</span><span id="WrappedProblem-49"><a href="#WrappedProblem-49"><span class="linenos"> 49</span></a><span class="sd">    of the keys of what you&#39;re story in history.</span>
-</span><span id="WrappedProblem-50"><a href="#WrappedProblem-50"><span class="linenos"> 50</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-51"><a href="#WrappedProblem-51"><span class="linenos"> 51</span></a>
-</span><span id="WrappedProblem-52"><a href="#WrappedProblem-52"><span class="linenos"> 52</span></a>    <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="WrappedProblem-53"><a href="#WrappedProblem-53"><span class="linenos"> 53</span></a>    <span class="sd">&quot;&quot;&quot;The name of this problem.&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-54"><a href="#WrappedProblem-54"><span class="linenos"> 54</span></a>
-</span><span id="WrappedProblem-55"><a href="#WrappedProblem-55"><span class="linenos"> 55</span></a>    <span class="n">_problem</span><span class="p">:</span> <span class="n">Problem</span>
-</span><span id="WrappedProblem-56"><a href="#WrappedProblem-56"><span class="linenos"> 56</span></a>    <span class="sd">&quot;&quot;&quot;Wrapped pymoo problem.&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-57"><a href="#WrappedProblem-57"><span class="linenos"> 57</span></a>
-</span><span id="WrappedProblem-58"><a href="#WrappedProblem-58"><span class="linenos"> 58</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="WrappedProblem-59"><a href="#WrappedProblem-59"><span class="linenos"> 59</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="WrappedProblem-60"><a href="#WrappedProblem-60"><span class="linenos"> 60</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
-</span><span id="WrappedProblem-61"><a href="#WrappedProblem-61"><span class="linenos"> 61</span></a>        <span class="o">*</span><span class="p">,</span>
-</span><span id="WrappedProblem-62"><a href="#WrappedProblem-62"><span class="linenos"> 62</span></a>        <span class="n">copy_problem</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="WrappedProblem-63"><a href="#WrappedProblem-63"><span class="linenos"> 63</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wrapped_problem&quot;</span><span class="p">,</span>
-</span><span id="WrappedProblem-64"><a href="#WrappedProblem-64"><span class="linenos"> 64</span></a>    <span class="p">):</span>
-</span><span id="WrappedProblem-65"><a href="#WrappedProblem-65"><span class="linenos"> 65</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-66"><a href="#WrappedProblem-66"><span class="linenos"> 66</span></a><span class="sd">        Constructor.</span>
-</span><span id="WrappedProblem-67"><a href="#WrappedProblem-67"><span class="linenos"> 67</span></a>
-</span><span id="WrappedProblem-68"><a href="#WrappedProblem-68"><span class="linenos"> 68</span></a><span class="sd">        Args:</span>
-</span><span id="WrappedProblem-69"><a href="#WrappedProblem-69"><span class="linenos"> 69</span></a><span class="sd">            copy_problem (bool): Wether to deepcopy the problem. If `problem`</span>
-</span><span id="WrappedProblem-70"><a href="#WrappedProblem-70"><span class="linenos"> 70</span></a><span class="sd">                is a `WrappedProblem`, this is recommended to avoid history</span>
-</span><span id="WrappedProblem-71"><a href="#WrappedProblem-71"><span class="linenos"> 71</span></a><span class="sd">                clashes. However, if whatever benchmark that uses this problem</span>
-</span><span id="WrappedProblem-72"><a href="#WrappedProblem-72"><span class="linenos"> 72</span></a><span class="sd">                uses multiprocessing (as opposed to single or multithreading),</span>
-</span><span id="WrappedProblem-73"><a href="#WrappedProblem-73"><span class="linenos"> 73</span></a><span class="sd">                this does not seem to be necessary.</span>
-</span><span id="WrappedProblem-74"><a href="#WrappedProblem-74"><span class="linenos"> 74</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem-24"><a href="#WrappedProblem-24"><span class="linenos"> 24</span></a><span class="k">class</span> <span class="nc">WrappedProblem</span><span class="p">(</span><span class="n">Problem</span><span class="p">):</span>
+</span><span id="WrappedProblem-25"><a href="#WrappedProblem-25"><span class="linenos"> 25</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-26"><a href="#WrappedProblem-26"><span class="linenos"> 26</span></a><span class="sd">    A simple Pymoo `Problem` wrapper that keeps a history of all calls</span>
+</span><span id="WrappedProblem-27"><a href="#WrappedProblem-27"><span class="linenos"> 27</span></a><span class="sd">    made to it.</span>
+</span><span id="WrappedProblem-28"><a href="#WrappedProblem-28"><span class="linenos"> 28</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-29"><a href="#WrappedProblem-29"><span class="linenos"> 29</span></a>
+</span><span id="WrappedProblem-30"><a href="#WrappedProblem-30"><span class="linenos"> 30</span></a>    <span class="n">_current_history_batch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="WrappedProblem-31"><a href="#WrappedProblem-31"><span class="linenos"> 31</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-32"><a href="#WrappedProblem-32"><span class="linenos"> 32</span></a><span class="sd">    The number of batches added to history.</span>
+</span><span id="WrappedProblem-33"><a href="#WrappedProblem-33"><span class="linenos"> 33</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-34"><a href="#WrappedProblem-34"><span class="linenos"> 34</span></a>
+</span><span id="WrappedProblem-35"><a href="#WrappedProblem-35"><span class="linenos"> 35</span></a>    <span class="n">_current_run</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="WrappedProblem-36"><a href="#WrappedProblem-36"><span class="linenos"> 36</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-37"><a href="#WrappedProblem-37"><span class="linenos"> 37</span></a><span class="sd">    Current run number. See `nmoo.utils.WrappedProblem.start_new_run`.</span>
+</span><span id="WrappedProblem-38"><a href="#WrappedProblem-38"><span class="linenos"> 38</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-39"><a href="#WrappedProblem-39"><span class="linenos"> 39</span></a>
+</span><span id="WrappedProblem-40"><a href="#WrappedProblem-40"><span class="linenos"> 40</span></a>    <span class="n">_history</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+</span><span id="WrappedProblem-41"><a href="#WrappedProblem-41"><span class="linenos"> 41</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-42"><a href="#WrappedProblem-42"><span class="linenos"> 42</span></a><span class="sd">    A history is a dictionary that maps string keys (e.g. `&quot;X&quot;`) to a numpy</span>
+</span><span id="WrappedProblem-43"><a href="#WrappedProblem-43"><span class="linenos"> 43</span></a><span class="sd">    array of all values of that key (e.g. all values of `&quot;X&quot;`). All the numpy</span>
+</span><span id="WrappedProblem-44"><a href="#WrappedProblem-44"><span class="linenos"> 44</span></a><span class="sd">    arrays should have the same length (0th shape component) but are not</span>
+</span><span id="WrappedProblem-45"><a href="#WrappedProblem-45"><span class="linenos"> 45</span></a><span class="sd">    required to have the same type.</span>
+</span><span id="WrappedProblem-46"><a href="#WrappedProblem-46"><span class="linenos"> 46</span></a>
+</span><span id="WrappedProblem-47"><a href="#WrappedProblem-47"><span class="linenos"> 47</span></a><span class="sd">    If you subclass this class, don&#39;t forget to carefully document the meaning</span>
+</span><span id="WrappedProblem-48"><a href="#WrappedProblem-48"><span class="linenos"> 48</span></a><span class="sd">    of the keys of what you&#39;re story in history.</span>
+</span><span id="WrappedProblem-49"><a href="#WrappedProblem-49"><span class="linenos"> 49</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-50"><a href="#WrappedProblem-50"><span class="linenos"> 50</span></a>
+</span><span id="WrappedProblem-51"><a href="#WrappedProblem-51"><span class="linenos"> 51</span></a>    <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="WrappedProblem-52"><a href="#WrappedProblem-52"><span class="linenos"> 52</span></a>    <span class="sd">&quot;&quot;&quot;The name of this problem&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-53"><a href="#WrappedProblem-53"><span class="linenos"> 53</span></a>
+</span><span id="WrappedProblem-54"><a href="#WrappedProblem-54"><span class="linenos"> 54</span></a>    <span class="n">_problem</span><span class="p">:</span> <span class="n">Problem</span>
+</span><span id="WrappedProblem-55"><a href="#WrappedProblem-55"><span class="linenos"> 55</span></a>    <span class="sd">&quot;&quot;&quot;Wrapped pymoo problem (or `nmoo.wrapped_problem.WrappedProblem`)&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-56"><a href="#WrappedProblem-56"><span class="linenos"> 56</span></a>
+</span><span id="WrappedProblem-57"><a href="#WrappedProblem-57"><span class="linenos"> 57</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="WrappedProblem-58"><a href="#WrappedProblem-58"><span class="linenos"> 58</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="WrappedProblem-59"><a href="#WrappedProblem-59"><span class="linenos"> 59</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
+</span><span id="WrappedProblem-60"><a href="#WrappedProblem-60"><span class="linenos"> 60</span></a>        <span class="o">*</span><span class="p">,</span>
+</span><span id="WrappedProblem-61"><a href="#WrappedProblem-61"><span class="linenos"> 61</span></a>        <span class="n">copy_problem</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="WrappedProblem-62"><a href="#WrappedProblem-62"><span class="linenos"> 62</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wrapped_problem&quot;</span><span class="p">,</span>
+</span><span id="WrappedProblem-63"><a href="#WrappedProblem-63"><span class="linenos"> 63</span></a>    <span class="p">):</span>
+</span><span id="WrappedProblem-64"><a href="#WrappedProblem-64"><span class="linenos"> 64</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-65"><a href="#WrappedProblem-65"><span class="linenos"> 65</span></a><span class="sd">        Constructor.</span>
+</span><span id="WrappedProblem-66"><a href="#WrappedProblem-66"><span class="linenos"> 66</span></a>
+</span><span id="WrappedProblem-67"><a href="#WrappedProblem-67"><span class="linenos"> 67</span></a><span class="sd">        Args:</span>
+</span><span id="WrappedProblem-68"><a href="#WrappedProblem-68"><span class="linenos"> 68</span></a><span class="sd">            copy_problem (bool): Wether to deepcopy the problem. If `problem`</span>
+</span><span id="WrappedProblem-69"><a href="#WrappedProblem-69"><span class="linenos"> 69</span></a><span class="sd">                is a `WrappedProblem`, this is recommended to avoid history</span>
+</span><span id="WrappedProblem-70"><a href="#WrappedProblem-70"><span class="linenos"> 70</span></a><span class="sd">                clashes. However, if whatever benchmark that uses this problem</span>
+</span><span id="WrappedProblem-71"><a href="#WrappedProblem-71"><span class="linenos"> 71</span></a><span class="sd">                uses multiprocessing (as opposed to single or multithreading),</span>
+</span><span id="WrappedProblem-72"><a href="#WrappedProblem-72"><span class="linenos"> 72</span></a><span class="sd">                this does not seem to be necessary.</span>
+</span><span id="WrappedProblem-73"><a href="#WrappedProblem-73"><span class="linenos"> 73</span></a><span class="sd">            problem (pymoo `Problem`): A non-noisy pymoo problem (or</span>
+</span><span id="WrappedProblem-74"><a href="#WrappedProblem-74"><span class="linenos"> 74</span></a><span class="sd">                `nmoo.wrapped_problem.WrappedProblem`).</span>
 </span><span id="WrappedProblem-75"><a href="#WrappedProblem-75"><span class="linenos"> 75</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
 </span><span id="WrappedProblem-76"><a href="#WrappedProblem-76"><span class="linenos"> 76</span></a><span class="sd">                when creating history dump files. Defaults to</span>
 </span><span id="WrappedProblem-77"><a href="#WrappedProblem-77"><span class="linenos"> 77</span></a><span class="sd">                `wrapped_problem`.</span>
@@ -507,102 +538,130 @@ the responsability of the <code>_evaluate</code> implementation to populate it).
 </span><span id="WrappedProblem-151"><a href="#WrappedProblem-151"><span class="linenos">151</span></a>            <span class="k">else</span> <span class="p">[]</span>
 </span><span id="WrappedProblem-152"><a href="#WrappedProblem-152"><span class="linenos">152</span></a>        <span class="p">)</span>
 </span><span id="WrappedProblem-153"><a href="#WrappedProblem-153"><span class="linenos">153</span></a>
-</span><span id="WrappedProblem-154"><a href="#WrappedProblem-154"><span class="linenos">154</span></a>    <span class="k">def</span> <span class="nf">dump_all_histories</span><span class="p">(</span>
-</span><span id="WrappedProblem-155"><a href="#WrappedProblem-155"><span class="linenos">155</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="WrappedProblem-156"><a href="#WrappedProblem-156"><span class="linenos">156</span></a>        <span class="n">dir_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
-</span><span id="WrappedProblem-157"><a href="#WrappedProblem-157"><span class="linenos">157</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="WrappedProblem-158"><a href="#WrappedProblem-158"><span class="linenos">158</span></a>        <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="WrappedProblem-159"><a href="#WrappedProblem-159"><span class="linenos">159</span></a>        <span class="n">_idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-</span><span id="WrappedProblem-160"><a href="#WrappedProblem-160"><span class="linenos">160</span></a>    <span class="p">):</span>
-</span><span id="WrappedProblem-161"><a href="#WrappedProblem-161"><span class="linenos">161</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-162"><a href="#WrappedProblem-162"><span class="linenos">162</span></a><span class="sd">        Dumps this problem&#39;s history, as well as all problems (more precisely,</span>
-</span><span id="WrappedProblem-163"><a href="#WrappedProblem-163"><span class="linenos">163</span></a><span class="sd">        instances of `nmoo.utils.WrappedProblem`) recursively wrapped within</span>
-</span><span id="WrappedProblem-164"><a href="#WrappedProblem-164"><span class="linenos">164</span></a><span class="sd">        it. This will result in one `.npz` for each problem involved.</span>
-</span><span id="WrappedProblem-165"><a href="#WrappedProblem-165"><span class="linenos">165</span></a>
-</span><span id="WrappedProblem-166"><a href="#WrappedProblem-166"><span class="linenos">166</span></a><span class="sd">        Args:</span>
-</span><span id="WrappedProblem-167"><a href="#WrappedProblem-167"><span class="linenos">167</span></a><span class="sd">            dir_path (Union[Path, str]): Output directory.</span>
-</span><span id="WrappedProblem-168"><a href="#WrappedProblem-168"><span class="linenos">168</span></a><span class="sd">            name (str): The output files will be named according to the</span>
-</span><span id="WrappedProblem-169"><a href="#WrappedProblem-169"><span class="linenos">169</span></a><span class="sd">                following pattern: `&lt;name&gt;.&lt;_idx&gt;-&lt;layer_name&gt;.npz`, where</span>
-</span><span id="WrappedProblem-170"><a href="#WrappedProblem-170"><span class="linenos">170</span></a><span class="sd">                `_idx` is the &quot;depth&quot; of the corresponding problem (1 for the</span>
-</span><span id="WrappedProblem-171"><a href="#WrappedProblem-171"><span class="linenos">171</span></a><span class="sd">                outermost, 2 for the one wrapped within it, etc.), and</span>
-</span><span id="WrappedProblem-172"><a href="#WrappedProblem-172"><span class="linenos">172</span></a><span class="sd">                `layer_name` is the name of the current `WrappedProblem`</span>
-</span><span id="WrappedProblem-173"><a href="#WrappedProblem-173"><span class="linenos">173</span></a><span class="sd">                instance (see `WrappedProblem.__init__`).</span>
-</span><span id="WrappedProblem-174"><a href="#WrappedProblem-174"><span class="linenos">174</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
-</span><span id="WrappedProblem-175"><a href="#WrappedProblem-175"><span class="linenos">175</span></a><span class="sd">                `True`).</span>
-</span><span id="WrappedProblem-176"><a href="#WrappedProblem-176"><span class="linenos">176</span></a><span class="sd">            _idx (int): Don&#39;t touch that.</span>
-</span><span id="WrappedProblem-177"><a href="#WrappedProblem-177"><span class="linenos">177</span></a>
-</span><span id="WrappedProblem-178"><a href="#WrappedProblem-178"><span class="linenos">178</span></a><span class="sd">        See also:</span>
-</span><span id="WrappedProblem-179"><a href="#WrappedProblem-179"><span class="linenos">179</span></a><span class="sd">            `nmoo.utils.WrappedProblem.dump_history`</span>
-</span><span id="WrappedProblem-180"><a href="#WrappedProblem-180"><span class="linenos">180</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-181"><a href="#WrappedProblem-181"><span class="linenos">181</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dump_history</span><span class="p">(</span>
-</span><span id="WrappedProblem-182"><a href="#WrappedProblem-182"><span class="linenos">182</span></a>            <span class="n">Path</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">_idx</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">.npz&quot;</span><span class="p">,</span> <span class="n">compressed</span>
-</span><span id="WrappedProblem-183"><a href="#WrappedProblem-183"><span class="linenos">183</span></a>        <span class="p">)</span>
-</span><span id="WrappedProblem-184"><a href="#WrappedProblem-184"><span class="linenos">184</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="WrappedProblem-185"><a href="#WrappedProblem-185"><span class="linenos">185</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">dump_all_histories</span><span class="p">(</span>
-</span><span id="WrappedProblem-186"><a href="#WrappedProblem-186"><span class="linenos">186</span></a>                <span class="n">dir_path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">compressed</span><span class="p">,</span> <span class="n">_idx</span> <span class="o">+</span> <span class="mi">1</span>
-</span><span id="WrappedProblem-187"><a href="#WrappedProblem-187"><span class="linenos">187</span></a>            <span class="p">)</span>
-</span><span id="WrappedProblem-188"><a href="#WrappedProblem-188"><span class="linenos">188</span></a>
-</span><span id="WrappedProblem-189"><a href="#WrappedProblem-189"><span class="linenos">189</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-</span><span id="WrappedProblem-190"><a href="#WrappedProblem-190"><span class="linenos">190</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-191"><a href="#WrappedProblem-191"><span class="linenos">191</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
-</span><span id="WrappedProblem-192"><a href="#WrappedProblem-192"><span class="linenos">192</span></a>
-</span><span id="WrappedProblem-193"><a href="#WrappedProblem-193"><span class="linenos">193</span></a><span class="sd">        Args:</span>
-</span><span id="WrappedProblem-194"><a href="#WrappedProblem-194"><span class="linenos">194</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
-</span><span id="WrappedProblem-195"><a href="#WrappedProblem-195"><span class="linenos">195</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
-</span><span id="WrappedProblem-196"><a href="#WrappedProblem-196"><span class="linenos">196</span></a><span class="sd">                `True`).</span>
+</span><span id="WrappedProblem-154"><a href="#WrappedProblem-154"><span class="linenos">154</span></a>    <span class="k">def</span> <span class="nf">depth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="WrappedProblem-155"><a href="#WrappedProblem-155"><span class="linenos">155</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-156"><a href="#WrappedProblem-156"><span class="linenos">156</span></a><span class="sd">        Returns the number of `WrappedProblem` that separate this</span>
+</span><span id="WrappedProblem-157"><a href="#WrappedProblem-157"><span class="linenos">157</span></a><span class="sd">        `WrappedProblem` to the ground problem (see `ground_problem`). For</span>
+</span><span id="WrappedProblem-158"><a href="#WrappedProblem-158"><span class="linenos">158</span></a><span class="sd">        example:</span>
+</span><span id="WrappedProblem-159"><a href="#WrappedProblem-159"><span class="linenos">159</span></a>
+</span><span id="WrappedProblem-160"><a href="#WrappedProblem-160"><span class="linenos">160</span></a><span class="sd">            x = WrappedProblem(</span>
+</span><span id="WrappedProblem-161"><a href="#WrappedProblem-161"><span class="linenos">161</span></a><span class="sd">                WrappedProblem(</span>
+</span><span id="WrappedProblem-162"><a href="#WrappedProblem-162"><span class="linenos">162</span></a><span class="sd">                    WrappedProblem(</span>
+</span><span id="WrappedProblem-163"><a href="#WrappedProblem-163"><span class="linenos">163</span></a><span class="sd">                        ZDT1(...)</span>
+</span><span id="WrappedProblem-164"><a href="#WrappedProblem-164"><span class="linenos">164</span></a><span class="sd">                    )</span>
+</span><span id="WrappedProblem-165"><a href="#WrappedProblem-165"><span class="linenos">165</span></a><span class="sd">                )</span>
+</span><span id="WrappedProblem-166"><a href="#WrappedProblem-166"><span class="linenos">166</span></a><span class="sd">            )</span>
+</span><span id="WrappedProblem-167"><a href="#WrappedProblem-167"><span class="linenos">167</span></a><span class="sd">            x.depth()  # Returns 3</span>
+</span><span id="WrappedProblem-168"><a href="#WrappedProblem-168"><span class="linenos">168</span></a>
+</span><span id="WrappedProblem-169"><a href="#WrappedProblem-169"><span class="linenos">169</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-170"><a href="#WrappedProblem-170"><span class="linenos">170</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="WrappedProblem-171"><a href="#WrappedProblem-171"><span class="linenos">171</span></a>            <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">depth</span><span class="p">()</span>
+</span><span id="WrappedProblem-172"><a href="#WrappedProblem-172"><span class="linenos">172</span></a>        <span class="k">return</span> <span class="mi">1</span>
+</span><span id="WrappedProblem-173"><a href="#WrappedProblem-173"><span class="linenos">173</span></a>
+</span><span id="WrappedProblem-174"><a href="#WrappedProblem-174"><span class="linenos">174</span></a>    <span class="k">def</span> <span class="nf">dump_all_histories</span><span class="p">(</span>
+</span><span id="WrappedProblem-175"><a href="#WrappedProblem-175"><span class="linenos">175</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="WrappedProblem-176"><a href="#WrappedProblem-176"><span class="linenos">176</span></a>        <span class="n">dir_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+</span><span id="WrappedProblem-177"><a href="#WrappedProblem-177"><span class="linenos">177</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="WrappedProblem-178"><a href="#WrappedProblem-178"><span class="linenos">178</span></a>        <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="WrappedProblem-179"><a href="#WrappedProblem-179"><span class="linenos">179</span></a>        <span class="n">_idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+</span><span id="WrappedProblem-180"><a href="#WrappedProblem-180"><span class="linenos">180</span></a>    <span class="p">):</span>
+</span><span id="WrappedProblem-181"><a href="#WrappedProblem-181"><span class="linenos">181</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-182"><a href="#WrappedProblem-182"><span class="linenos">182</span></a><span class="sd">        Dumps this problem&#39;s history, as well as all problems (more precisely,</span>
+</span><span id="WrappedProblem-183"><a href="#WrappedProblem-183"><span class="linenos">183</span></a><span class="sd">        instances of `nmoo.utils.WrappedProblem`) recursively wrapped within</span>
+</span><span id="WrappedProblem-184"><a href="#WrappedProblem-184"><span class="linenos">184</span></a><span class="sd">        it. This will result in one `.npz` for each problem involved.</span>
+</span><span id="WrappedProblem-185"><a href="#WrappedProblem-185"><span class="linenos">185</span></a>
+</span><span id="WrappedProblem-186"><a href="#WrappedProblem-186"><span class="linenos">186</span></a><span class="sd">        Args:</span>
+</span><span id="WrappedProblem-187"><a href="#WrappedProblem-187"><span class="linenos">187</span></a><span class="sd">            dir_path (Union[Path, str]): Output directory.</span>
+</span><span id="WrappedProblem-188"><a href="#WrappedProblem-188"><span class="linenos">188</span></a><span class="sd">            name (str): The output files will be named according to the</span>
+</span><span id="WrappedProblem-189"><a href="#WrappedProblem-189"><span class="linenos">189</span></a><span class="sd">                following pattern: `&lt;name&gt;.&lt;_idx&gt;-&lt;layer_name&gt;.npz`, where</span>
+</span><span id="WrappedProblem-190"><a href="#WrappedProblem-190"><span class="linenos">190</span></a><span class="sd">                `_idx` is the &quot;depth&quot; of the corresponding problem (1 for the</span>
+</span><span id="WrappedProblem-191"><a href="#WrappedProblem-191"><span class="linenos">191</span></a><span class="sd">                outermost, 2 for the one wrapped within it, etc.), and</span>
+</span><span id="WrappedProblem-192"><a href="#WrappedProblem-192"><span class="linenos">192</span></a><span class="sd">                `layer_name` is the name of the current `WrappedProblem`</span>
+</span><span id="WrappedProblem-193"><a href="#WrappedProblem-193"><span class="linenos">193</span></a><span class="sd">                instance (see `WrappedProblem.__init__`).</span>
+</span><span id="WrappedProblem-194"><a href="#WrappedProblem-194"><span class="linenos">194</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
+</span><span id="WrappedProblem-195"><a href="#WrappedProblem-195"><span class="linenos">195</span></a><span class="sd">                `True`).</span>
+</span><span id="WrappedProblem-196"><a href="#WrappedProblem-196"><span class="linenos">196</span></a><span class="sd">            _idx (int): Don&#39;t touch that.</span>
 </span><span id="WrappedProblem-197"><a href="#WrappedProblem-197"><span class="linenos">197</span></a>
 </span><span id="WrappedProblem-198"><a href="#WrappedProblem-198"><span class="linenos">198</span></a><span class="sd">        See also:</span>
-</span><span id="WrappedProblem-199"><a href="#WrappedProblem-199"><span class="linenos">199</span></a><span class="sd">            `numpy.load</span>
-</span><span id="WrappedProblem-200"><a href="#WrappedProblem-200"><span class="linenos">200</span></a><span class="sd">            &lt;https://numpy.org/doc/stable/reference/generated/numpy.load.html&gt;`_</span>
-</span><span id="WrappedProblem-201"><a href="#WrappedProblem-201"><span class="linenos">201</span></a>
-</span><span id="WrappedProblem-202"><a href="#WrappedProblem-202"><span class="linenos">202</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-203"><a href="#WrappedProblem-203"><span class="linenos">203</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
-</span><span id="WrappedProblem-204"><a href="#WrappedProblem-204"><span class="linenos">204</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
-</span><span id="WrappedProblem-205"><a href="#WrappedProblem-205"><span class="linenos">205</span></a>
-</span><span id="WrappedProblem-206"><a href="#WrappedProblem-206"><span class="linenos">206</span></a>    <span class="k">def</span> <span class="nf">ground_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Problem</span><span class="p">:</span>
-</span><span id="WrappedProblem-207"><a href="#WrappedProblem-207"><span class="linenos">207</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-208"><a href="#WrappedProblem-208"><span class="linenos">208</span></a><span class="sd">        Recursively goes down the problem wrappers until an actual</span>
-</span><span id="WrappedProblem-209"><a href="#WrappedProblem-209"><span class="linenos">209</span></a><span class="sd">        `pymoo.Problem` is found, and returns it.</span>
-</span><span id="WrappedProblem-210"><a href="#WrappedProblem-210"><span class="linenos">210</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-211"><a href="#WrappedProblem-211"><span class="linenos">211</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="WrappedProblem-212"><a href="#WrappedProblem-212"><span class="linenos">212</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">ground_problem</span><span class="p">()</span>
-</span><span id="WrappedProblem-213"><a href="#WrappedProblem-213"><span class="linenos">213</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span>
-</span><span id="WrappedProblem-214"><a href="#WrappedProblem-214"><span class="linenos">214</span></a>
-</span><span id="WrappedProblem-215"><a href="#WrappedProblem-215"><span class="linenos">215</span></a>    <span class="k">def</span> <span class="nf">reseed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="WrappedProblem-216"><a href="#WrappedProblem-216"><span class="linenos">216</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-217"><a href="#WrappedProblem-217"><span class="linenos">217</span></a><span class="sd">        Recursively resets the internal random state of the problem. See the</span>
-</span><span id="WrappedProblem-218"><a href="#WrappedProblem-218"><span class="linenos">218</span></a><span class="sd">        [numpy</span>
-</span><span id="WrappedProblem-219"><a href="#WrappedProblem-219"><span class="linenos">219</span></a><span class="sd">        documentation](https://numpy.org/doc/stable/reference/random/generator.html?highlight=default_rng#numpy.random.default_rng)</span>
-</span><span id="WrappedProblem-220"><a href="#WrappedProblem-220"><span class="linenos">220</span></a><span class="sd">        for details about acceptable seeds.</span>
-</span><span id="WrappedProblem-221"><a href="#WrappedProblem-221"><span class="linenos">221</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-222"><a href="#WrappedProblem-222"><span class="linenos">222</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="WrappedProblem-223"><a href="#WrappedProblem-223"><span class="linenos">223</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-</span><span id="WrappedProblem-224"><a href="#WrappedProblem-224"><span class="linenos">224</span></a>
-</span><span id="WrappedProblem-225"><a href="#WrappedProblem-225"><span class="linenos">225</span></a>    <span class="k">def</span> <span class="nf">start_new_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="WrappedProblem-226"><a href="#WrappedProblem-226"><span class="linenos">226</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-227"><a href="#WrappedProblem-227"><span class="linenos">227</span></a><span class="sd">        In short, it rotates the history of the current problem, and all</span>
-</span><span id="WrappedProblem-228"><a href="#WrappedProblem-228"><span class="linenos">228</span></a><span class="sd">        problems wrapped within.</span>
-</span><span id="WrappedProblem-229"><a href="#WrappedProblem-229"><span class="linenos">229</span></a>
-</span><span id="WrappedProblem-230"><a href="#WrappedProblem-230"><span class="linenos">230</span></a><span class="sd">        Every entry in the history is annotated with a run number. If this</span>
-</span><span id="WrappedProblem-231"><a href="#WrappedProblem-231"><span class="linenos">231</span></a><span class="sd">        problem is reused (e.g. during benchmarks), you can call this method to</span>
-</span><span id="WrappedProblem-232"><a href="#WrappedProblem-232"><span class="linenos">232</span></a><span class="sd">        increase the run number for all subsequent history entries.</span>
-</span><span id="WrappedProblem-233"><a href="#WrappedProblem-233"><span class="linenos">233</span></a><span class="sd">        Additionally, the `_current_history_batch` counter is reset to `0`.</span>
-</span><span id="WrappedProblem-234"><a href="#WrappedProblem-234"><span class="linenos">234</span></a>
-</span><span id="WrappedProblem-235"><a href="#WrappedProblem-235"><span class="linenos">235</span></a><span class="sd">        If the wrapped problem is itself a `WrappedProblem`, then this method</span>
-</span><span id="WrappedProblem-236"><a href="#WrappedProblem-236"><span class="linenos">236</span></a><span class="sd">        is recursively called.</span>
-</span><span id="WrappedProblem-237"><a href="#WrappedProblem-237"><span class="linenos">237</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-238"><a href="#WrappedProblem-238"><span class="linenos">238</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_run</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="WrappedProblem-239"><a href="#WrappedProblem-239"><span class="linenos">239</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_history_batch</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="WrappedProblem-240"><a href="#WrappedProblem-240"><span class="linenos">240</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="WrappedProblem-241"><a href="#WrappedProblem-241"><span class="linenos">241</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">start_new_run</span><span class="p">()</span>
+</span><span id="WrappedProblem-199"><a href="#WrappedProblem-199"><span class="linenos">199</span></a><span class="sd">            `nmoo.utils.WrappedProblem.dump_history`</span>
+</span><span id="WrappedProblem-200"><a href="#WrappedProblem-200"><span class="linenos">200</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-201"><a href="#WrappedProblem-201"><span class="linenos">201</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dump_history</span><span class="p">(</span>
+</span><span id="WrappedProblem-202"><a href="#WrappedProblem-202"><span class="linenos">202</span></a>            <span class="n">Path</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">_idx</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">.npz&quot;</span><span class="p">,</span> <span class="n">compressed</span>
+</span><span id="WrappedProblem-203"><a href="#WrappedProblem-203"><span class="linenos">203</span></a>        <span class="p">)</span>
+</span><span id="WrappedProblem-204"><a href="#WrappedProblem-204"><span class="linenos">204</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="WrappedProblem-205"><a href="#WrappedProblem-205"><span class="linenos">205</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">dump_all_histories</span><span class="p">(</span>
+</span><span id="WrappedProblem-206"><a href="#WrappedProblem-206"><span class="linenos">206</span></a>                <span class="n">dir_path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">compressed</span><span class="p">,</span> <span class="n">_idx</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span id="WrappedProblem-207"><a href="#WrappedProblem-207"><span class="linenos">207</span></a>            <span class="p">)</span>
+</span><span id="WrappedProblem-208"><a href="#WrappedProblem-208"><span class="linenos">208</span></a>
+</span><span id="WrappedProblem-209"><a href="#WrappedProblem-209"><span class="linenos">209</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+</span><span id="WrappedProblem-210"><a href="#WrappedProblem-210"><span class="linenos">210</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-211"><a href="#WrappedProblem-211"><span class="linenos">211</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
+</span><span id="WrappedProblem-212"><a href="#WrappedProblem-212"><span class="linenos">212</span></a>
+</span><span id="WrappedProblem-213"><a href="#WrappedProblem-213"><span class="linenos">213</span></a><span class="sd">        Args:</span>
+</span><span id="WrappedProblem-214"><a href="#WrappedProblem-214"><span class="linenos">214</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
+</span><span id="WrappedProblem-215"><a href="#WrappedProblem-215"><span class="linenos">215</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
+</span><span id="WrappedProblem-216"><a href="#WrappedProblem-216"><span class="linenos">216</span></a><span class="sd">                `True`).</span>
+</span><span id="WrappedProblem-217"><a href="#WrappedProblem-217"><span class="linenos">217</span></a>
+</span><span id="WrappedProblem-218"><a href="#WrappedProblem-218"><span class="linenos">218</span></a><span class="sd">        See also:</span>
+</span><span id="WrappedProblem-219"><a href="#WrappedProblem-219"><span class="linenos">219</span></a><span class="sd">            `numpy.load</span>
+</span><span id="WrappedProblem-220"><a href="#WrappedProblem-220"><span class="linenos">220</span></a><span class="sd">            &lt;https://numpy.org/doc/stable/reference/generated/numpy.load.html&gt;`_</span>
+</span><span id="WrappedProblem-221"><a href="#WrappedProblem-221"><span class="linenos">221</span></a>
+</span><span id="WrappedProblem-222"><a href="#WrappedProblem-222"><span class="linenos">222</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-223"><a href="#WrappedProblem-223"><span class="linenos">223</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
+</span><span id="WrappedProblem-224"><a href="#WrappedProblem-224"><span class="linenos">224</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
+</span><span id="WrappedProblem-225"><a href="#WrappedProblem-225"><span class="linenos">225</span></a>
+</span><span id="WrappedProblem-226"><a href="#WrappedProblem-226"><span class="linenos">226</span></a>    <span class="k">def</span> <span class="nf">ground_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Problem</span><span class="p">:</span>
+</span><span id="WrappedProblem-227"><a href="#WrappedProblem-227"><span class="linenos">227</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-228"><a href="#WrappedProblem-228"><span class="linenos">228</span></a><span class="sd">        Recursively goes down the problem wrappers until an actual</span>
+</span><span id="WrappedProblem-229"><a href="#WrappedProblem-229"><span class="linenos">229</span></a><span class="sd">        `pymoo.Problem` is found, and returns it.</span>
+</span><span id="WrappedProblem-230"><a href="#WrappedProblem-230"><span class="linenos">230</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-231"><a href="#WrappedProblem-231"><span class="linenos">231</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">innermost_wrapper</span><span class="p">()</span><span class="o">.</span><span class="n">_problem</span>
+</span><span id="WrappedProblem-232"><a href="#WrappedProblem-232"><span class="linenos">232</span></a>
+</span><span id="WrappedProblem-233"><a href="#WrappedProblem-233"><span class="linenos">233</span></a>    <span class="k">def</span> <span class="nf">innermost_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WrappedProblem&quot;</span><span class="p">:</span>
+</span><span id="WrappedProblem-234"><a href="#WrappedProblem-234"><span class="linenos">234</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-235"><a href="#WrappedProblem-235"><span class="linenos">235</span></a><span class="sd">        Recursively goes down the problem wrappers until a `WrappedProblem`</span>
+</span><span id="WrappedProblem-236"><a href="#WrappedProblem-236"><span class="linenos">236</span></a><span class="sd">        that wraps an actual `pymoo.Problem` is found, and returns it (the</span>
+</span><span id="WrappedProblem-237"><a href="#WrappedProblem-237"><span class="linenos">237</span></a><span class="sd">        wrapper).</span>
+</span><span id="WrappedProblem-238"><a href="#WrappedProblem-238"><span class="linenos">238</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-239"><a href="#WrappedProblem-239"><span class="linenos">239</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="WrappedProblem-240"><a href="#WrappedProblem-240"><span class="linenos">240</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">innermost_wrapper</span><span class="p">()</span>
+</span><span id="WrappedProblem-241"><a href="#WrappedProblem-241"><span class="linenos">241</span></a>        <span class="k">return</span> <span class="bp">self</span>
 </span><span id="WrappedProblem-242"><a href="#WrappedProblem-242"><span class="linenos">242</span></a>
-</span><span id="WrappedProblem-243"><a href="#WrappedProblem-243"><span class="linenos">243</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="WrappedProblem-243"><a href="#WrappedProblem-243"><span class="linenos">243</span></a>    <span class="k">def</span> <span class="nf">reseed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="WrappedProblem-244"><a href="#WrappedProblem-244"><span class="linenos">244</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-245"><a href="#WrappedProblem-245"><span class="linenos">245</span></a><span class="sd">        Calls the wrapped problems&#39;s `_evaluate` method and appends its input</span>
-</span><span id="WrappedProblem-246"><a href="#WrappedProblem-246"><span class="linenos">246</span></a><span class="sd">        (`x`) and output (`out`) to the history.</span>
-</span><span id="WrappedProblem-247"><a href="#WrappedProblem-247"><span class="linenos">247</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem-248"><a href="#WrappedProblem-248"><span class="linenos">248</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="WrappedProblem-249"><a href="#WrappedProblem-249"><span class="linenos">249</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+</span><span id="WrappedProblem-245"><a href="#WrappedProblem-245"><span class="linenos">245</span></a><span class="sd">        Recursively resets the internal random state of the problem. See the</span>
+</span><span id="WrappedProblem-246"><a href="#WrappedProblem-246"><span class="linenos">246</span></a><span class="sd">        [numpy</span>
+</span><span id="WrappedProblem-247"><a href="#WrappedProblem-247"><span class="linenos">247</span></a><span class="sd">        documentation](https://numpy.org/doc/stable/reference/random/generator.html?highlight=default_rng#numpy.random.default_rng)</span>
+</span><span id="WrappedProblem-248"><a href="#WrappedProblem-248"><span class="linenos">248</span></a><span class="sd">        for details about acceptable seeds.</span>
+</span><span id="WrappedProblem-249"><a href="#WrappedProblem-249"><span class="linenos">249</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-250"><a href="#WrappedProblem-250"><span class="linenos">250</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="WrappedProblem-251"><a href="#WrappedProblem-251"><span class="linenos">251</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</span><span id="WrappedProblem-252"><a href="#WrappedProblem-252"><span class="linenos">252</span></a>
+</span><span id="WrappedProblem-253"><a href="#WrappedProblem-253"><span class="linenos">253</span></a>    <span class="k">def</span> <span class="nf">start_new_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="WrappedProblem-254"><a href="#WrappedProblem-254"><span class="linenos">254</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-255"><a href="#WrappedProblem-255"><span class="linenos">255</span></a><span class="sd">        In short, it rotates the history of the current problem, and all</span>
+</span><span id="WrappedProblem-256"><a href="#WrappedProblem-256"><span class="linenos">256</span></a><span class="sd">        problems wrapped within.</span>
+</span><span id="WrappedProblem-257"><a href="#WrappedProblem-257"><span class="linenos">257</span></a>
+</span><span id="WrappedProblem-258"><a href="#WrappedProblem-258"><span class="linenos">258</span></a><span class="sd">        Every entry in the history is annotated with a run number. If this</span>
+</span><span id="WrappedProblem-259"><a href="#WrappedProblem-259"><span class="linenos">259</span></a><span class="sd">        problem is reused (e.g. during benchmarks), you can call this method to</span>
+</span><span id="WrappedProblem-260"><a href="#WrappedProblem-260"><span class="linenos">260</span></a><span class="sd">        increase the run number for all subsequent history entries.</span>
+</span><span id="WrappedProblem-261"><a href="#WrappedProblem-261"><span class="linenos">261</span></a><span class="sd">        Additionally, the `_current_history_batch` counter is reset to `0`.</span>
+</span><span id="WrappedProblem-262"><a href="#WrappedProblem-262"><span class="linenos">262</span></a>
+</span><span id="WrappedProblem-263"><a href="#WrappedProblem-263"><span class="linenos">263</span></a><span class="sd">        If the wrapped problem is itself a `WrappedProblem`, then this method</span>
+</span><span id="WrappedProblem-264"><a href="#WrappedProblem-264"><span class="linenos">264</span></a><span class="sd">        is recursively called.</span>
+</span><span id="WrappedProblem-265"><a href="#WrappedProblem-265"><span class="linenos">265</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-266"><a href="#WrappedProblem-266"><span class="linenos">266</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_run</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="WrappedProblem-267"><a href="#WrappedProblem-267"><span class="linenos">267</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_history_batch</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="WrappedProblem-268"><a href="#WrappedProblem-268"><span class="linenos">268</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="WrappedProblem-269"><a href="#WrappedProblem-269"><span class="linenos">269</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">start_new_run</span><span class="p">()</span>
+</span><span id="WrappedProblem-270"><a href="#WrappedProblem-270"><span class="linenos">270</span></a>
+</span><span id="WrappedProblem-271"><a href="#WrappedProblem-271"><span class="linenos">271</span></a>    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="WrappedProblem-272"><a href="#WrappedProblem-272"><span class="linenos">272</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-273"><a href="#WrappedProblem-273"><span class="linenos">273</span></a><span class="sd">        Calls the wrapped problems&#39;s `_evaluate` method and appends its input</span>
+</span><span id="WrappedProblem-274"><a href="#WrappedProblem-274"><span class="linenos">274</span></a><span class="sd">        (`x`) and output (`out`) to the history.</span>
+</span><span id="WrappedProblem-275"><a href="#WrappedProblem-275"><span class="linenos">275</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem-276"><a href="#WrappedProblem-276"><span class="linenos">276</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="WrappedProblem-277"><a href="#WrappedProblem-277"><span class="linenos">277</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_history_x_out</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -621,23 +680,24 @@ made to it.</p>
 
     </div>
     <a class="headerlink" href="#WrappedProblem.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.__init__-58"><a href="#WrappedProblem.__init__-58"><span class="linenos">58</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="WrappedProblem.__init__-59"><a href="#WrappedProblem.__init__-59"><span class="linenos">59</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="WrappedProblem.__init__-60"><a href="#WrappedProblem.__init__-60"><span class="linenos">60</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
-</span><span id="WrappedProblem.__init__-61"><a href="#WrappedProblem.__init__-61"><span class="linenos">61</span></a>        <span class="o">*</span><span class="p">,</span>
-</span><span id="WrappedProblem.__init__-62"><a href="#WrappedProblem.__init__-62"><span class="linenos">62</span></a>        <span class="n">copy_problem</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="WrappedProblem.__init__-63"><a href="#WrappedProblem.__init__-63"><span class="linenos">63</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wrapped_problem&quot;</span><span class="p">,</span>
-</span><span id="WrappedProblem.__init__-64"><a href="#WrappedProblem.__init__-64"><span class="linenos">64</span></a>    <span class="p">):</span>
-</span><span id="WrappedProblem.__init__-65"><a href="#WrappedProblem.__init__-65"><span class="linenos">65</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem.__init__-66"><a href="#WrappedProblem.__init__-66"><span class="linenos">66</span></a><span class="sd">        Constructor.</span>
-</span><span id="WrappedProblem.__init__-67"><a href="#WrappedProblem.__init__-67"><span class="linenos">67</span></a>
-</span><span id="WrappedProblem.__init__-68"><a href="#WrappedProblem.__init__-68"><span class="linenos">68</span></a><span class="sd">        Args:</span>
-</span><span id="WrappedProblem.__init__-69"><a href="#WrappedProblem.__init__-69"><span class="linenos">69</span></a><span class="sd">            copy_problem (bool): Wether to deepcopy the problem. If `problem`</span>
-</span><span id="WrappedProblem.__init__-70"><a href="#WrappedProblem.__init__-70"><span class="linenos">70</span></a><span class="sd">                is a `WrappedProblem`, this is recommended to avoid history</span>
-</span><span id="WrappedProblem.__init__-71"><a href="#WrappedProblem.__init__-71"><span class="linenos">71</span></a><span class="sd">                clashes. However, if whatever benchmark that uses this problem</span>
-</span><span id="WrappedProblem.__init__-72"><a href="#WrappedProblem.__init__-72"><span class="linenos">72</span></a><span class="sd">                uses multiprocessing (as opposed to single or multithreading),</span>
-</span><span id="WrappedProblem.__init__-73"><a href="#WrappedProblem.__init__-73"><span class="linenos">73</span></a><span class="sd">                this does not seem to be necessary.</span>
-</span><span id="WrappedProblem.__init__-74"><a href="#WrappedProblem.__init__-74"><span class="linenos">74</span></a><span class="sd">            problem (:obj:`Problem`): A non-noisy pymoo problem.</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.__init__-57"><a href="#WrappedProblem.__init__-57"><span class="linenos">57</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="WrappedProblem.__init__-58"><a href="#WrappedProblem.__init__-58"><span class="linenos">58</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="WrappedProblem.__init__-59"><a href="#WrappedProblem.__init__-59"><span class="linenos">59</span></a>        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
+</span><span id="WrappedProblem.__init__-60"><a href="#WrappedProblem.__init__-60"><span class="linenos">60</span></a>        <span class="o">*</span><span class="p">,</span>
+</span><span id="WrappedProblem.__init__-61"><a href="#WrappedProblem.__init__-61"><span class="linenos">61</span></a>        <span class="n">copy_problem</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="WrappedProblem.__init__-62"><a href="#WrappedProblem.__init__-62"><span class="linenos">62</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wrapped_problem&quot;</span><span class="p">,</span>
+</span><span id="WrappedProblem.__init__-63"><a href="#WrappedProblem.__init__-63"><span class="linenos">63</span></a>    <span class="p">):</span>
+</span><span id="WrappedProblem.__init__-64"><a href="#WrappedProblem.__init__-64"><span class="linenos">64</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.__init__-65"><a href="#WrappedProblem.__init__-65"><span class="linenos">65</span></a><span class="sd">        Constructor.</span>
+</span><span id="WrappedProblem.__init__-66"><a href="#WrappedProblem.__init__-66"><span class="linenos">66</span></a>
+</span><span id="WrappedProblem.__init__-67"><a href="#WrappedProblem.__init__-67"><span class="linenos">67</span></a><span class="sd">        Args:</span>
+</span><span id="WrappedProblem.__init__-68"><a href="#WrappedProblem.__init__-68"><span class="linenos">68</span></a><span class="sd">            copy_problem (bool): Wether to deepcopy the problem. If `problem`</span>
+</span><span id="WrappedProblem.__init__-69"><a href="#WrappedProblem.__init__-69"><span class="linenos">69</span></a><span class="sd">                is a `WrappedProblem`, this is recommended to avoid history</span>
+</span><span id="WrappedProblem.__init__-70"><a href="#WrappedProblem.__init__-70"><span class="linenos">70</span></a><span class="sd">                clashes. However, if whatever benchmark that uses this problem</span>
+</span><span id="WrappedProblem.__init__-71"><a href="#WrappedProblem.__init__-71"><span class="linenos">71</span></a><span class="sd">                uses multiprocessing (as opposed to single or multithreading),</span>
+</span><span id="WrappedProblem.__init__-72"><a href="#WrappedProblem.__init__-72"><span class="linenos">72</span></a><span class="sd">                this does not seem to be necessary.</span>
+</span><span id="WrappedProblem.__init__-73"><a href="#WrappedProblem.__init__-73"><span class="linenos">73</span></a><span class="sd">            problem (pymoo `Problem`): A non-noisy pymoo problem (or</span>
+</span><span id="WrappedProblem.__init__-74"><a href="#WrappedProblem.__init__-74"><span class="linenos">74</span></a><span class="sd">                `nmoo.wrapped_problem.WrappedProblem`).</span>
 </span><span id="WrappedProblem.__init__-75"><a href="#WrappedProblem.__init__-75"><span class="linenos">75</span></a><span class="sd">            name (str): An optional name for this problem. This will be used</span>
 </span><span id="WrappedProblem.__init__-76"><a href="#WrappedProblem.__init__-76"><span class="linenos">76</span></a><span class="sd">                when creating history dump files. Defaults to</span>
 </span><span id="WrappedProblem.__init__-77"><a href="#WrappedProblem.__init__-77"><span class="linenos">77</span></a><span class="sd">                `wrapped_problem`.</span>
@@ -669,7 +729,8 @@ is a <code><a href="#WrappedProblem">WrappedProblem</a></code>, this is recommen
 clashes. However, if whatever benchmark that uses this problem
 uses multiprocessing (as opposed to single or multithreading),
 this does not seem to be necessary.</li>
-<li><strong>problem (<code>Problem</code>):</strong>  A non-noisy pymoo problem.</li>
+<li><strong>problem (pymoo <code>Problem</code>):</strong>  A non-noisy pymoo problem (or
+<code><a href="#WrappedProblem">nmoo.wrapped_problem.WrappedProblem</a></code>).</li>
 <li><strong>name (str):</strong>  An optional name for this problem. This will be used
 when creating history dump files. Defaults to
 <code>wrapped_problem</code>.</li>
@@ -796,6 +857,56 @@ outermost one (the current problem) to the innermost one.</p>
 
 
                             </div>
+                            <div id="WrappedProblem.depth" class="classattr">
+                                        <input id="WrappedProblem.depth-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">depth</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">int</span>:</span></span>
+
+                <label class="view-source-button" for="WrappedProblem.depth-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#WrappedProblem.depth"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.depth-154"><a href="#WrappedProblem.depth-154"><span class="linenos">154</span></a>    <span class="k">def</span> <span class="nf">depth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="WrappedProblem.depth-155"><a href="#WrappedProblem.depth-155"><span class="linenos">155</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.depth-156"><a href="#WrappedProblem.depth-156"><span class="linenos">156</span></a><span class="sd">        Returns the number of `WrappedProblem` that separate this</span>
+</span><span id="WrappedProblem.depth-157"><a href="#WrappedProblem.depth-157"><span class="linenos">157</span></a><span class="sd">        `WrappedProblem` to the ground problem (see `ground_problem`). For</span>
+</span><span id="WrappedProblem.depth-158"><a href="#WrappedProblem.depth-158"><span class="linenos">158</span></a><span class="sd">        example:</span>
+</span><span id="WrappedProblem.depth-159"><a href="#WrappedProblem.depth-159"><span class="linenos">159</span></a>
+</span><span id="WrappedProblem.depth-160"><a href="#WrappedProblem.depth-160"><span class="linenos">160</span></a><span class="sd">            x = WrappedProblem(</span>
+</span><span id="WrappedProblem.depth-161"><a href="#WrappedProblem.depth-161"><span class="linenos">161</span></a><span class="sd">                WrappedProblem(</span>
+</span><span id="WrappedProblem.depth-162"><a href="#WrappedProblem.depth-162"><span class="linenos">162</span></a><span class="sd">                    WrappedProblem(</span>
+</span><span id="WrappedProblem.depth-163"><a href="#WrappedProblem.depth-163"><span class="linenos">163</span></a><span class="sd">                        ZDT1(...)</span>
+</span><span id="WrappedProblem.depth-164"><a href="#WrappedProblem.depth-164"><span class="linenos">164</span></a><span class="sd">                    )</span>
+</span><span id="WrappedProblem.depth-165"><a href="#WrappedProblem.depth-165"><span class="linenos">165</span></a><span class="sd">                )</span>
+</span><span id="WrappedProblem.depth-166"><a href="#WrappedProblem.depth-166"><span class="linenos">166</span></a><span class="sd">            )</span>
+</span><span id="WrappedProblem.depth-167"><a href="#WrappedProblem.depth-167"><span class="linenos">167</span></a><span class="sd">            x.depth()  # Returns 3</span>
+</span><span id="WrappedProblem.depth-168"><a href="#WrappedProblem.depth-168"><span class="linenos">168</span></a>
+</span><span id="WrappedProblem.depth-169"><a href="#WrappedProblem.depth-169"><span class="linenos">169</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.depth-170"><a href="#WrappedProblem.depth-170"><span class="linenos">170</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="WrappedProblem.depth-171"><a href="#WrappedProblem.depth-171"><span class="linenos">171</span></a>            <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">depth</span><span class="p">()</span>
+</span><span id="WrappedProblem.depth-172"><a href="#WrappedProblem.depth-172"><span class="linenos">172</span></a>        <span class="k">return</span> <span class="mi">1</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Returns the number of <code><a href="#WrappedProblem">WrappedProblem</a></code> that separate this
+<code><a href="#WrappedProblem">WrappedProblem</a></code> to the ground problem (see <code><a href="#WrappedProblem.ground_problem">ground_problem</a></code>). For
+example:</p>
+
+<pre><code>x = WrappedProblem(
+    WrappedProblem(
+        WrappedProblem(
+            ZDT1(...)
+        )
+    )
+)
+x.depth()  # Returns 3
+</code></pre>
+</div>
+
+
+                            </div>
                             <div id="WrappedProblem.dump_all_histories" class="classattr">
                                         <input id="WrappedProblem.dump_all_histories-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -807,40 +918,40 @@ outermost one (the current problem) to the innermost one.</p>
 
     </div>
     <a class="headerlink" href="#WrappedProblem.dump_all_histories"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.dump_all_histories-154"><a href="#WrappedProblem.dump_all_histories-154"><span class="linenos">154</span></a>    <span class="k">def</span> <span class="nf">dump_all_histories</span><span class="p">(</span>
-</span><span id="WrappedProblem.dump_all_histories-155"><a href="#WrappedProblem.dump_all_histories-155"><span class="linenos">155</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="WrappedProblem.dump_all_histories-156"><a href="#WrappedProblem.dump_all_histories-156"><span class="linenos">156</span></a>        <span class="n">dir_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
-</span><span id="WrappedProblem.dump_all_histories-157"><a href="#WrappedProblem.dump_all_histories-157"><span class="linenos">157</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="WrappedProblem.dump_all_histories-158"><a href="#WrappedProblem.dump_all_histories-158"><span class="linenos">158</span></a>        <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="WrappedProblem.dump_all_histories-159"><a href="#WrappedProblem.dump_all_histories-159"><span class="linenos">159</span></a>        <span class="n">_idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-</span><span id="WrappedProblem.dump_all_histories-160"><a href="#WrappedProblem.dump_all_histories-160"><span class="linenos">160</span></a>    <span class="p">):</span>
-</span><span id="WrappedProblem.dump_all_histories-161"><a href="#WrappedProblem.dump_all_histories-161"><span class="linenos">161</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem.dump_all_histories-162"><a href="#WrappedProblem.dump_all_histories-162"><span class="linenos">162</span></a><span class="sd">        Dumps this problem&#39;s history, as well as all problems (more precisely,</span>
-</span><span id="WrappedProblem.dump_all_histories-163"><a href="#WrappedProblem.dump_all_histories-163"><span class="linenos">163</span></a><span class="sd">        instances of `nmoo.utils.WrappedProblem`) recursively wrapped within</span>
-</span><span id="WrappedProblem.dump_all_histories-164"><a href="#WrappedProblem.dump_all_histories-164"><span class="linenos">164</span></a><span class="sd">        it. This will result in one `.npz` for each problem involved.</span>
-</span><span id="WrappedProblem.dump_all_histories-165"><a href="#WrappedProblem.dump_all_histories-165"><span class="linenos">165</span></a>
-</span><span id="WrappedProblem.dump_all_histories-166"><a href="#WrappedProblem.dump_all_histories-166"><span class="linenos">166</span></a><span class="sd">        Args:</span>
-</span><span id="WrappedProblem.dump_all_histories-167"><a href="#WrappedProblem.dump_all_histories-167"><span class="linenos">167</span></a><span class="sd">            dir_path (Union[Path, str]): Output directory.</span>
-</span><span id="WrappedProblem.dump_all_histories-168"><a href="#WrappedProblem.dump_all_histories-168"><span class="linenos">168</span></a><span class="sd">            name (str): The output files will be named according to the</span>
-</span><span id="WrappedProblem.dump_all_histories-169"><a href="#WrappedProblem.dump_all_histories-169"><span class="linenos">169</span></a><span class="sd">                following pattern: `&lt;name&gt;.&lt;_idx&gt;-&lt;layer_name&gt;.npz`, where</span>
-</span><span id="WrappedProblem.dump_all_histories-170"><a href="#WrappedProblem.dump_all_histories-170"><span class="linenos">170</span></a><span class="sd">                `_idx` is the &quot;depth&quot; of the corresponding problem (1 for the</span>
-</span><span id="WrappedProblem.dump_all_histories-171"><a href="#WrappedProblem.dump_all_histories-171"><span class="linenos">171</span></a><span class="sd">                outermost, 2 for the one wrapped within it, etc.), and</span>
-</span><span id="WrappedProblem.dump_all_histories-172"><a href="#WrappedProblem.dump_all_histories-172"><span class="linenos">172</span></a><span class="sd">                `layer_name` is the name of the current `WrappedProblem`</span>
-</span><span id="WrappedProblem.dump_all_histories-173"><a href="#WrappedProblem.dump_all_histories-173"><span class="linenos">173</span></a><span class="sd">                instance (see `WrappedProblem.__init__`).</span>
-</span><span id="WrappedProblem.dump_all_histories-174"><a href="#WrappedProblem.dump_all_histories-174"><span class="linenos">174</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
-</span><span id="WrappedProblem.dump_all_histories-175"><a href="#WrappedProblem.dump_all_histories-175"><span class="linenos">175</span></a><span class="sd">                `True`).</span>
-</span><span id="WrappedProblem.dump_all_histories-176"><a href="#WrappedProblem.dump_all_histories-176"><span class="linenos">176</span></a><span class="sd">            _idx (int): Don&#39;t touch that.</span>
-</span><span id="WrappedProblem.dump_all_histories-177"><a href="#WrappedProblem.dump_all_histories-177"><span class="linenos">177</span></a>
-</span><span id="WrappedProblem.dump_all_histories-178"><a href="#WrappedProblem.dump_all_histories-178"><span class="linenos">178</span></a><span class="sd">        See also:</span>
-</span><span id="WrappedProblem.dump_all_histories-179"><a href="#WrappedProblem.dump_all_histories-179"><span class="linenos">179</span></a><span class="sd">            `nmoo.utils.WrappedProblem.dump_history`</span>
-</span><span id="WrappedProblem.dump_all_histories-180"><a href="#WrappedProblem.dump_all_histories-180"><span class="linenos">180</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem.dump_all_histories-181"><a href="#WrappedProblem.dump_all_histories-181"><span class="linenos">181</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dump_history</span><span class="p">(</span>
-</span><span id="WrappedProblem.dump_all_histories-182"><a href="#WrappedProblem.dump_all_histories-182"><span class="linenos">182</span></a>            <span class="n">Path</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">_idx</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">.npz&quot;</span><span class="p">,</span> <span class="n">compressed</span>
-</span><span id="WrappedProblem.dump_all_histories-183"><a href="#WrappedProblem.dump_all_histories-183"><span class="linenos">183</span></a>        <span class="p">)</span>
-</span><span id="WrappedProblem.dump_all_histories-184"><a href="#WrappedProblem.dump_all_histories-184"><span class="linenos">184</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="WrappedProblem.dump_all_histories-185"><a href="#WrappedProblem.dump_all_histories-185"><span class="linenos">185</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">dump_all_histories</span><span class="p">(</span>
-</span><span id="WrappedProblem.dump_all_histories-186"><a href="#WrappedProblem.dump_all_histories-186"><span class="linenos">186</span></a>                <span class="n">dir_path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">compressed</span><span class="p">,</span> <span class="n">_idx</span> <span class="o">+</span> <span class="mi">1</span>
-</span><span id="WrappedProblem.dump_all_histories-187"><a href="#WrappedProblem.dump_all_histories-187"><span class="linenos">187</span></a>            <span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.dump_all_histories-174"><a href="#WrappedProblem.dump_all_histories-174"><span class="linenos">174</span></a>    <span class="k">def</span> <span class="nf">dump_all_histories</span><span class="p">(</span>
+</span><span id="WrappedProblem.dump_all_histories-175"><a href="#WrappedProblem.dump_all_histories-175"><span class="linenos">175</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="WrappedProblem.dump_all_histories-176"><a href="#WrappedProblem.dump_all_histories-176"><span class="linenos">176</span></a>        <span class="n">dir_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+</span><span id="WrappedProblem.dump_all_histories-177"><a href="#WrappedProblem.dump_all_histories-177"><span class="linenos">177</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="WrappedProblem.dump_all_histories-178"><a href="#WrappedProblem.dump_all_histories-178"><span class="linenos">178</span></a>        <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="WrappedProblem.dump_all_histories-179"><a href="#WrappedProblem.dump_all_histories-179"><span class="linenos">179</span></a>        <span class="n">_idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+</span><span id="WrappedProblem.dump_all_histories-180"><a href="#WrappedProblem.dump_all_histories-180"><span class="linenos">180</span></a>    <span class="p">):</span>
+</span><span id="WrappedProblem.dump_all_histories-181"><a href="#WrappedProblem.dump_all_histories-181"><span class="linenos">181</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.dump_all_histories-182"><a href="#WrappedProblem.dump_all_histories-182"><span class="linenos">182</span></a><span class="sd">        Dumps this problem&#39;s history, as well as all problems (more precisely,</span>
+</span><span id="WrappedProblem.dump_all_histories-183"><a href="#WrappedProblem.dump_all_histories-183"><span class="linenos">183</span></a><span class="sd">        instances of `nmoo.utils.WrappedProblem`) recursively wrapped within</span>
+</span><span id="WrappedProblem.dump_all_histories-184"><a href="#WrappedProblem.dump_all_histories-184"><span class="linenos">184</span></a><span class="sd">        it. This will result in one `.npz` for each problem involved.</span>
+</span><span id="WrappedProblem.dump_all_histories-185"><a href="#WrappedProblem.dump_all_histories-185"><span class="linenos">185</span></a>
+</span><span id="WrappedProblem.dump_all_histories-186"><a href="#WrappedProblem.dump_all_histories-186"><span class="linenos">186</span></a><span class="sd">        Args:</span>
+</span><span id="WrappedProblem.dump_all_histories-187"><a href="#WrappedProblem.dump_all_histories-187"><span class="linenos">187</span></a><span class="sd">            dir_path (Union[Path, str]): Output directory.</span>
+</span><span id="WrappedProblem.dump_all_histories-188"><a href="#WrappedProblem.dump_all_histories-188"><span class="linenos">188</span></a><span class="sd">            name (str): The output files will be named according to the</span>
+</span><span id="WrappedProblem.dump_all_histories-189"><a href="#WrappedProblem.dump_all_histories-189"><span class="linenos">189</span></a><span class="sd">                following pattern: `&lt;name&gt;.&lt;_idx&gt;-&lt;layer_name&gt;.npz`, where</span>
+</span><span id="WrappedProblem.dump_all_histories-190"><a href="#WrappedProblem.dump_all_histories-190"><span class="linenos">190</span></a><span class="sd">                `_idx` is the &quot;depth&quot; of the corresponding problem (1 for the</span>
+</span><span id="WrappedProblem.dump_all_histories-191"><a href="#WrappedProblem.dump_all_histories-191"><span class="linenos">191</span></a><span class="sd">                outermost, 2 for the one wrapped within it, etc.), and</span>
+</span><span id="WrappedProblem.dump_all_histories-192"><a href="#WrappedProblem.dump_all_histories-192"><span class="linenos">192</span></a><span class="sd">                `layer_name` is the name of the current `WrappedProblem`</span>
+</span><span id="WrappedProblem.dump_all_histories-193"><a href="#WrappedProblem.dump_all_histories-193"><span class="linenos">193</span></a><span class="sd">                instance (see `WrappedProblem.__init__`).</span>
+</span><span id="WrappedProblem.dump_all_histories-194"><a href="#WrappedProblem.dump_all_histories-194"><span class="linenos">194</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
+</span><span id="WrappedProblem.dump_all_histories-195"><a href="#WrappedProblem.dump_all_histories-195"><span class="linenos">195</span></a><span class="sd">                `True`).</span>
+</span><span id="WrappedProblem.dump_all_histories-196"><a href="#WrappedProblem.dump_all_histories-196"><span class="linenos">196</span></a><span class="sd">            _idx (int): Don&#39;t touch that.</span>
+</span><span id="WrappedProblem.dump_all_histories-197"><a href="#WrappedProblem.dump_all_histories-197"><span class="linenos">197</span></a>
+</span><span id="WrappedProblem.dump_all_histories-198"><a href="#WrappedProblem.dump_all_histories-198"><span class="linenos">198</span></a><span class="sd">        See also:</span>
+</span><span id="WrappedProblem.dump_all_histories-199"><a href="#WrappedProblem.dump_all_histories-199"><span class="linenos">199</span></a><span class="sd">            `nmoo.utils.WrappedProblem.dump_history`</span>
+</span><span id="WrappedProblem.dump_all_histories-200"><a href="#WrappedProblem.dump_all_histories-200"><span class="linenos">200</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.dump_all_histories-201"><a href="#WrappedProblem.dump_all_histories-201"><span class="linenos">201</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dump_history</span><span class="p">(</span>
+</span><span id="WrappedProblem.dump_all_histories-202"><a href="#WrappedProblem.dump_all_histories-202"><span class="linenos">202</span></a>            <span class="n">Path</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">_idx</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">.npz&quot;</span><span class="p">,</span> <span class="n">compressed</span>
+</span><span id="WrappedProblem.dump_all_histories-203"><a href="#WrappedProblem.dump_all_histories-203"><span class="linenos">203</span></a>        <span class="p">)</span>
+</span><span id="WrappedProblem.dump_all_histories-204"><a href="#WrappedProblem.dump_all_histories-204"><span class="linenos">204</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="WrappedProblem.dump_all_histories-205"><a href="#WrappedProblem.dump_all_histories-205"><span class="linenos">205</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">dump_all_histories</span><span class="p">(</span>
+</span><span id="WrappedProblem.dump_all_histories-206"><a href="#WrappedProblem.dump_all_histories-206"><span class="linenos">206</span></a>                <span class="n">dir_path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">compressed</span><span class="p">,</span> <span class="n">_idx</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span id="WrappedProblem.dump_all_histories-207"><a href="#WrappedProblem.dump_all_histories-207"><span class="linenos">207</span></a>            <span class="p">)</span>
 </span></pre></div>
 
 
@@ -883,22 +994,22 @@ instance (see <code><a href="#WrappedProblem.__init__">WrappedProblem.__init__</
 
     </div>
     <a class="headerlink" href="#WrappedProblem.dump_history"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.dump_history-189"><a href="#WrappedProblem.dump_history-189"><span class="linenos">189</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-</span><span id="WrappedProblem.dump_history-190"><a href="#WrappedProblem.dump_history-190"><span class="linenos">190</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem.dump_history-191"><a href="#WrappedProblem.dump_history-191"><span class="linenos">191</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
-</span><span id="WrappedProblem.dump_history-192"><a href="#WrappedProblem.dump_history-192"><span class="linenos">192</span></a>
-</span><span id="WrappedProblem.dump_history-193"><a href="#WrappedProblem.dump_history-193"><span class="linenos">193</span></a><span class="sd">        Args:</span>
-</span><span id="WrappedProblem.dump_history-194"><a href="#WrappedProblem.dump_history-194"><span class="linenos">194</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
-</span><span id="WrappedProblem.dump_history-195"><a href="#WrappedProblem.dump_history-195"><span class="linenos">195</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
-</span><span id="WrappedProblem.dump_history-196"><a href="#WrappedProblem.dump_history-196"><span class="linenos">196</span></a><span class="sd">                `True`).</span>
-</span><span id="WrappedProblem.dump_history-197"><a href="#WrappedProblem.dump_history-197"><span class="linenos">197</span></a>
-</span><span id="WrappedProblem.dump_history-198"><a href="#WrappedProblem.dump_history-198"><span class="linenos">198</span></a><span class="sd">        See also:</span>
-</span><span id="WrappedProblem.dump_history-199"><a href="#WrappedProblem.dump_history-199"><span class="linenos">199</span></a><span class="sd">            `numpy.load</span>
-</span><span id="WrappedProblem.dump_history-200"><a href="#WrappedProblem.dump_history-200"><span class="linenos">200</span></a><span class="sd">            &lt;https://numpy.org/doc/stable/reference/generated/numpy.load.html&gt;`_</span>
-</span><span id="WrappedProblem.dump_history-201"><a href="#WrappedProblem.dump_history-201"><span class="linenos">201</span></a>
-</span><span id="WrappedProblem.dump_history-202"><a href="#WrappedProblem.dump_history-202"><span class="linenos">202</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem.dump_history-203"><a href="#WrappedProblem.dump_history-203"><span class="linenos">203</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
-</span><span id="WrappedProblem.dump_history-204"><a href="#WrappedProblem.dump_history-204"><span class="linenos">204</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.dump_history-209"><a href="#WrappedProblem.dump_history-209"><span class="linenos">209</span></a>    <span class="k">def</span> <span class="nf">dump_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">compressed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+</span><span id="WrappedProblem.dump_history-210"><a href="#WrappedProblem.dump_history-210"><span class="linenos">210</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.dump_history-211"><a href="#WrappedProblem.dump_history-211"><span class="linenos">211</span></a><span class="sd">        Dumps the history into an NPZ archive.</span>
+</span><span id="WrappedProblem.dump_history-212"><a href="#WrappedProblem.dump_history-212"><span class="linenos">212</span></a>
+</span><span id="WrappedProblem.dump_history-213"><a href="#WrappedProblem.dump_history-213"><span class="linenos">213</span></a><span class="sd">        Args:</span>
+</span><span id="WrappedProblem.dump_history-214"><a href="#WrappedProblem.dump_history-214"><span class="linenos">214</span></a><span class="sd">            path (Union[Path, str]): File path of the output archive.</span>
+</span><span id="WrappedProblem.dump_history-215"><a href="#WrappedProblem.dump_history-215"><span class="linenos">215</span></a><span class="sd">            compressed (bool): Wether to compress the archive (defaults to</span>
+</span><span id="WrappedProblem.dump_history-216"><a href="#WrappedProblem.dump_history-216"><span class="linenos">216</span></a><span class="sd">                `True`).</span>
+</span><span id="WrappedProblem.dump_history-217"><a href="#WrappedProblem.dump_history-217"><span class="linenos">217</span></a>
+</span><span id="WrappedProblem.dump_history-218"><a href="#WrappedProblem.dump_history-218"><span class="linenos">218</span></a><span class="sd">        See also:</span>
+</span><span id="WrappedProblem.dump_history-219"><a href="#WrappedProblem.dump_history-219"><span class="linenos">219</span></a><span class="sd">            `numpy.load</span>
+</span><span id="WrappedProblem.dump_history-220"><a href="#WrappedProblem.dump_history-220"><span class="linenos">220</span></a><span class="sd">            &lt;https://numpy.org/doc/stable/reference/generated/numpy.load.html&gt;`_</span>
+</span><span id="WrappedProblem.dump_history-221"><a href="#WrappedProblem.dump_history-221"><span class="linenos">221</span></a>
+</span><span id="WrappedProblem.dump_history-222"><a href="#WrappedProblem.dump_history-222"><span class="linenos">222</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.dump_history-223"><a href="#WrappedProblem.dump_history-223"><span class="linenos">223</span></a>        <span class="n">saver</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span> <span class="k">if</span> <span class="n">compressed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">savez</span>
+</span><span id="WrappedProblem.dump_history-224"><a href="#WrappedProblem.dump_history-224"><span class="linenos">224</span></a>        <span class="n">saver</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_history</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -933,19 +1044,47 @@ instance (see <code><a href="#WrappedProblem.__init__">WrappedProblem.__init__</
 
     </div>
     <a class="headerlink" href="#WrappedProblem.ground_problem"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.ground_problem-206"><a href="#WrappedProblem.ground_problem-206"><span class="linenos">206</span></a>    <span class="k">def</span> <span class="nf">ground_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Problem</span><span class="p">:</span>
-</span><span id="WrappedProblem.ground_problem-207"><a href="#WrappedProblem.ground_problem-207"><span class="linenos">207</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem.ground_problem-208"><a href="#WrappedProblem.ground_problem-208"><span class="linenos">208</span></a><span class="sd">        Recursively goes down the problem wrappers until an actual</span>
-</span><span id="WrappedProblem.ground_problem-209"><a href="#WrappedProblem.ground_problem-209"><span class="linenos">209</span></a><span class="sd">        `pymoo.Problem` is found, and returns it.</span>
-</span><span id="WrappedProblem.ground_problem-210"><a href="#WrappedProblem.ground_problem-210"><span class="linenos">210</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem.ground_problem-211"><a href="#WrappedProblem.ground_problem-211"><span class="linenos">211</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="WrappedProblem.ground_problem-212"><a href="#WrappedProblem.ground_problem-212"><span class="linenos">212</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">ground_problem</span><span class="p">()</span>
-</span><span id="WrappedProblem.ground_problem-213"><a href="#WrappedProblem.ground_problem-213"><span class="linenos">213</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.ground_problem-226"><a href="#WrappedProblem.ground_problem-226"><span class="linenos">226</span></a>    <span class="k">def</span> <span class="nf">ground_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Problem</span><span class="p">:</span>
+</span><span id="WrappedProblem.ground_problem-227"><a href="#WrappedProblem.ground_problem-227"><span class="linenos">227</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.ground_problem-228"><a href="#WrappedProblem.ground_problem-228"><span class="linenos">228</span></a><span class="sd">        Recursively goes down the problem wrappers until an actual</span>
+</span><span id="WrappedProblem.ground_problem-229"><a href="#WrappedProblem.ground_problem-229"><span class="linenos">229</span></a><span class="sd">        `pymoo.Problem` is found, and returns it.</span>
+</span><span id="WrappedProblem.ground_problem-230"><a href="#WrappedProblem.ground_problem-230"><span class="linenos">230</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.ground_problem-231"><a href="#WrappedProblem.ground_problem-231"><span class="linenos">231</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">innermost_wrapper</span><span class="p">()</span><span class="o">.</span><span class="n">_problem</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Recursively goes down the problem wrappers until an actual
 <code>pymoo.Problem</code> is found, and returns it.</p>
+</div>
+
+
+                            </div>
+                            <div id="WrappedProblem.innermost_wrapper" class="classattr">
+                                        <input id="WrappedProblem.innermost_wrapper-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">innermost_wrapper</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="n"><a href="#WrappedProblem">nmoo.wrapped_problem.WrappedProblem</a></span>:</span></span>
+
+                <label class="view-source-button" for="WrappedProblem.innermost_wrapper-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#WrappedProblem.innermost_wrapper"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.innermost_wrapper-233"><a href="#WrappedProblem.innermost_wrapper-233"><span class="linenos">233</span></a>    <span class="k">def</span> <span class="nf">innermost_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WrappedProblem&quot;</span><span class="p">:</span>
+</span><span id="WrappedProblem.innermost_wrapper-234"><a href="#WrappedProblem.innermost_wrapper-234"><span class="linenos">234</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.innermost_wrapper-235"><a href="#WrappedProblem.innermost_wrapper-235"><span class="linenos">235</span></a><span class="sd">        Recursively goes down the problem wrappers until a `WrappedProblem`</span>
+</span><span id="WrappedProblem.innermost_wrapper-236"><a href="#WrappedProblem.innermost_wrapper-236"><span class="linenos">236</span></a><span class="sd">        that wraps an actual `pymoo.Problem` is found, and returns it (the</span>
+</span><span id="WrappedProblem.innermost_wrapper-237"><a href="#WrappedProblem.innermost_wrapper-237"><span class="linenos">237</span></a><span class="sd">        wrapper).</span>
+</span><span id="WrappedProblem.innermost_wrapper-238"><a href="#WrappedProblem.innermost_wrapper-238"><span class="linenos">238</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.innermost_wrapper-239"><a href="#WrappedProblem.innermost_wrapper-239"><span class="linenos">239</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="WrappedProblem.innermost_wrapper-240"><a href="#WrappedProblem.innermost_wrapper-240"><span class="linenos">240</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">innermost_wrapper</span><span class="p">()</span>
+</span><span id="WrappedProblem.innermost_wrapper-241"><a href="#WrappedProblem.innermost_wrapper-241"><span class="linenos">241</span></a>        <span class="k">return</span> <span class="bp">self</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Recursively goes down the problem wrappers until a <code><a href="#WrappedProblem">WrappedProblem</a></code>
+that wraps an actual <code>pymoo.Problem</code> is found, and returns it (the
+wrapper).</p>
 </div>
 
 
@@ -961,15 +1100,15 @@ instance (see <code><a href="#WrappedProblem.__init__">WrappedProblem.__init__</
 
     </div>
     <a class="headerlink" href="#WrappedProblem.reseed"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.reseed-215"><a href="#WrappedProblem.reseed-215"><span class="linenos">215</span></a>    <span class="k">def</span> <span class="nf">reseed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="WrappedProblem.reseed-216"><a href="#WrappedProblem.reseed-216"><span class="linenos">216</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem.reseed-217"><a href="#WrappedProblem.reseed-217"><span class="linenos">217</span></a><span class="sd">        Recursively resets the internal random state of the problem. See the</span>
-</span><span id="WrappedProblem.reseed-218"><a href="#WrappedProblem.reseed-218"><span class="linenos">218</span></a><span class="sd">        [numpy</span>
-</span><span id="WrappedProblem.reseed-219"><a href="#WrappedProblem.reseed-219"><span class="linenos">219</span></a><span class="sd">        documentation](https://numpy.org/doc/stable/reference/random/generator.html?highlight=default_rng#numpy.random.default_rng)</span>
-</span><span id="WrappedProblem.reseed-220"><a href="#WrappedProblem.reseed-220"><span class="linenos">220</span></a><span class="sd">        for details about acceptable seeds.</span>
-</span><span id="WrappedProblem.reseed-221"><a href="#WrappedProblem.reseed-221"><span class="linenos">221</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem.reseed-222"><a href="#WrappedProblem.reseed-222"><span class="linenos">222</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="WrappedProblem.reseed-223"><a href="#WrappedProblem.reseed-223"><span class="linenos">223</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.reseed-243"><a href="#WrappedProblem.reseed-243"><span class="linenos">243</span></a>    <span class="k">def</span> <span class="nf">reseed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="WrappedProblem.reseed-244"><a href="#WrappedProblem.reseed-244"><span class="linenos">244</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.reseed-245"><a href="#WrappedProblem.reseed-245"><span class="linenos">245</span></a><span class="sd">        Recursively resets the internal random state of the problem. See the</span>
+</span><span id="WrappedProblem.reseed-246"><a href="#WrappedProblem.reseed-246"><span class="linenos">246</span></a><span class="sd">        [numpy</span>
+</span><span id="WrappedProblem.reseed-247"><a href="#WrappedProblem.reseed-247"><span class="linenos">247</span></a><span class="sd">        documentation](https://numpy.org/doc/stable/reference/random/generator.html?highlight=default_rng#numpy.random.default_rng)</span>
+</span><span id="WrappedProblem.reseed-248"><a href="#WrappedProblem.reseed-248"><span class="linenos">248</span></a><span class="sd">        for details about acceptable seeds.</span>
+</span><span id="WrappedProblem.reseed-249"><a href="#WrappedProblem.reseed-249"><span class="linenos">249</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.reseed-250"><a href="#WrappedProblem.reseed-250"><span class="linenos">250</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="WrappedProblem.reseed-251"><a href="#WrappedProblem.reseed-251"><span class="linenos">251</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">reseed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -992,23 +1131,23 @@ for details about acceptable seeds.</p>
 
     </div>
     <a class="headerlink" href="#WrappedProblem.start_new_run"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.start_new_run-225"><a href="#WrappedProblem.start_new_run-225"><span class="linenos">225</span></a>    <span class="k">def</span> <span class="nf">start_new_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="WrappedProblem.start_new_run-226"><a href="#WrappedProblem.start_new_run-226"><span class="linenos">226</span></a>        <span class="sd">&quot;&quot;&quot;</span>
-</span><span id="WrappedProblem.start_new_run-227"><a href="#WrappedProblem.start_new_run-227"><span class="linenos">227</span></a><span class="sd">        In short, it rotates the history of the current problem, and all</span>
-</span><span id="WrappedProblem.start_new_run-228"><a href="#WrappedProblem.start_new_run-228"><span class="linenos">228</span></a><span class="sd">        problems wrapped within.</span>
-</span><span id="WrappedProblem.start_new_run-229"><a href="#WrappedProblem.start_new_run-229"><span class="linenos">229</span></a>
-</span><span id="WrappedProblem.start_new_run-230"><a href="#WrappedProblem.start_new_run-230"><span class="linenos">230</span></a><span class="sd">        Every entry in the history is annotated with a run number. If this</span>
-</span><span id="WrappedProblem.start_new_run-231"><a href="#WrappedProblem.start_new_run-231"><span class="linenos">231</span></a><span class="sd">        problem is reused (e.g. during benchmarks), you can call this method to</span>
-</span><span id="WrappedProblem.start_new_run-232"><a href="#WrappedProblem.start_new_run-232"><span class="linenos">232</span></a><span class="sd">        increase the run number for all subsequent history entries.</span>
-</span><span id="WrappedProblem.start_new_run-233"><a href="#WrappedProblem.start_new_run-233"><span class="linenos">233</span></a><span class="sd">        Additionally, the `_current_history_batch` counter is reset to `0`.</span>
-</span><span id="WrappedProblem.start_new_run-234"><a href="#WrappedProblem.start_new_run-234"><span class="linenos">234</span></a>
-</span><span id="WrappedProblem.start_new_run-235"><a href="#WrappedProblem.start_new_run-235"><span class="linenos">235</span></a><span class="sd">        If the wrapped problem is itself a `WrappedProblem`, then this method</span>
-</span><span id="WrappedProblem.start_new_run-236"><a href="#WrappedProblem.start_new_run-236"><span class="linenos">236</span></a><span class="sd">        is recursively called.</span>
-</span><span id="WrappedProblem.start_new_run-237"><a href="#WrappedProblem.start_new_run-237"><span class="linenos">237</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="WrappedProblem.start_new_run-238"><a href="#WrappedProblem.start_new_run-238"><span class="linenos">238</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_run</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="WrappedProblem.start_new_run-239"><a href="#WrappedProblem.start_new_run-239"><span class="linenos">239</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_history_batch</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="WrappedProblem.start_new_run-240"><a href="#WrappedProblem.start_new_run-240"><span class="linenos">240</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
-</span><span id="WrappedProblem.start_new_run-241"><a href="#WrappedProblem.start_new_run-241"><span class="linenos">241</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">start_new_run</span><span class="p">()</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="WrappedProblem.start_new_run-253"><a href="#WrappedProblem.start_new_run-253"><span class="linenos">253</span></a>    <span class="k">def</span> <span class="nf">start_new_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="WrappedProblem.start_new_run-254"><a href="#WrappedProblem.start_new_run-254"><span class="linenos">254</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.start_new_run-255"><a href="#WrappedProblem.start_new_run-255"><span class="linenos">255</span></a><span class="sd">        In short, it rotates the history of the current problem, and all</span>
+</span><span id="WrappedProblem.start_new_run-256"><a href="#WrappedProblem.start_new_run-256"><span class="linenos">256</span></a><span class="sd">        problems wrapped within.</span>
+</span><span id="WrappedProblem.start_new_run-257"><a href="#WrappedProblem.start_new_run-257"><span class="linenos">257</span></a>
+</span><span id="WrappedProblem.start_new_run-258"><a href="#WrappedProblem.start_new_run-258"><span class="linenos">258</span></a><span class="sd">        Every entry in the history is annotated with a run number. If this</span>
+</span><span id="WrappedProblem.start_new_run-259"><a href="#WrappedProblem.start_new_run-259"><span class="linenos">259</span></a><span class="sd">        problem is reused (e.g. during benchmarks), you can call this method to</span>
+</span><span id="WrappedProblem.start_new_run-260"><a href="#WrappedProblem.start_new_run-260"><span class="linenos">260</span></a><span class="sd">        increase the run number for all subsequent history entries.</span>
+</span><span id="WrappedProblem.start_new_run-261"><a href="#WrappedProblem.start_new_run-261"><span class="linenos">261</span></a><span class="sd">        Additionally, the `_current_history_batch` counter is reset to `0`.</span>
+</span><span id="WrappedProblem.start_new_run-262"><a href="#WrappedProblem.start_new_run-262"><span class="linenos">262</span></a>
+</span><span id="WrappedProblem.start_new_run-263"><a href="#WrappedProblem.start_new_run-263"><span class="linenos">263</span></a><span class="sd">        If the wrapped problem is itself a `WrappedProblem`, then this method</span>
+</span><span id="WrappedProblem.start_new_run-264"><a href="#WrappedProblem.start_new_run-264"><span class="linenos">264</span></a><span class="sd">        is recursively called.</span>
+</span><span id="WrappedProblem.start_new_run-265"><a href="#WrappedProblem.start_new_run-265"><span class="linenos">265</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="WrappedProblem.start_new_run-266"><a href="#WrappedProblem.start_new_run-266"><span class="linenos">266</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_run</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="WrappedProblem.start_new_run-267"><a href="#WrappedProblem.start_new_run-267"><span class="linenos">267</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_current_history_batch</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="WrappedProblem.start_new_run-268"><a href="#WrappedProblem.start_new_run-268"><span class="linenos">268</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="p">,</span> <span class="n">WrappedProblem</span><span class="p">):</span>
+</span><span id="WrappedProblem.start_new_run-269"><a href="#WrappedProblem.start_new_run-269"><span class="linenos">269</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">start_new_run</span><span class="p">()</span>
 </span></pre></div>
 
 
