@@ -10,15 +10,14 @@ from nmoo.wrapped_problem import WrappedProblem
 
 class KNNAvg(WrappedProblem):
     """
-    Implementation of the KNN-Avg algorithm of Klikovits and
-    Arcaini[^quatic21].
+    Implementation of the KNN-Averaging algorithm[^quatic21].
 
     [^quatic21]: Klikovits, S., Arcaini, P. (2021). KNN-Averaging for Noisy
-    Multi-objective Optimisation. In: Paiva, A.C.R., Cavalli, A.R., Ventura
-    Martins, P., Pérez-Castillo, R. (eds) Quality of Information and
-    Communications Technology. QUATIC 2021. Communications in Computer and
-    Information Science, vol 1439. Springer, Cham.
-    https://doi.org/10.1007/978-3-030-85347-1_36
+        Multi-objective Optimisation. In: Paiva, A.C.R., Cavalli, A.R., Ventura
+        Martins, P., Pérez-Castillo, R. (eds) Quality of Information and
+        Communications Technology. QUATIC 2021. Communications in Computer and
+        Information Science, vol 1439. Springer, Cham.
+        https://doi.org/10.1007/978-3-030-85347-1_36
     """
 
     _distance_weight_mode: str
@@ -39,12 +38,14 @@ class KNNAvg(WrappedProblem):
         Constructor.
 
         Args:
-            problem (:obj:`WrappedProblem`): Noisy problem. For memory
-                optimization reasons, this should be a `WrappedProblem` as
-                opposed to a pymoo `Problem`.
-            distance_weight_type (str): Either "squared" or "uniform".
+            problem (`nmoo.wrapped_problem.WrappedProblem`): Noisy problem. For
+                memory optimization reasons, this should be a
+                `nmoo.wrapped_problem.WrappedProblem` as opposed to a pymoo
+                `Problem`.
+            distance_weight_type (str): Either `squared` or `uniform` (the
+                default).
             max_distance (float): Distance cutoff.
-            n_neighbors (int): Number of neighbors to consider (KNN).
+            n_neighbors (int): Number of neighbors to consider (the K in KNN).
             name (str): An optional name for this problem. This will be used
                 when creating history dump files. Defaults to `knn_avg`.
         """

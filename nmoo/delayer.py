@@ -34,8 +34,7 @@ class Delayer(WrappedProblem):
         """
         Args:
             name (str): An optional name for this problem. This will be used
-                when creating history dump files. Defaults to
-                `wrapped_problem`.
+                when creating history dump files. Defaults to `delayer`.
         """
         super().__init__(problem, name=name, **kwargs)
 

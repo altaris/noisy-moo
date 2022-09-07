@@ -2,13 +2,12 @@
 Base `nmoo` problem class. A `WrappedProblem` is simply a
 [`pymoo.core.problem.Problem`](https://pymoo.org/problems/definition.html) that
 contains another problem (`nmoo` or `pymoo`) to which calls to `_evaluate` are
-deferred to. A `WrappedProblem` also have call history features (although it is
-the responsability of the `_evaluate` implementation to populate it).
+deferred to. A `WrappedProblem` also have call history (although it is the
+responsability of the `_evaluate` implementation to populate it).
 
-Note:
-    Since `WrappedProblem` directly inherits from
-    [`pymoo.core.problem.Problem`](https://pymoo.org/problems/definition.html),
-    wrapped problems can be used seemlessly with `pymoo`.
+Since `WrappedProblem` directly inherits from
+[`pymoo.core.problem.Problem`](https://pymoo.org/problems/definition.html),
+wrapped problems can be used seemlessly with `pymoo`.
 """
 __docformat__ = "google"
 
@@ -23,7 +22,7 @@ from pymoo.core.problem import Problem
 
 class WrappedProblem(Problem):
     """
-    A simple Pymoo :obj:`Problem` wrapper that keeps a history of all calls
+    A simple Pymoo `Problem` wrapper that keeps a history of all calls
     made to it.
     """
 
@@ -49,10 +48,10 @@ class WrappedProblem(Problem):
     """
 
     _name: str
-    """The name of this problem."""
+    """The name of this problem"""
 
     _problem: Problem
-    """Wrapped pymoo problem."""
+    """Wrapped pymoo problem (or `nmoo.wrapped_problem.WrappedProblem`)"""
 
     def __init__(
         self,
@@ -70,7 +69,8 @@ class WrappedProblem(Problem):
                 clashes. However, if whatever benchmark that uses this problem
                 uses multiprocessing (as opposed to single or multithreading),
                 this does not seem to be necessary.
-            problem (:obj:`Problem`): A non-noisy pymoo problem.
+            problem (pymoo `Problem`): A non-noisy pymoo problem (or
+                `nmoo.wrapped_problem.WrappedProblem`).
             name (str): An optional name for this problem. This will be used
                 when creating history dump files. Defaults to
                 `wrapped_problem`.
@@ -150,6 +150,26 @@ class WrappedProblem(Problem):
             else []
         )
 
+    def depth(self) -> int:
+        """
+        Returns the number of `WrappedProblem` that separate this
+        `WrappedProblem` to the ground problem (see `ground_problem`). For
+        example:
+
+            x = WrappedProblem(
+                WrappedProblem(
+                    WrappedProblem(
+                        ZDT1(...)
+                    )
+                )
+            )
+            x.depth()  # Returns 3
+
+        """
+        if isinstance(self._problem, WrappedProblem):
+            return 1 + self._problem.depth()
+        return 1
+
     def dump_all_histories(
         self,
         dir_path: Union[Path, str],
@@ -207,9 +227,17 @@ class WrappedProblem(Problem):
         Recursively goes down the problem wrappers until an actual
         `pymoo.Problem` is found, and returns it.
         """
+        return self.innermost_wrapper()._problem
+
+    def innermost_wrapper(self) -> "WrappedProblem":
+        """
+        Recursively goes down the problem wrappers until a `WrappedProblem`
+        that wraps an actual `pymoo.Problem` is found, and returns it (the
+        wrapper).
+        """
         if isinstance(self._problem, WrappedProblem):
-            return self._problem.ground_problem()
-        return self._problem
+            return self._problem.innermost_wrapper()
+        return self
 
     def reseed(self, seed: Any) -> None:
         """

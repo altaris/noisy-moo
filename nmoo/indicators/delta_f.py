@@ -1,5 +1,6 @@
 """
-ΔF performance indicator
+ΔF performance indicator, which measures how accurately a problem estimates the
+true objective.
 """
 __docformat__ = "google"
 
@@ -16,12 +17,20 @@ from nmoo.wrapped_problem import WrappedProblem
 class DeltaF(Indicator):
     """
     The ΔF performance indicator. Given
-    * a `WrappedProblem` `p`, with `g` its ground problem,
+    * a `nmoo.wrapped_problem.WrappedProblem` with `g` its ground problem,
     * a Pareto set `F`,
     * and a population `X`,
 
     calculates the vectorized average Euclidean distance between `F` and `Y`,
     where `Y` is obtained by averaging `g(X)` a given number of times.
+
+    You can use this PI in a benchmark as
+    ```py
+    Benchmark(
+        ...
+        performance_indicators=[..., "df", ...]
+    )
+    ```
     """
 
     _ground_problem: Problem

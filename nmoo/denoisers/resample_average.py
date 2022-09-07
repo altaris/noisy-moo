@@ -31,12 +31,12 @@ class ResampleAverage(WrappedProblem):
         Constructor.
 
         Args:
-            problem (:obj:`Problem`): Noisy pymoo problem.
+            problem (pymoo `Problem`): Noisy pymoo problem (or
+                `nmoo.wrapped_problem.WrappedProblem`).
             n_evaluations (int): Number of times to evaluate the problem on
                 each solution. Defaults to 5.
             name (str): An optional name for this problem. This will be used
-                when creating history dump files. Defaults to
-                `resample_avg`.
+                when creating history dump files. Defaults to `resample_avg`.
         """
         super().__init__(problem, name=name, **kwargs)
 

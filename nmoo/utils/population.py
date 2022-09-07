@@ -23,8 +23,8 @@ def pareto_frontier_mask(arr: np.ndarray) -> np.ndarray:
 
     Warning:
         The direction of the optimum is assumed to towards the "all negative"
-        quadrant, i.e. `a` dominates `b` if `a[i] <= b[i]` for all
-        `0 <= i < d`.
+        quadrant, i.e. $a$ (weakly) dominates $b$ if $a_i \\leq b_i$ for all $0
+        \\leq i < d$.
 
     Todo:
         * Possibility to specify a direction of optimum;

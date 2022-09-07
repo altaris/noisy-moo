@@ -89,7 +89,8 @@ class UniformNoise(WrappedProblem):
         Args:
             name (str): An optional name for this problem. This will be used
                 when creating history dump files. Defaults to `gaussian_noise`.
-            problem (:obj:`Problem`): A non-noisy pymoo problem.
+            problem (pymoo `Problem`): A non-noisy pymoo problem (or
+                `nmoo.wrapped_problem.WrappedProblem`).
             parameters: See the examples above.
             seed: Seed for
                 [`numpy.random.default_rng`](https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.default_rng)

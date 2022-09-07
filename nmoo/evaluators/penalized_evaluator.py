@@ -4,6 +4,7 @@ A custom evaluator that modifies the perceived number of evaluations
 """
 __docformat__ = "google"
 
+import numpy as np
 from pymoo.core.evaluator import Evaluator
 
 
@@ -39,5 +40,8 @@ class PenalizedEvaluator(Evaluator):
         parameters.
         """
         result = super().eval(*args, **kwargs)
-        self.n_eval += (self._multiplier - 1) * result.shape[0]
+        if isinstance(result, np.ndarray):
+            self.n_eval += (self._multiplier - 1) * result.shape[0]
+        else:
+            self.n_eval += self._multiplier - 1
         return result
