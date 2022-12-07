@@ -869,7 +869,10 @@ class Benchmark:
         If that file exists for a given problem-algorithm-(run
         number)-(performance indicator) tuple, then it is not recalculated.
         """
-        logging.info("Computing performance indicators")
+        logging.info(
+            "Computing performance indicators: %s",
+            ", ".join(self._performance_indicators),
+        )
         everything = product(
             self.all_par_triples(), self._performance_indicators
         )
