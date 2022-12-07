@@ -4,10 +4,10 @@ A wrapper that applies a given function to the wrapped problem's output.
 __docformat__ = "google"
 
 from typing import Callable, Dict
-import logging
 
-from pymoo.core.problem import Problem
 import numpy as np
+from loguru import logger as logging
+from pymoo.core.problem import Problem
 
 from .wrapped_problem import WrappedProblem
 
@@ -62,9 +62,9 @@ class Lambda(WrappedProblem):
                 out[k] = function(out[k])
             except KeyError:
                 logging.error(
-                    "Callable key %s is not present in objective "
+                    "Callable key {} is not present in objective "
                     "function output keys. This objective will not be "
-                    "modified. Objective function keys: %s. ",
+                    "modified. Objective function keys: {}. ",
                     k,
                     str(list(out.keys())),
                 )

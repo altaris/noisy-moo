@@ -4,11 +4,11 @@ problems.
 """
 __docformat__ = "google"
 
-import logging
-from typing import Dict, Iterable, List, Optional, Tuple, Union
 from itertools import product
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
+from loguru import logger as logging
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.core.individual import Individual
 from pymoo.core.population import Population
@@ -219,7 +219,7 @@ class ARNSGA2(NSGA2):
         }.get(self._resampling_method)
         if method is None:
             logging.warning(
-                "Invalid resampling method %s", self._resampling_method
+                "Invalid resampling method {}", self._resampling_method
             )
             return
         try:

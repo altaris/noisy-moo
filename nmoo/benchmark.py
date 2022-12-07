@@ -117,7 +117,6 @@ following artefacts:
 """
 __docformat__ = "google"
 
-import logging
 import os
 from copy import deepcopy
 from dataclasses import dataclass
@@ -128,13 +127,18 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
+from loguru import logger as logging
+from pymoo.config import Config
 from pymoo.factory import get_performance_indicator
 from pymoo.optimize import minimize
 
 from nmoo.callbacks import TimerCallback
+from nmoo.denoisers import ResampleAverage
 from nmoo.indicators.delta_f import DeltaF
 from nmoo.utils.population import pareto_frontier_mask, population_list_to_dict
-from nmoo.denoisers import ResampleAverage
+from nmoo.utils.logging import configure_logging
+
+Config.show_compile_hint = False
 
 _PIC = Callable[[Dict[str, np.ndarray]], Optional[float]]
 """
@@ -156,7 +160,7 @@ class PAPair:
     problem_name: str
 
     def __str__(self) -> str:
-        return f"{self.problem_name} - {self.algorithm_name}"
+        return f"{self.problem_name}|{self.algorithm_name}"
 
     def global_pareto_population_filename(self) -> str:
         """Returns `<problem_name>.<algorithm_name>.gpp.npz`."""
@@ -172,7 +176,7 @@ class PARTriple(PAPair):
     n_run: int
 
     def __str__(self) -> str:
-        return f"{self.problem_name} - {self.algorithm_name} ({self.n_run})"
+        return f"{self.problem_name}|{self.algorithm_name}|{self.n_run}"
 
     def denoised_top_layer_history_filename(self) -> str:
         """Returns
@@ -477,7 +481,7 @@ class Benchmark:
         else:
             if len(seeds) > n_runs:
                 logging.warning(
-                    "Too many seeds: provided %d but only need %d "
+                    "Too many seeds: provided {} but only need {} "
                     "(i.e. n_run)",
                     len(seeds),
                     n_runs,
@@ -491,7 +495,8 @@ class Benchmark:
         Pareto population has not already been calculated, i.e. that
         `<output_dir_path>/<problem>.<algorithm>.gpp.npz` does not exist.
         """
-        logging.debug("Computing global Pareto population for pair [%s]", pair)
+        configure_logging(prefix=f"[{pair}]")
+        logging.debug("Computing global Pareto population")
         gpp_path = (
             self._output_dir_path / pair.global_pareto_population_filename()
         )
@@ -507,8 +512,8 @@ class Benchmark:
             path = self._output_dir_path / triple.pareto_population_filename()
             if not path.exists():
                 logging.debug(
-                    "File %s does not exist. The corresponding triple [%s] "
-                    "most likely hasn't finished or failed",
+                    "File {} does not exist. The corresponding triple runs "
+                    "most likely have not finished or all failed",
                     path,
                     triple,
                 )
@@ -521,9 +526,8 @@ class Benchmark:
         consolidated = {k: np.concatenate(v) for k, v in populations.items()}
         if "F" not in consolidated:
             logging.error(
-                "No Pareto population file found for pair [%s]. This is "
-                "most likely because none of the runs finished or succeeded.",
-                pair,
+                "No Pareto population file found. The corresponding triple "
+                "runs most likely have not finished or all failed",
             )
             return
         mask = pareto_frontier_mask(consolidated["F"])
@@ -551,7 +555,8 @@ class Benchmark:
         Todo:
             Refactor (again)
         """
-        logging.debug("Computing PI '%s' for triple [%s]", pi_name, triple)
+        configure_logging(prefix=f"[{triple}|{pi_name}]")
+        logging.debug("Computing PI")
 
         pic: _PIC = lambda _: np.nan
         if pi_name == "df":
@@ -576,9 +581,8 @@ class Benchmark:
             pic = lambda s: s["X"].shape[0]
         else:
             logging.warning(
-                "Unprocessable performance indicator '%s'. This could be "
-                "because required data is missing.",
-                pi_name,
+                "Unprocessable performance indicator. This could be because "
+                "required data is missing."
             )
 
         # On which history is the PIC going to be called? By default, it is on
@@ -609,9 +613,18 @@ class Benchmark:
         df["problem"] = triple.problem_name
         df["n_gen"] = range(1, len(states) + 1)
         df["n_run"] = triple.n_run
+        logging.debug(
+            "Writing result to {}",
+            self._output_dir_path / triple.pi_filename(pi_name),
+        )
         df.to_csv(self._output_dir_path / triple.pi_filename(pi_name))
 
         if pi_name == "df":
+            logging.debug(
+                "Writing delta F history to {}",
+                self._output_dir_path
+                / triple.denoised_top_layer_history_filename(),
+            )
             delta_f.dump_history(
                 self._output_dir_path
                 / triple.denoised_top_layer_history_filename()
@@ -698,7 +711,8 @@ class Benchmark:
             triple: A `PARTriple` object representing the
                 problem-algorithm-(run number) triple to run.
         """
-        logging.info("Running triple [%s]", triple)
+        configure_logging(prefix=f"[{str(triple)}]")
+        logging.info("Starting run")
 
         triple.problem_description["problem"].start_new_run()
         evaluator = triple.problem_description.get(
@@ -727,10 +741,13 @@ class Benchmark:
                 verbose=triple.algorithm_description.get("verbose", False),
             )
         except Exception as e:  # pylint: disable=broad-except
-            logging.error("Triple [%s] failed: %s", triple, e)
+            logging.error("Run failed: {}", e)
             return
+        else:
+            logging.success("Run successful")
 
         # Dump all layers histories
+        logging.debug("Writing layer histories to {}", self._output_dir_path)
         if self._dump_histories:
             results.problem.dump_all_histories(
                 self._output_dir_path,
@@ -738,12 +755,20 @@ class Benchmark:
             )
 
         # Dump pareto sets
+        logging.debug(
+            "Writing pareto sets to {}",
+            self._output_dir_path / triple.pareto_population_filename(),
+        )
         np.savez_compressed(
             self._output_dir_path / triple.pareto_population_filename(),
             **population_list_to_dict([h.opt for h in results.history]),
         )
 
         # Create and dump CSV file
+        logging.debug(
+            "Writing result CSV to {}",
+            self._output_dir_path / triple.result_filename(),
+        )
         df = pd.DataFrame()
         df["n_gen"] = [a.n_gen for a in results.history]
         df["n_eval"] = [a.evaluator.n_eval for a in results.history]
@@ -870,7 +895,7 @@ class Benchmark:
         number)-(performance indicator) tuple, then it is not recalculated.
         """
         logging.info(
-            "Computing performance indicators: %s",
+            "Computing performance indicators: {}",
             ", ".join(self._performance_indicators),
         )
         everything = product(
@@ -896,8 +921,8 @@ class Benchmark:
             path = self._output_dir_path / triple.result_filename()
             if not path.exists():
                 logging.debug(
-                    "Statistic file %s does not exist. The corresponding "
-                    "triple [%s] most likely hasn't finished or failed",
+                    "Statistic file {} does not exist. The corresponding "
+                    "triple [{}] most likely hasn't finished or failed",
                     path,
                     triple,
                 )
@@ -923,7 +948,7 @@ class Benchmark:
             for pi_name in self._performance_indicators:
                 path = self._output_dir_path / triple.pi_filename(pi_name)
                 if not path.exists():
-                    logging.debug("PI file %s does not exist.", path)
+                    logging.debug("PI file {} does not exist.", path)
                     continue
                 tmp = pd.read_csv(path)
                 if df.empty:
@@ -944,7 +969,7 @@ class Benchmark:
             del self._results["Unnamed: 0"]
 
         path = self._output_dir_path / "benchmark.csv"
-        logging.info("Writing results to %s", path)
+        logging.info("Writing results to {}", path)
         self.dump_results(path, index=False)
 
     def dump_results(self, path: Union[Path, str], fmt: str = "csv", **kwargs):
@@ -1059,11 +1084,11 @@ class Benchmark:
         if any(not self._par_triple_done(t) for t in triples):
             logging.warning(
                 "Benchmark finished, but some triples could not be run "
-                "successfully within the retry budget (%d):",
+                "successfully within the retry budget ({}):",
                 self._max_retry,
             )
             for t in filter(lambda x: not self._par_triple_done(x), triples):
-                logging.warning("    [%s]", t)
+                logging.warning("    [{}]", t)
         self.compute_global_pareto_populations(
             n_post_processing_jobs, **joblib_kwargs
         )

@@ -3,11 +3,11 @@ Wrapper that generates a uniform noise.
 """
 __docformat__ = "google"
 
-import logging
 from typing import Any, Dict, List, Tuple, Union
 
-from pymoo.core.problem import Problem
 import numpy as np
+from loguru import logger as logging
+from pymoo.core.problem import Problem
 
 from nmoo.wrapped_problem import WrappedProblem
 
@@ -142,9 +142,9 @@ class UniformNoise(WrappedProblem):
                 out[k] += noises[k]
             except KeyError:
                 logging.error(
-                    "Noise parameter key %s is not present in objective "
+                    "Noise parameter key {} is not present in objective "
                     "function output keys. No noise will be applied. "
-                    "Objective function keys: %s.",
+                    "Objective function keys: {}.",
                     k,
                     str(list(out.keys())),
                 )

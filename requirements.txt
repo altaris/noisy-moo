@@ -1,6 +1,7 @@
 click
 gradient-free-optimizers
 joblib
+loguru
 numpy
 pandas
 pymoo==0.5.0

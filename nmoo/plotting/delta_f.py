@@ -7,12 +7,12 @@ from itertools import product
 from math import sqrt
 from pathlib import Path
 from typing import Dict
-import logging
 
-from pymoo.core.problem import Problem
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from loguru import logger as logging
+from pymoo.core.problem import Problem
 
 from nmoo.benchmark import Benchmark
 
@@ -75,7 +75,7 @@ def generate_delta_F_plots(
     for an, (pn, p), r in everything:
         if p.n_obj != 2:
             logging.warning(
-                "Problem %s has %d objectives, but exactly 2 is needed for "
+                "Problem {} has {} objectives, but exactly 2 is needed for "
                 "plotting",
                 pn,
                 p.n_obj,

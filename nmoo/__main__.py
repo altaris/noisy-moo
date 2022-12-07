@@ -3,7 +3,6 @@ noisy-moo CLI
 """
 __docformat__ = "google"
 
-import logging
 import os
 import re
 import sys
@@ -13,6 +12,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import click
+from loguru import logger as logging
+
+from nmoo.utils.logging import configure_logging
+
 
 sys.path.append(os.getcwd())
 
@@ -29,20 +32,20 @@ def _apply_overrides(
     """Applies overrides to a benchmark."""
     if n_runs is not None:
         benchmark._n_runs = n_runs
-        logging.info("Overridden n_runs to %d", n_runs)
+        logging.info("Overridden n_runs to {}", n_runs)
     if output_dir is not None:
         benchmark._output_dir_path = output_dir
-        logging.info("Overridden output directory to %s", output_dir)
+        logging.info("Overridden output directory to {}", output_dir)
     if _include_exclude(benchmark._problems, only_problems, exclude_problems):
         logging.info(
-            "Overridden problem list to %s",
+            "Overridden problem list to {}",
             list(benchmark._problems.keys()),
         )
     if _include_exclude(
         benchmark._algorithms, only_algorithms, exclude_algorithms
     ):
         logging.info(
-            "Overridden algorithm list to %s",
+            "Overridden algorithm list to {}",
             list(benchmark._algorithms.keys()),
         )
 
@@ -69,12 +72,12 @@ def _get_joblib_kwargs(keyvals: List[str]):
     for keyval in keyvals:
         spl = keyval.split("=", maxsplit=2)
         if len(spl) != 2:
-            logging.fatal("Invalid joblib kwarg: '%s'", keyval)
+            logging.critical("Invalid joblib kwarg: '{}'", keyval)
             sys.exit(1)
         key: str = spl[0]
         val: Any = spl[1]
         if key not in ALL_JOBLIB_KEYS:
-            logging.fatal("Unknown joblib key: '%s'", key)
+            logging.critical("Unknown joblib key: '{}'", key)
             sys.exit(1)
         if key == "n_jobs":
             logging.warning(
@@ -134,15 +137,17 @@ def _get_benchmark(path: str):
         assert isinstance(benchmark, nmoo.Benchmark)
         return benchmark
     except AssertionError:
-        logging.fatal("Factory '%s' did not return a Benchmark object.", path)
+        logging.critical(
+            "Factory '{}' did not return a Benchmark object.", path
+        )
     except AttributeError:
-        logging.fatal(
-            "Module '%s' has no attribute '%s'", module_name, function_name
+        logging.critical(
+            "Module '{}' has no attribute '{}'", module_name, function_name
         )
     except ModuleNotFoundError as e:
-        logging.fatal("%s", e)
+        logging.critical("{}", e)
     except TypeError:
-        logging.fatal("Factory '%s' is not callable.", function_name)
+        logging.critical("Factory '{}' is not callable.", function_name)
     sys.exit(-1)
 
 
@@ -158,17 +163,7 @@ def _get_benchmark(path: str):
 )
 def main(logging_level: str) -> None:
     """noisy-moo CLI"""
-    logging_levels = {
-        "debug": logging.DEBUG,
-        "info": logging.INFO,
-        "warning": logging.WARNING,
-        "error": logging.ERROR,
-        "critical": logging.CRITICAL,
-    }
-    logging.basicConfig(
-        format="%(asctime)s [%(levelname)-8s] %(message)s",
-        level=logging_levels.get(logging_level, logging.INFO),
-    )
+    configure_logging(logging_level=logging_level)
 
 
 @main.command()
@@ -409,7 +404,7 @@ def run(
         except KeyboardInterrupt:
             restart = False
         except Exception as e:  # pylint: disable=broad-except
-            logging.error("Benchmark crashed: %s", e)
+            logging.error("Benchmark crashed: {}", e)
             if restart_on_crash:
                 restart = True
             else:
@@ -530,9 +525,9 @@ def tally(
             all_pis,
         )
     )
-    logging.info("Runs: %d/%d", n_run, len(all_triples))
-    logging.info("GPPs: %d/%d", n_gpp, len(all_gpps))
-    logging.info("PIs: %d/%d", n_pi, len(all_pis))
+    logging.info("Runs: {}/{}", n_run, len(all_triples))
+    logging.info("GPPs: {}/{}", n_gpp, len(all_gpps))
+    logging.info("PIs: {}/{}", n_pi, len(all_pis))
 
 
 @main.command()
@@ -570,13 +565,13 @@ def v4_to_v5(benchmark: str, output_dir: Optional[Path]) -> None:
             / f"{t.problem_name}.{t.algorithm_name}.{t.n_run}.pi.csv"
         )
         if not path.is_file():
-            logging.warning("PI file %s not found", path)
+            logging.warning("PI file {} not found", path)
             continue
         df = pd.read_csv(path)
         for pi in b._performance_indicators:
             col = "perf_" + pi
             if col not in df:
-                logging.error("PI '%s' not present in %s", col, path)
+                logging.error("PI '{}' not present in {}", col, path)
                 continue
             # pylint: disable=unsubscriptable-object
             tmp = df[[col, "algorithm", "problem", "n_gen", "n_run"]]

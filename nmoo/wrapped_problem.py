@@ -11,12 +11,12 @@ wrapped problems can be used seemlessly with `pymoo`.
 """
 __docformat__ = "google"
 
-import logging
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict, List, Union
 
 import numpy as np
+from loguru import logger as logging
 from pymoo.core.problem import Problem
 
 
@@ -107,7 +107,7 @@ class WrappedProblem(Problem):
         lengths = {k: v.shape[0] for k, v in kwargs.items()}
         if len(set(lengths.values())) > 1:
             logging.warning(
-                "[add_to_history] The lengths of the arrays don't match: %s",
+                "[add_to_history] The lengths of the arrays don't match: {}",
                 str(lengths),
             )
         kwargs["_batch"] = np.full(
