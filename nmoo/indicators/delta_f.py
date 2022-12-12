@@ -1,6 +1,7 @@
 """
 ΔF performance indicator, which measures how accurately a problem estimates the
-true objective.
+true objective. To measure accuracy for Pareto individuals only, see
+`nmoo.indicators.delta_f_pareto.DeltaFPareto`.
 """
 __docformat__ = "google"
 

@@ -134,7 +134,7 @@ from pymoo.optimize import minimize
 
 from nmoo.callbacks import TimerCallback
 from nmoo.denoisers import ResampleAverage
-from nmoo.indicators.delta_f import DeltaF
+from nmoo.indicators import DeltaF, DeltaFPareto
 from nmoo.utils.population import pareto_frontier_mask, population_list_to_dict
 from nmoo.utils.logging import configure_logging
 
@@ -179,12 +179,22 @@ class PARTriple(PAPair):
         return f"{self.problem_name}|{self.algorithm_name}|{self.n_run}"
 
     def denoised_top_layer_history_filename(self) -> str:
-        """Returns
+        """
+        Returns
         `<problem_name>.<algorithm_name>.<n_run>`.1-<top_layer_name>.denoised.npz`.
         """
         prefix = self.filename_prefix()
         name = self.problem_description["problem"]._name
         return f"{prefix}.1-{name}.denoised.npz"
+
+    def denoised_top_layer_pareto_history_filename(self) -> str:
+        """
+        Returns
+        `<problem_name>.<algorithm_name>.<n_run>`.1-<top_layer_name>.pareto-denoised.npz`.
+        """
+        prefix = self.filename_prefix()
+        name = self.problem_description["problem"]._name
+        return f"{prefix}.1-{name}.pareto-denoised.npz"
 
     def filename_prefix(self) -> str:
         """Returns `<problem_name>.<algorithm_name>.<n_run>`."""
@@ -229,6 +239,7 @@ class Benchmark:
 
     SUPPORTED_PERFOMANCE_INDICATORS = [
         "df",
+        "dfp",
         "gd",
         "gd+",
         "ggd",
@@ -316,8 +327,8 @@ class Benchmark:
 
         where `<problem_name>` is a user-defined string (but stay reasonable
         since it may be used in filenames), and `<problem_description>` is a
-        dictionary with the following keys: * `df_n_evals` (int, optional): see
-        the explanation of the `df`
+        dictionary with the following keys:
+        * `df_n_evals` (int, optional): see the explanation of the `df`
             performance indicator below; defaults to `1`;
         * `evaluator` (optional): an algorithm evaluator object that will be
             applied to every algorithm that run on this problem; if an
@@ -374,6 +385,10 @@ class Benchmark:
                 * `df`: ΔF metric, see the documentation of
                   `nmoo.indicators.delta_f.DeltaF`; `df_n_eval` should be set
                   in the problem description, but it default to 1 if not;
+                * `dfp`: ΔF-Pareto metric, see the documentation of
+                  `nmoo.indicators.delta_f_pareto.DeltaFPareto`; `df_n_eval`
+                  should be set in the problem description, but it default to 1
+                  if not;
                 * `gd`: [generational
                   distance](https://pymoo.org/misc/indicators.html#Generational-Distance-(GD)),
                   requires `pareto_front` to be set in the problem description
@@ -537,6 +552,7 @@ class Benchmark:
         )
 
     # pylint: disable=too-many-branches
+    # pylint: disable=too-many-locals
     def _compute_performance_indicator(
         self, triple: PARTriple, pi_name: str
     ) -> None:
@@ -559,14 +575,20 @@ class Benchmark:
         logging.debug("Computing PI")
 
         pic: _PIC = lambda _: np.nan
-        if pi_name == "df":
+        if pi_name in ["df", "dfp"]:
             problem = triple.problem_description["problem"]
             n_evals = triple.problem_description.get("df_n_evals", 1)
-            delta_f = DeltaF(
+            Class, fn = {
+                "df": (DeltaF, triple.denoised_top_layer_history_filename()),
+                "dfp": (
+                    DeltaFPareto,
+                    triple.denoised_top_layer_pareto_history_filename(),
+                ),
+            }[pi_name]
+            delta_f = Class(
                 problem,
                 n_evals,
-                self._output_dir_path
-                / triple.denoised_top_layer_history_filename(),
+                self._output_dir_path / fn,
             )
             pic = lambda s: delta_f.do(s["F"], s["X"])
         elif pi_name in ["gd", "gd+", "igd", "igd+"]:
@@ -586,8 +608,10 @@ class Benchmark:
             pic = lambda s: s["X"].shape[0]
         else:
             logging.warning(
-                "Unprocessable performance indicator. This could be because "
-                "required data is missing."
+                "Unprocessable performance indicator {}. This could be "
+                "because some required arguments (e.g. 'hv_ref_point') are "
+                "missing",
+                pi_name,
             )
 
         # On which history is the PIC going to be called? By default, it is on
