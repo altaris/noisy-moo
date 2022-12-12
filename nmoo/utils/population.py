@@ -73,7 +73,7 @@ def pareto_frontier_mask_2d(arr: np.ndarray) -> np.ndarray:
     Warning:
         The direction of the optimum is assumed to be south-west.
     """
-    if not arr.ndim == 2 and arr.shape[-1] != 2:
+    if not (arr.ndim == 2 and arr.shape[-1] == 2):
         raise ValueError("The input array must be of shape (N, 2).")
     argsort0, mask = np.argsort(arr[:, 0]), np.full(len(arr), False)
     i = argsort0[0]  # Index of the last Pareto point
