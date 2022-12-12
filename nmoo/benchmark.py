@@ -562,7 +562,12 @@ class Benchmark:
         if pi_name == "df":
             problem = triple.problem_description["problem"]
             n_evals = triple.problem_description.get("df_n_evals", 1)
-            delta_f = DeltaF(problem, n_evals)
+            delta_f = DeltaF(
+                problem,
+                n_evals,
+                self._output_dir_path
+                / triple.denoised_top_layer_history_filename(),
+            )
             pic = lambda s: delta_f.do(s["F"], s["X"])
         elif pi_name in ["gd", "gd+", "igd", "igd+"]:
             pic = self._get_pic_gd_type(triple, pi_name)
@@ -618,17 +623,6 @@ class Benchmark:
             self._output_dir_path / triple.pi_filename(pi_name),
         )
         df.to_csv(self._output_dir_path / triple.pi_filename(pi_name))
-
-        if pi_name == "df":
-            logging.debug(
-                "Writing delta F history to {}",
-                self._output_dir_path
-                / triple.denoised_top_layer_history_filename(),
-            )
-            delta_f.dump_history(
-                self._output_dir_path
-                / triple.denoised_top_layer_history_filename()
-            )
 
     def _get_pic_gd_type(self, triple: PARTriple, pi_name: str) -> _PIC:
         """
