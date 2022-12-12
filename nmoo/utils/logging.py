@@ -25,7 +25,7 @@ def configure_logging(
             + prefix
             + "<level>{message}</level>"
         ),
-        level=logging_level,
+        level=logging_level.upper(),
         enqueue=True,
         colorize=True,
     )
