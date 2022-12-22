@@ -155,6 +155,7 @@ def _get_benchmark(path: str):
 @click.option(
     "-l",
     "--logging-level",
+    default="INFO",
     help=(
         "Logging level, among 'debug', 'info', 'warning', 'error', and "
         "'critical'."
