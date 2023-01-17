@@ -671,15 +671,15 @@ class Benchmark:
 
     def _get_rg_history(self, triple: PARTriple) -> Dict[str, np.ndarray]:
         """
-        Returns the `X` and `F` history of the ground problem of the triple,
-        but where `F` has been resampled a given number of times (`rg_n_evals`
-        parameter in the problem's description). This involves wrapping the
-        ground problem in a `nmoo.denoisers.ResampleAverage` and evaluating the
-        history's `X` array.
+        Returns the Pareto history of the triple, but where `F` has been
+        resampled a given number of times (`rg_n_evals` parameter in the
+        problem's description). This involves wrapping the ground problem in a
+        `nmoo.denoisers.ResampleAverage` and evaluating the history's `X`
+        array.
         """
         history = dict(
             np.load(
-                self._output_dir_path / triple.top_layer_history_filename()
+                self._output_dir_path / triple.pareto_population_filename()
             )
         )
         rgp = ResampleAverage(
