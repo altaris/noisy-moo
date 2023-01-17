@@ -629,7 +629,7 @@ class Benchmark:
             history = self._get_rg_history(triple)
         else:
             history = np.load(
-                self._output_dir_path / triple.top_layer_history_filename()
+                self._output_dir_path / triple.pareto_population_filename()
             )
 
         states: List[Dict[str, np.ndarray]] = []
