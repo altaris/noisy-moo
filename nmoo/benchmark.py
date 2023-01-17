@@ -545,6 +545,13 @@ class Benchmark:
                 "runs most likely have not finished or all failed",
             )
             return
+        rgp = ResampleAverage(
+            pair.problem_description["problem"].ground_problem(),
+            pair.problem_description.get("rg_n_eval", 1),
+        )
+        consolidated["F"] = rgp.evaluate(
+            consolidated["X"], return_values_of="F"
+        )
         mask = pareto_frontier_mask(consolidated["F"])
         np.savez_compressed(
             gpp_path,
