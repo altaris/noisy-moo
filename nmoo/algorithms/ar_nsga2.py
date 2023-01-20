@@ -178,7 +178,6 @@ class ARNSGA2(NSGA2):
             individual,
             skip_already_evaluated=False,
             algorithms=self,
-            count_evals=False,  # If True it messes everything and idfk why
         )
         individual.update()
 
