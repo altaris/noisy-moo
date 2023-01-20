@@ -273,7 +273,7 @@ class ARNSGA2(NSGA2):
             )
         _update_infills(infills)
         super()._advance(infills, **kwargs)
-        # self._do_resampling()
+        self._do_resampling()
 
     def _infill(self) -> Population:
         """
@@ -295,7 +295,7 @@ class ARNSGA2(NSGA2):
             )
         _update_infills(infills)
         super()._initialize_advance(infills, **kwargs)
-        # self._do_resampling()
+        self._do_resampling()
 
     def _initialize_infill(self) -> Population:
         """
