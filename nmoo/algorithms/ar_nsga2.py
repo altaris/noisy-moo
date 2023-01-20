@@ -10,9 +10,6 @@ import numpy as np
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.core.individual import Individual
 from pymoo.core.population import Population
-from pymoo.util.nds.non_dominated_sorting import NonDominatedSorting
-
-from nmoo.wrapped_problem import WrappedProblem
 
 
 class TerminationCriterionMet(Exception):
@@ -60,7 +57,7 @@ class _Individual(Individual):
         have a dual nature: either the latest evaluation (or sampling) of the
         objective function, or the maximum likelyhood estimate.
         """
-        for key in ["F", "G", "dF", "dG", "ddF", "ddG", "CV"]:
+        for key in ["F", "G", "CV"]:
             value = self.__dict__.get(key)
             if not isinstance(value, np.ndarray):
                 break
@@ -177,31 +174,22 @@ class ARNSGA2(NSGA2):
         if self.n_gen >= 2 and self.termination.has_terminated(self):
             raise TerminationCriterionMet()
         self.evaluator.eval(
-            self.problem, individual, skip_already_evaluated=False
+            self.problem,
+            individual,
+            skip_already_evaluated=False,
+            algorithms=self,
+            count_evals=False,  # If True it messes everything and idfk why
         )
         individual.update()
-        # Little hack so that WrappedProblem's see this evaluation as part of
-        # the same batch as the infills of this generation
-        problem = self.problem
-        while isinstance(problem, WrappedProblem):
-            problem._current_history_batch = self.n_gen
-            problem._history["_batch"][-1] = self.n_gen
-            problem = problem._problem
 
     def _pareto_population(self) -> List[_Individual]:
         """
-        Returns the Pareto (aka elite) individuals. Unlike
-        `pymoo.util.optimum.filter_optimum`, returns a list of `_Individual`s
-        rather than a list of `Individual`s reconstructed from
-        `self.pop.get("F")`.
+        Updates and returns the Pareto (aka elite) population individuals.
         """
-        # if self.opt:
-        #     return self.opt
         if len(self.pop) == 0:
             return []
-        sorter = NonDominatedSorting(method="efficient_non_dominated_sort")
-        ranks = sorter.do(np.array([p.F for p in self.pop if p.feasible]))
-        return [p for i, p in enumerate(self.pop) if i in ranks[0]]
+        self._set_optimum()
+        return self.opt
 
     def _reevaluate_pareto_individual_with_fewest_evals(self) -> None:
         """
@@ -227,7 +215,7 @@ class ARNSGA2(NSGA2):
             """
             return np.mean([p.n_eval() for p in self._pareto_population()])
 
-        if self.n_gen == 1:  # No past Pareto front
+        if self.n_gen == 1:  # No past Pareto front
             arr = [p.n_eval() for p in self._pareto_population()]
             self._pareto_population_history.append((np.mean(arr), len(arr)))
             return
