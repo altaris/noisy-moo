@@ -905,8 +905,12 @@ class Benchmark:
             delayed(Benchmark._compute_global_pareto_population)(self, p)
             for p in self.all_pa_pairs()
             if not (
-                self._output_dir_path / p.global_pareto_population_filename()
-            ).is_file()
+                "pareto_front" in p.problem_description
+                or (
+                    self._output_dir_path
+                    / p.global_pareto_population_filename()
+                ).is_file()
+            )
         )
 
     def compute_performance_indicators(
