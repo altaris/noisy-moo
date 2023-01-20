@@ -227,6 +227,11 @@ class ARNSGA2(NSGA2):
             """
             return np.mean([p.n_eval() for p in self._pareto_population()])
 
+        if self.n_gen == 1:  # No past Pareto front
+            arr = [p.n_eval() for p in self._pareto_population()]
+            self._pareto_population_history.append((np.mean(arr), len(arr)))
+            return
+
         self._reevaluate_pareto_individual_with_fewest_evals()
         # Recall that if (m, s) = _pareto_population_history[i], then m was the
         # average number of times a Pareto individual at timestep i (an
@@ -243,12 +248,7 @@ class ARNSGA2(NSGA2):
             self._reevaluate_pareto_individual_with_fewest_evals()
             pareto_population = self._pareto_population()
             arr = [p.n_eval() for p in pareto_population]
-            self._pareto_population_history.append(
-                (
-                    np.mean(arr),
-                    len(arr),
-                )
-            )
+            self._pareto_population_history.append((np.mean(arr), len(arr)))
 
     def _resampling_fixed(self) -> None:
         """
