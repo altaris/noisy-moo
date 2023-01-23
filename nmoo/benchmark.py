@@ -948,15 +948,23 @@ class Benchmark:
         all_df = []
         for triple in self.all_par_triples():
             path = self._output_dir_path / triple.result_filename()
-            if not path.exists():
-                logging.debug(
+            try:
+                all_df.append(pd.read_csv(path))
+            except FileNotFoundError:
+                logging.error(
                     "Statistic file {} does not exist. The corresponding "
                     "triple [{}] most likely hasn't finished or failed",
                     path,
                     triple,
                 )
-                continue
-            all_df.append(pd.read_csv(path))
+            except Exception as e:  # pylint: disable=broad-except
+                logging.error(
+                    "Could not load statistics file {} for triple [{}]: {}, {}",
+                    path,
+                    triple,
+                    type(e),
+                    str(e),
+                )
         self._results = pd.concat(all_df, ignore_index=True)
         self._results["timedelta"] = pd.to_timedelta(
             self._results["timedelta"]
