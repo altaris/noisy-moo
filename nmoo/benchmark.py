@@ -623,17 +623,10 @@ class Benchmark:
 
         # On which history is the PIC going to be called? By default, it is on
         # the top layer history.
-        if pi_name in ["ps"]:
-            history = np.load(
-                self._output_dir_path / triple.pareto_population_filename()
-            )
-        elif pi_name in ["ggd", "ggd+", "ghv", "gigd", "gigd+"]:
-            history = np.load(
-                self._output_dir_path
-                / triple.innermost_layer_history_filename()
-            )
+        if pi_name in ["ggd", "ggd+", "ghv", "gigd", "gigd+"]:
+            history = history = self._get_rg_pareto_history(triple, 1)
         elif pi_name in ["rggd", "rggd+", "rghv", "rgigd", "rgigd+"]:
-            history = self._get_rg_history(triple)
+            history = self._get_rg_pareto_history(triple)
         else:
             history = np.load(
                 self._output_dir_path / triple.pareto_population_filename()
@@ -676,13 +669,16 @@ class Benchmark:
         pi = get_performance_indicator(pi_name, pf)
         return lambda s: pi.do(s["F"])
 
-    def _get_rg_history(self, triple: PARTriple) -> Dict[str, np.ndarray]:
+    def _get_rg_pareto_history(
+        self, triple: PARTriple, rg_n_eval: Optional[int] = None
+    ) -> Dict[str, np.ndarray]:
         """
-        Returns the Pareto history of the triple, but where `F` has been
+        Returns the Pareto history of the triple but where `F` has been
         resampled a given number of times (`rg_n_evals` parameter in the
         problem's description). This involves wrapping the ground problem in a
-        `nmoo.denoisers.ResampleAverage` and evaluating the history's `X`
-        array.
+        `nmoo.denoisers.ResampleAverage` and evaluating the Pareto history's
+        `X` array. If the `rg_n_eval` is specified, it overrides the problem's
+        description's.
         """
         history = dict(
             np.load(
@@ -691,7 +687,11 @@ class Benchmark:
         )
         rgp = ResampleAverage(
             triple.problem_description["problem"].ground_problem(),
-            triple.problem_description.get("rg_n_eval", 1),
+            (
+                rg_n_eval
+                if rg_n_eval is not None
+                else triple.problem_description.get("rg_n_eval", 1)
+            ),
         )
         history["F"] = rgp.evaluate(history["X"], return_values_of="F")
         return history
