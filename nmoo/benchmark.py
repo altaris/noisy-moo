@@ -624,7 +624,7 @@ class Benchmark:
         # On which history is the PIC going to be called? By default, it is on
         # the top layer history.
         if pi_name in ["ggd", "ggd+", "ghv", "gigd", "gigd+"]:
-            history = history = self._get_rg_pareto_history(triple, 1)
+            history = self._get_rg_pareto_history(triple, 1)
         elif pi_name in ["rggd", "rggd+", "rghv", "rgigd", "rgigd+"]:
             history = self._get_rg_pareto_history(triple)
         else:
@@ -682,16 +682,17 @@ class Benchmark:
         """
         history = dict(
             np.load(
-                self._output_dir_path / triple.pareto_population_filename()
+                self._output_dir_path / triple.pareto_population_filename(),
+                allow_pickle=True,  # Some arrays may contain None's
             )
         )
+        if rg_n_eval is None:
+            rg_n_eval = triple.problem_description.get("rg_n_eval", 1)
         rgp = ResampleAverage(
             triple.problem_description["problem"].ground_problem(),
-            (
-                rg_n_eval
-                if rg_n_eval is not None
-                else triple.problem_description.get("rg_n_eval", 1)
-            ),
+            rg_n_eval,
+            parallel=(rg_n_eval >= 2),
+            n_jobs=min(rg_n_eval, 5),  # TODO: fine tune this
         )
         history["F"] = rgp.evaluate(history["X"], return_values_of="F")
         return history
