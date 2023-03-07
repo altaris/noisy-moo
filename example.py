@@ -39,11 +39,13 @@ def make_benchmark() -> nmoo.Benchmark:
             "knnavg": {
                 "problem": knnavg_zdt1,
                 "pareto_front": pareto_front,
+                "rg_n_eval": 10,
             },
             "avg": {
                 "problem": avg_zdt1,
                 "pareto_front": pareto_front,
                 "evaluator": nmoo.PenalizedEvaluator(10),
+                "rg_n_eval": 10,
             },
         },
         algorithms={
@@ -55,6 +57,7 @@ def make_benchmark() -> nmoo.Benchmark:
                 "termination": get_termination("n_gen", 100),
             },
         },
-        n_runs=3,
-        seeds=[123, 456, 789],
+        n_runs=2,
+        seeds=[123, 456],
+        performance_indicators=["igd", "rgigd"],
     )

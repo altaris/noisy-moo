@@ -548,6 +548,11 @@ class Benchmark:
         rgp = ResampleAverage(
             pair.problem_description["problem"].ground_problem(),
             pair.problem_description.get("rg_n_eval", 1),
+            cache_dir=(
+                self._output_dir_path
+                / ".cache"
+                / pair.global_pareto_population_filename()
+            ),
         )
         consolidated["F"] = rgp.evaluate(
             consolidated["X"], return_values_of="F"
@@ -688,11 +693,15 @@ class Benchmark:
         )
         if rg_n_eval is None:
             rg_n_eval = triple.problem_description.get("rg_n_eval", 1)
+        assert isinstance(rg_n_eval, int)  # to please mypy
         rgp = ResampleAverage(
-            triple.problem_description["problem"].ground_problem(),
-            rg_n_eval,
+            problem=triple.problem_description["problem"].ground_problem(),
+            n_evaluations=rg_n_eval,
             parallel=(rg_n_eval >= 2),
             n_jobs=min(rg_n_eval, 5),  # TODO: fine tune this
+            cache_dir=(
+                self._output_dir_path / ".cache" / triple.filename_prefix()
+            ),
         )
         history["F"] = rgp.evaluate(history["X"], return_values_of="F")
         return history
