@@ -1106,7 +1106,7 @@ class Benchmark:
             https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html
         """
         if not os.path.isdir(self._output_dir_path):
-            os.mkdir(self._output_dir_path)
+            os.makedirs(self._output_dir_path)
         triples = self.all_par_triples()
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         current_round = 0
