@@ -31,19 +31,19 @@ def make_benchmark() -> nmoo.Benchmark:
 
     nsga2 = NSGA2()
 
-    pareto_front = zdt1.pareto_front(100)
+    # pareto_front = zdt1.pareto_front(100)
 
     return nmoo.Benchmark(
         output_dir_path="./out",
         problems={
             "knnavg": {
                 "problem": knnavg_zdt1,
-                "pareto_front": pareto_front,
+                # "pareto_front": pareto_front,
                 "rg_n_eval": 10,
             },
             "avg": {
                 "problem": avg_zdt1,
-                "pareto_front": pareto_front,
+                # "pareto_front": pareto_front,
                 "evaluator": nmoo.PenalizedEvaluator(10),
                 "rg_n_eval": 10,
             },

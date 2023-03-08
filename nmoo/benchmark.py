@@ -46,8 +46,8 @@ After the benchmark above is run, the `./out` directory is populated with the
 following artefacts:
 
 * `benchmark.csv` the main result file. It has one row per (algorithm, problem,
-  run number, generation). The columns are: `n_gen`, `n_eval`, `timedelta`,
-  `algorithm`, `problem`, `n_run`, `perf_igd`. Here is a sample
+    run number, generation). The columns are: `n_gen`, `n_eval`, `timedelta`,
+    `algorithm`, `problem`, `n_run`, `perf_igd`. Here is a sample
 
         n_gen,n_eval,timedelta,algorithm,problem,n_run,perf_igd
         1,100,0 days 00:00:00.046010,nsga2,knnavg,1,2.7023936601855274
@@ -61,12 +61,12 @@ following artefacts:
         9,900,0 days 00:00:00.571355,nsga2,knnavg,1,2.5705921276809542
 
 * `<problem>.<algorithm>.<run number>.csv`: same as `benchmark.csv` but only
-  for a given (algorithm, problem, run number) triple.
+    for a given (algorithm, problem, run number) triple.
 
 * `<problem>.<algorithm>.<run number>.pi-<perf. indicator>.csv`: performance
-  indicator file. Contains one row per generation. The columns are `perf_<perf.
-  indicator name>`, `algorithm`, `problem`, `n_gen`, `n_run`. Here is a sample
-  from `knnavg.nsga2.1.pi-igd.csv`:
+    indicator file. Contains one row per generation. The columns are
+    `perf_<perf. indicator name>`, `algorithm`, `problem`, `n_gen`, `n_run`.
+    Here is a sample from `knnavg.nsga2.1.pi-igd.csv`:
 
         ,perf_igd,algorithm,problem,n_gen,n_run
         0,2.7023936601855274,nsga2,knnavg,1,1
@@ -81,32 +81,32 @@ following artefacts:
         9,2.245542743713137,nsga2,knnavg,10,1
 
 * `<problem>.<algorithm>.<run number>.<layer number>-<layer name>.npz`: NPZ
-  archive containing the history of all calls to a given layer of a given
-  problem. In the example above, problem `knnavg_zda1` has three layers:
-  `knn_avg` (layer 1, the outermost one), `gaussian_noise` (layer 2), and
-  `wrapped_problem` (layer 3, the innermost one). Recall that you can set the
-  name of a layer using the `name` argument in `WrappedProblem.__init__`. The
-  keys are `X`, `F`, `_batch`, `_run`. It may also contain keys `G`, `dF`,
-  `dG`, `ddF`, `ddG`, `CV`, `feasible` depending on the ground pymoo problem.
-  The arrays at each keys have the same length (`shape[0]`), which is the
-  number of individuals that have been evaluated throughout that run. In our
-  example above, `out/knnavg.nsga2.1.1-knn_avg.npz` has keys `X`, `F`,
-  `_batch`, `_run`, and the arrays have shape `(19600, 30)`, `(19600, 2)`,
-  `(19600,)`, `(19600,)`, respectively. 30 is the number of variables of ZDT1,
-  while 2 is the number of objectives.
+    archive containing the history of all calls to a given layer of a given
+    problem. In the example above, problem `knnavg_zda1` has three layers:
+    `knn_avg` (layer 1, the outermost one), `gaussian_noise` (layer 2), and
+    `wrapped_problem` (layer 3, the innermost one). Recall that you can set the
+    name of a layer using the `name` argument in `WrappedProblem.__init__`. The
+    keys are `X`, `F`, `_batch`, `_run`. It may also contain keys `G`, `dF`,
+    `dG`, `ddF`, `ddG`, `CV`, `feasible` depending on the ground pymoo problem.
+    The arrays at each keys have the same length (`shape[0]`), which is the
+    number of individuals that have been evaluated throughout that run. In our
+    example above, `out/knnavg.nsga2.1.1-knn_avg.npz` has keys `X`, `F`,
+    `_batch`, `_run`, and the arrays have shape `(19600, 30)`, `(19600, 2)`,
+    `(19600,)`, `(19600,)`, respectively. 30 is the number of variables of
+    ZDT1, while 2 is the number of objectives.
 
 * `<problem>.<algorithm>.<run number>.pp.npz`: Pareto population of a given
-  (algorithm, problem, run number) triple. The keys are `X`, `F`, `G`, `dF`,
-  `dG`, `ddF`, `ddG`, `CV`, `feasible`, `_batch`, and all arrays have the same
-  length (`shape[0]`). Row `i` corresponds to an individual that was
-  Pareto-ideal at generation `_batch[i]`.
+    (algorithm, problem, run number) triple. The keys are `X`, `F`, `G`, `dF`,
+    `dG`, `ddF`, `ddG`, `CV`, `feasible`, `_batch`, and all arrays have the
+    same length (`shape[0]`). Row `i` corresponds to an individual that was
+    Pareto-ideal at generation `_batch[i]`.
 
-* `<problem>.<algorithm>.gpp.npz`: *Global Pareto population* of a given
-  problem-algorithm pair. It is the Pareto population of the population of all
-  individuals designed across all runs and all generations of a given
-  problem-algorithm pair. It is used to compute certain performance indicators
-  in the absence of a baseline Pareto front. The keys are `X`, `F`, `G`, `dF`,
-  `dG`, `ddF`, `ddG`, `CV`, `feasible`, `_batch`.
+* `<problem>.gpp.npz`: *Global Pareto population* of a given
+    problem. It is the Pareto population of the population of all individuals
+    designed across all runs against all algorithms and all generations of a
+    given problem-algorithm pair. It is used to compute certain performance
+    indicators in the absence of a true Pareto front. It contain at least keys
+    `X` and `F`.
 
 [^nsga2]: Deb, K., Agrawal, S., Pratap, A., Meyarivan, T. (2000). A Fast
     Elitist Non-dominated Sorting Genetic Algorithm for Multi-objective
@@ -161,10 +161,6 @@ class PAPair:
 
     def __str__(self) -> str:
         return f"{self.problem_name}|{self.algorithm_name}"
-
-    def global_pareto_population_filename(self) -> str:
-        """Returns `<problem_name>.<algorithm_name>.gpp.npz`."""
-        return f"{self.problem_name}.{self.algorithm_name}.gpp.npz"
 
 
 @dataclass
@@ -503,34 +499,35 @@ class Benchmark:
                 )
             self._seeds = seeds
 
-    def _compute_global_pareto_population(self, pair: PAPair) -> None:
+    def _compute_global_pareto_population(self, problem_name: str) -> None:
         """
-        Computes the global Pareto population of a given problem-algorithm
-        pair. See `compute_global_pareto_populations`. Assumes that the global
-        Pareto population has not already been calculated, i.e. that
-        `<output_dir_path>/<problem>.<algorithm>.gpp.npz` does not exist.
+        Computes the global Pareto population of a given problem. See
+        `compute_global_pareto_populations`.
         """
-        configure_logging(prefix=f"[{pair}]")
+        configure_logging(prefix=f"[{problem_name}]")
         logging.debug("Computing global Pareto population")
-        gpp_path = (
-            self._output_dir_path / pair.global_pareto_population_filename()
-        )
-        populations: Dict[str, List[np.ndarray]] = {}
-        for n_run in range(1, self._n_runs + 1):
-            triple = PARTriple(
-                algorithm_description=pair.algorithm_description,
-                algorithm_name=pair.algorithm_name,
-                n_run=n_run,
-                problem_description=pair.problem_description,
-                problem_name=pair.problem_name,
+
+        # 1. Gather all pareto populations of this problem across all
+        # generations of all runs of all algorithms
+        triples = [
+            PARTriple(
+                algorithm_description=ad,
+                algorithm_name=an,
+                n_run=nr,
+                problem_description=self._problems[problem_name],
+                problem_name=problem_name,
             )
+            for an, ad in self._algorithms.items()
+            for nr in range(1, self._n_runs + 1)
+        ]
+        populations: Dict[str, List[np.ndarray]] = {}
+        for triple in triples:
             path = self._output_dir_path / triple.pareto_population_filename()
-            if not path.exists():
+            if not path.is_file():
                 logging.debug(
-                    "File {} does not exist. The corresponding triple runs "
-                    "most likely have not finished or all failed",
+                    "File '{}' does not exist. The corresponding triple run "
+                    "attempts most likely have not finished or all failed...",
                     path,
-                    triple,
                 )
                 continue
             data = np.load(path, allow_pickle=True)
@@ -538,25 +535,28 @@ class Benchmark:
                 populations[k] = populations.get(k, []) + [v]
             data.close()
 
+        # 2. Consolidate, i.e. merge all List[np.ndarray] into np.ndarray
         consolidated = {k: np.concatenate(v) for k, v in populations.items()}
-        if "F" not in consolidated:
+        if "F" not in consolidated or "X" not in consolidated:
             logging.error(
-                "No Pareto population file found. The corresponding triple "
-                "runs most likely have not finished or all failed",
+                "No valid Pareto population file found (absent key 'F' and/or "
+                "'X'). The corresponding triple runs most likely have not "
+                "finished or all failed",
             )
             return
+
+        # 3. (cached) Resample of all Pareto individuals
+        gpp_path = self._output_dir_path / f"{problem_name}.gpp.npz"
         rgp = ResampleAverage(
-            pair.problem_description["problem"].ground_problem(),
-            pair.problem_description.get("rg_n_eval", 1),
-            cache_dir=(
-                self._output_dir_path
-                / ".cache"
-                / pair.global_pareto_population_filename()
-            ),
+            self._problems[problem_name]["problem"].ground_problem(),
+            self._problems[problem_name].get("rg_n_eval", 1),
+            cache_dir=self._output_dir_path / ".cache" / gpp_path.name,
         )
         consolidated["F"] = rgp.evaluate(
             consolidated["X"], return_values_of="F"
         )
+
+        # 4. Extract and save the global Pareto population
         mask = pareto_frontier_mask(consolidated["F"])
         np.savez_compressed(
             gpp_path,
@@ -664,10 +664,7 @@ class Benchmark:
         if "pareto_front" in triple.problem_description:
             pf = triple.problem_description.get("pareto_front")
         else:
-            path = (
-                self._output_dir_path
-                / triple.global_pareto_population_filename()
-            )
+            path = self._output_dir_path / f"{triple.problem_name}.gpp.npz"
             data = np.load(path)
             pf = data["F"]
             data.close()
@@ -902,24 +899,21 @@ class Benchmark:
         self, n_jobs: int = -1, **joblib_kwargs
     ) -> None:
         """
-        The global Pareto population of a problem-algorithm pair is the merged
-        population of all pareto populations across all runs of that pair. This
-        function calculates global Pareto population of all pairs and dumps it
-        to `<output_dir_path>/<problem>.<algorithm>.gpp.npz`. If that file
-        exists for a given problem-algorithm pair, then the global Pareto
-        population (of that pair) is not recalculated.
+        The global Pareto population of a problem is the merged population of
+        all pareto populations across all runs of all algorithms on that
+        problem. This function calculates global Pareto population of all
+        problems and dumps it to `<output_dir_path>/<problem>.gpp.npz`. If that
+        file exists for a given problem-algorithm pair, then the global Pareto
+        population of that problem is not recalculated.
         """
         logging.info("Computing global Pareto populations")
         executor = Parallel(n_jobs=n_jobs, **joblib_kwargs)
         executor(
-            delayed(Benchmark._compute_global_pareto_population)(self, p)
-            for p in self.all_pa_pairs()
+            delayed(Benchmark._compute_global_pareto_population)(self, pn)
+            for pn, pd in self._problems.items()
             if not (
-                "pareto_front" in p.problem_description
-                or (
-                    self._output_dir_path
-                    / p.global_pareto_population_filename()
-                ).is_file()
+                "pareto_front" in pd
+                or (self._output_dir_path / f"{pn}.gpp.npz").is_file()
             )
         )
 

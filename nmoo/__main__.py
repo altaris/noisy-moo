@@ -505,7 +505,7 @@ def tally(
         output_dir=output_dir,
     )
     all_triples = b.all_par_triples()
-    all_gpps = {t.global_pareto_population_filename() for t in all_triples}
+    all_gpps = {f"{pn}.gpp.npz" for pn in b._problems.keys()}
     all_pis = list(product(all_triples, b._performance_indicators))
     n_run = sum(
         map(
